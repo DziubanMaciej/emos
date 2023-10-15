@@ -23,6 +23,7 @@ protected:
     u16 readTwoBytesFromMemory(u16 address);
 
     // Helper functions to read values for different addressing mode
+    u8 getValueImplied();
     u8 getValueImmediate();
     u8 getValueZeroPage();
     u8 getValueZeroPageX();
@@ -36,6 +37,7 @@ protected:
     // increase cycle counter and handle special behaviours, like value wraparounds.
     u16 sumAddresses(u16 base, u16 offset);
     u16 sumAddressesZeroPage(u8 base, u8 offset);
+    void registerTransfer(u8 &dst, const u8 &src);
 
     // Helper functions for flags register
     void updateArithmeticFlags(u8 value);
@@ -44,6 +46,10 @@ protected:
     // Functions for actually executing instructions
     void executeLda(u8 value);
     void executeCmp(u8 value);
+    void executeTax(u8 value);
+    void executeTay(u8 value);
+    void executeTxa(u8 value);
+    void executeTya(u8 value);
 
     // State of the CPU
     Counters counters = {};

@@ -13,6 +13,11 @@ Processor::Processor() {
     setInstructionData(OpCode::LDA_ix, &Processor::getValueIndexedIndirectX, &Processor::executeLda);
     setInstructionData(OpCode::LDA_iy, &Processor::getValueIndirectIndexedY, &Processor::executeLda);
 
+    setInstructionData(OpCode::TAX, &Processor::getValueImplied, &Processor::executeTax);
+    setInstructionData(OpCode::TAY, &Processor::getValueImplied, &Processor::executeTay);
+    setInstructionData(OpCode::TXA, &Processor::getValueImplied, &Processor::executeTxa);
+    setInstructionData(OpCode::TYA, &Processor::getValueImplied, &Processor::executeTya);
+
     setInstructionData(OpCode::CMP_imm, &Processor::getValueImmediate, &Processor::executeCmp);
     setInstructionData(OpCode::CMP_z, &Processor::getValueZeroPage, &Processor::executeCmp);
     setInstructionData(OpCode::CMP_zx, &Processor::getValueZeroPageX, &Processor::executeCmp);
@@ -61,6 +66,11 @@ u16 Processor::readTwoBytesFromMemory(u16 address) {
     const u8 hi = memory[address + 1];
     counters.cyclesProcessed += 2;
     return (hi << 8) | lo;
+}
+
+u8 Processor::getValueImplied() {
+    // no need to fetch anything, return dummy value
+    return 0;
 }
 
 u8 Processor::getValueImmediate() {
@@ -137,6 +147,12 @@ u16 Processor::sumAddressesZeroPage(u8 base, u8 offset) {
     return static_cast<u16>(result);
 }
 
+void Processor::registerTransfer(u8 &dst, const u8 &src) {
+    FATAL_ERROR_IF(&dst == &src, "Cannot do register transfer on one register");
+    counters.cyclesProcessed++;
+    dst = src;
+}
+
 void Processor::updateArithmeticFlags(u8 value) {
     regs.flags.z = value == 0;
     regs.flags.n = bool(value & 0x80);
@@ -155,4 +171,21 @@ void Processor::executeLda(u8 value) {
 
 void Processor::executeCmp(u8 value) {
     updateFlagsAfterComparison(regs.a, value);
+}
+
+void Processor::executeTax(u8) {
+    registerTransfer(regs.x, regs.a);
+    updateArithmeticFlags(regs.x);
+}
+void Processor::executeTay(u8) {
+    registerTransfer(regs.y, regs.a);
+    updateArithmeticFlags(regs.y);
+}
+void Processor::executeTxa(u8) {
+    registerTransfer(regs.a, regs.x);
+    updateArithmeticFlags(regs.a);
+}
+void Processor::executeTya(u8) {
+    registerTransfer(regs.a, regs.y);
+    updateArithmeticFlags(regs.a);
 }
