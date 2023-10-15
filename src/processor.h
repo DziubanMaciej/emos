@@ -39,9 +39,11 @@ protected:
 
     // Helper functions for flags register
     void updateArithmeticFlags(u8 value);
+    void updateFlagsAfterComparison(u8 registerValue, u8 inputValue);
 
     // Functions for actually executing instructions
     void executeLda(u8 value);
+    void executeCmp(u8 value);
 
     // State of the CPU
     Counters counters = {};

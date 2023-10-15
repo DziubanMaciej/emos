@@ -25,6 +25,16 @@ enum class OpCode : u8 {
     STA_ix = 0x81,
     STA_iy = 0x91,
 
+    // CMP - compare
+    CMP_imm = 0xC9,
+    CMP_z = 0xC5,
+    CMP_zx = 0xD5,
+    CMP_abs = 0xCD,
+    CMP_absx = 0xDD,
+    CMP_absy = 0xD9,
+    CMP_ix = 0xC1,
+    CMP_iy = 0xD1,
+
     // Special values
     _MAX_VALUE = 0xFF,
 };

@@ -12,6 +12,15 @@ Processor::Processor() {
     setInstructionData(OpCode::LDA_absy, &Processor::getValueAbsoluteY, &Processor::executeLda);
     setInstructionData(OpCode::LDA_ix, &Processor::getValueIndexedIndirectX, &Processor::executeLda);
     setInstructionData(OpCode::LDA_iy, &Processor::getValueIndirectIndexedY, &Processor::executeLda);
+
+    setInstructionData(OpCode::CMP_imm, &Processor::getValueImmediate, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_z, &Processor::getValueZeroPage, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_zx, &Processor::getValueZeroPageX, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_abs, &Processor::getValueAbsolute, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_absx, &Processor::getValueAbsoluteX, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_absy, &Processor::getValueAbsoluteY, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_ix, &Processor::getValueIndexedIndirectX, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_iy, &Processor::getValueIndirectIndexedY, &Processor::executeCmp);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -133,7 +142,17 @@ void Processor::updateArithmeticFlags(u8 value) {
     regs.flags.n = bool(value & 0x80);
 }
 
+void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
+    regs.flags.c = registerValue >= inputValue;
+    regs.flags.z = registerValue == inputValue;
+    regs.flags.n = registerValue < inputValue;
+}
+
 void Processor::executeLda(u8 value) {
     regs.a = value;
     updateArithmeticFlags(value);
+}
+
+void Processor::executeCmp(u8 value) {
+    updateFlagsAfterComparison(regs.a, value);
 }
