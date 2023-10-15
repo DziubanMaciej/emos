@@ -1,0 +1,124 @@
+#include "error.h"
+#include "processor.h"
+
+#include <cstring>
+
+void Processor::executeInstructions(u32 maxInstructionCount) {
+    for (u32 instructionIndex = 0; instructionIndex < maxInstructionCount; instructionIndex++) {
+        const OpCode opCode = static_cast<OpCode>(fetchInstructionByte());
+        executeInstruction(opCode);
+    }
+}
+
+u8 Processor::fetchInstructionByte() {
+    const u8 result = readByteFromMemory(regs.pc);
+    counters.bytesProcessed += 1;
+    regs.pc += 1;
+    return result;
+}
+
+u16 Processor::fetchInstructionTwoBytes() {
+    const u16 result = readTwoBytesFromMemory(regs.pc);
+    counters.bytesProcessed += 2;
+    regs.pc += 2;
+    return result;
+}
+
+u8 Processor::readByteFromMemory(u16 address) {
+    const u8 byte = memory[address];
+    counters.cyclesProcessed += 1;
+    return byte;
+}
+
+u16 Processor::readTwoBytesFromMemory(u16 address) {
+    const u8 lo = memory[address];
+    const u8 hi = memory[address + 1];
+    counters.cyclesProcessed += 2;
+    return (hi << 8) | lo;
+}
+
+u16 Processor::sumAddresses(u16 base, u16 offset) {
+    const u16 result = base + offset;
+
+    const u16 oldPage = base & 0xFF00;
+    const u16 newPage = result & 0xFF00;
+    const u16 changedPage = oldPage != newPage;
+    if (changedPage) {
+        // For some instructions (namely with abs X addressing mode) the latency of addition is hidden
+        // by the processor as follows:
+        //  - cycle 1: first byte of the address is read
+        //  - cycle 2: second byte of the address is read and simultaneously firstByte+X addition is performed
+        //
+        // If there is no carry in firstByte+x addition, then the latency has been hidden.
+        // Otherwise, we need another cycle to incremend secondByte.
+        //
+        // Latency cannot be hidden in sums for zero page X addressing mode, because we only read 1 byte
+        // from the instruction.
+        //
+        // Sources:
+        //   https://forums.nesdev.org/viewtopic.php?t=13936
+        //   https://retrocomputing.stackexchange.com/q/15621
+        counters.cyclesProcessed++;
+    }
+    return result;
+}
+
+u16 Processor::sumAddressesZeroPage(u8 base, u8 offset) {
+    const u8 result = base + offset; // let it wrap around
+    counters.cyclesProcessed++;
+    return static_cast<u16>(result);
+}
+
+void Processor::updateArithmeticFlags(u8 value) {
+    regs.flags.z = value == 0;
+    regs.flags.n = bool(value & 0x80);
+}
+
+void Processor::executeInstruction(OpCode opCode) {
+    switch (opCode) {
+    case OpCode::LDA_imm: {
+        regs.a = fetchInstructionByte();
+        updateArithmeticFlags(regs.a);
+    } break;
+    case OpCode::LDA_z: {
+        u8 address = fetchInstructionByte();
+        regs.a = readByteFromMemory(address);
+        updateArithmeticFlags(regs.a);
+    } break;
+    case OpCode::LDA_zx: {
+        u16 address = sumAddressesZeroPage(fetchInstructionByte(), regs.x);
+        regs.a = readByteFromMemory(address);
+        updateArithmeticFlags(regs.a);
+    } break;
+    case OpCode::LDA_abs: {
+        u16 address = fetchInstructionTwoBytes();
+        regs.a = readByteFromMemory(address);
+        updateArithmeticFlags(regs.a);
+    } break;
+    case OpCode::LDA_absx: {
+        u16 address = sumAddresses(fetchInstructionTwoBytes(), regs.x);
+        regs.a = readByteFromMemory(address);
+        updateArithmeticFlags(regs.a);
+    } break;
+    case OpCode::LDA_absy: {
+        u16 address = sumAddresses(fetchInstructionTwoBytes(), regs.y);
+        regs.a = readByteFromMemory(address);
+        updateArithmeticFlags(regs.a);
+    } break;
+    case OpCode::LDA_ix: {
+        u16 address = sumAddressesZeroPage(fetchInstructionByte(), regs.x);
+        address = readTwoBytesFromMemory(address);
+        regs.a = readByteFromMemory(address);
+        updateArithmeticFlags(regs.a);
+    } break;
+    case OpCode::LDA_iy: {
+        u16 address = fetchInstructionByte();
+        address = readTwoBytesFromMemory(address);
+        address = sumAddresses(address, regs.y);
+        regs.a = readByteFromMemory(address);
+        updateArithmeticFlags(regs.a);
+    } break;
+    default:
+        FATAL_ERROR("Unsupported instruction: ", static_cast<u32>(opCode));
+    }
+}
