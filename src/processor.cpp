@@ -173,19 +173,19 @@ void Processor::executeCmp(u8 value) {
     updateFlagsAfterComparison(regs.a, value);
 }
 
-void Processor::executeTax(u8 value) {
+void Processor::executeTax(u8) {
     registerTransfer(regs.x, regs.a);
     updateArithmeticFlags(regs.x);
 }
-void Processor::executeTay(u8 value) {
+void Processor::executeTay(u8) {
     registerTransfer(regs.y, regs.a);
     updateArithmeticFlags(regs.y);
 }
-void Processor::executeTxa(u8 value) {
+void Processor::executeTxa(u8) {
     registerTransfer(regs.a, regs.x);
     updateArithmeticFlags(regs.a);
 }
-void Processor::executeTya(u8 value) {
+void Processor::executeTya(u8) {
     registerTransfer(regs.a, regs.y);
     updateArithmeticFlags(regs.a);
 }
