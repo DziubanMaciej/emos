@@ -25,6 +25,12 @@ enum class OpCode : u8 {
     STA_ix = 0x81,
     STA_iy = 0x91,
 
+    // TAX, TAY, TXA, TYA - register transfers
+    TAX = 0xAA,
+    TAY = 0xA8,
+    TXA = 0xBA,
+    TYA = 0x8A,
+
     // CMP - compare
     CMP_imm = 0xC9,
     CMP_z = 0xC5,
