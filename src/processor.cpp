@@ -37,6 +37,49 @@ u16 Processor::readTwoBytesFromMemory(u16 address) {
     return (hi << 8) | lo;
 }
 
+u8 Processor::getValueImmediate() {
+    return fetchInstructionByte();
+}
+u8 Processor::getValueZeroPage() {
+    u8 address = fetchInstructionByte();
+    return readByteFromMemory(address);
+}
+
+u8 Processor::getValueZeroPageX() {
+    u16 address = sumAddressesZeroPage(fetchInstructionByte(), regs.x);
+    return readByteFromMemory(address);
+}
+
+u8 Processor::getValueAbsolute() {
+    u16 address = fetchInstructionTwoBytes();
+    return readByteFromMemory(address);
+}
+
+u8 Processor::getValueAbsoluteX() {
+    u16 address = sumAddresses(fetchInstructionTwoBytes(), regs.x);
+    return readByteFromMemory(address);
+}
+
+u8 Processor::getValueAbsoluteY() {
+    u16 address = sumAddresses(fetchInstructionTwoBytes(), regs.y);
+    return readByteFromMemory(address);
+}
+
+u8 Processor::getValueIndexedIndirectX() {
+    u8 tableAddress = fetchInstructionByte();
+    u16 address = sumAddressesZeroPage(tableAddress, regs.x);
+    address = readTwoBytesFromMemory(address);
+    return readByteFromMemory(address);
+}
+
+u8 Processor::getValueIndirectIndexedY() {
+    u16 address = fetchInstructionByte();
+    address = readTwoBytesFromMemory(address);
+    address = sumAddresses(address, regs.y);
+    return readByteFromMemory(address);
+}
+
+
 u16 Processor::sumAddresses(u16 base, u16 offset) {
     const u16 result = base + offset;
 
@@ -77,45 +120,35 @@ void Processor::updateArithmeticFlags(u8 value) {
 void Processor::executeInstruction(OpCode opCode) {
     switch (opCode) {
     case OpCode::LDA_imm: {
-        regs.a = fetchInstructionByte();
+        regs.a = getValueImmediate();
         updateArithmeticFlags(regs.a);
     } break;
     case OpCode::LDA_z: {
-        u8 address = fetchInstructionByte();
-        regs.a = readByteFromMemory(address);
+        regs.a = getValueZeroPage();
         updateArithmeticFlags(regs.a);
     } break;
     case OpCode::LDA_zx: {
-        u16 address = sumAddressesZeroPage(fetchInstructionByte(), regs.x);
-        regs.a = readByteFromMemory(address);
+        regs.a = getValueZeroPageX();
         updateArithmeticFlags(regs.a);
     } break;
     case OpCode::LDA_abs: {
-        u16 address = fetchInstructionTwoBytes();
-        regs.a = readByteFromMemory(address);
+        regs.a = getValueAbsolute();
         updateArithmeticFlags(regs.a);
     } break;
     case OpCode::LDA_absx: {
-        u16 address = sumAddresses(fetchInstructionTwoBytes(), regs.x);
-        regs.a = readByteFromMemory(address);
+        regs.a = getValueAbsoluteX();
         updateArithmeticFlags(regs.a);
     } break;
     case OpCode::LDA_absy: {
-        u16 address = sumAddresses(fetchInstructionTwoBytes(), regs.y);
-        regs.a = readByteFromMemory(address);
+        regs.a = getValueAbsoluteY();
         updateArithmeticFlags(regs.a);
     } break;
     case OpCode::LDA_ix: {
-        u16 address = sumAddressesZeroPage(fetchInstructionByte(), regs.x);
-        address = readTwoBytesFromMemory(address);
-        regs.a = readByteFromMemory(address);
+        regs.a = getValueIndexedIndirectX();
         updateArithmeticFlags(regs.a);
     } break;
     case OpCode::LDA_iy: {
-        u16 address = fetchInstructionByte();
-        address = readTwoBytesFromMemory(address);
-        address = sumAddresses(address, regs.y);
-        regs.a = readByteFromMemory(address);
+        regs.a = getValueIndirectIndexedY();
         updateArithmeticFlags(regs.a);
     } break;
     default:

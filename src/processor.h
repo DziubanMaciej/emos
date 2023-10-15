@@ -22,6 +22,16 @@ protected:
     u8 readByteFromMemory(u16 address);
     u16 readTwoBytesFromMemory(u16 address);
 
+    // Helper functions to read values for different addressing mode
+    u8 getValueImmediate();
+    u8 getValueZeroPage();
+    u8 getValueZeroPageX();
+    u8 getValueAbsolute();
+    u8 getValueAbsoluteX();
+    u8 getValueAbsoluteY();
+    u8 getValueIndexedIndirectX();
+    u8 getValueIndirectIndexedY();
+
     // Helper functions on mathematical operations performed internally by the processor. They may
     // increase cycle counter and handle special behaviours, like value wraparounds.
     u16 sumAddresses(u16 base, u16 offset);
