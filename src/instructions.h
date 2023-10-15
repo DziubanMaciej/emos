@@ -24,4 +24,7 @@ enum class OpCode : u8 {
     STA_absy = 0x99,
     STA_ix = 0x81,
     STA_iy = 0x91,
+
+    // Special values
+    _MAX_VALUE = 0xFF,
 };

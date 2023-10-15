@@ -9,7 +9,7 @@ constexpr u32 memorySize = 64 * 1024;
 class Processor {
 
 public:
-    Processor() = default;
+    Processor();
 
     void executeInstructions(u32 maxInstructionCount);
 
@@ -40,9 +40,25 @@ protected:
     // Helper functions for flags register
     void updateArithmeticFlags(u8 value);
 
-    void executeInstruction(OpCode opCode);
+    // Functions for actually executing instructions
+    void executeLda(u8 value);
 
+    // State of the CPU
     Counters counters = {};
     Registers regs = {};
     u8 memory[memorySize] = {};
+
+    // Metadata for instruction executing
+    struct InstructionData {
+        using GetFunction = u8 (Processor::*)();
+        using ExecFunction = void (Processor::*)(u8);
+        GetFunction get = nullptr;
+        ExecFunction exec = nullptr;
+    };
+    InstructionData instructionData[static_cast<u8>(OpCode::_MAX_VALUE)];
+    void setInstructionData(OpCode opCode, InstructionData::GetFunction get, InstructionData::ExecFunction exec) {
+        u8 index = static_cast<u8>(opCode);
+        instructionData[index].get = get;
+        instructionData[index].exec = exec;
+    }
 };

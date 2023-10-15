@@ -3,10 +3,27 @@
 
 #include <cstring>
 
+Processor::Processor() {
+    setInstructionData(OpCode::LDA_imm, &Processor::getValueImmediate, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_z, &Processor::getValueZeroPage, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_zx, &Processor::getValueZeroPageX, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_abs, &Processor::getValueAbsolute, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_absx, &Processor::getValueAbsoluteX, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_absy, &Processor::getValueAbsoluteY, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_ix, &Processor::getValueIndexedIndirectX, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_iy, &Processor::getValueIndirectIndexedY, &Processor::executeLda);
+}
+
 void Processor::executeInstructions(u32 maxInstructionCount) {
     for (u32 instructionIndex = 0; instructionIndex < maxInstructionCount; instructionIndex++) {
-        const OpCode opCode = static_cast<OpCode>(fetchInstructionByte());
-        executeInstruction(opCode);
+        const u8 opCode = fetchInstructionByte();
+        const InstructionData &instruction = instructionData[opCode];
+        if (instruction.get == nullptr || instruction.exec == nullptr) {
+            FATAL_ERROR("Unsupported instruction: ", static_cast<u32>(opCode));
+        }
+
+        const u8 value = (this->*instruction.get)();
+        (this->*instruction.exec)(value);
     }
 }
 
@@ -79,7 +96,6 @@ u8 Processor::getValueIndirectIndexedY() {
     return readByteFromMemory(address);
 }
 
-
 u16 Processor::sumAddresses(u16 base, u16 offset) {
     const u16 result = base + offset;
 
@@ -117,41 +133,7 @@ void Processor::updateArithmeticFlags(u8 value) {
     regs.flags.n = bool(value & 0x80);
 }
 
-void Processor::executeInstruction(OpCode opCode) {
-    switch (opCode) {
-    case OpCode::LDA_imm: {
-        regs.a = getValueImmediate();
-        updateArithmeticFlags(regs.a);
-    } break;
-    case OpCode::LDA_z: {
-        regs.a = getValueZeroPage();
-        updateArithmeticFlags(regs.a);
-    } break;
-    case OpCode::LDA_zx: {
-        regs.a = getValueZeroPageX();
-        updateArithmeticFlags(regs.a);
-    } break;
-    case OpCode::LDA_abs: {
-        regs.a = getValueAbsolute();
-        updateArithmeticFlags(regs.a);
-    } break;
-    case OpCode::LDA_absx: {
-        regs.a = getValueAbsoluteX();
-        updateArithmeticFlags(regs.a);
-    } break;
-    case OpCode::LDA_absy: {
-        regs.a = getValueAbsoluteY();
-        updateArithmeticFlags(regs.a);
-    } break;
-    case OpCode::LDA_ix: {
-        regs.a = getValueIndexedIndirectX();
-        updateArithmeticFlags(regs.a);
-    } break;
-    case OpCode::LDA_iy: {
-        regs.a = getValueIndirectIndexedY();
-        updateArithmeticFlags(regs.a);
-    } break;
-    default:
-        FATAL_ERROR("Unsupported instruction: ", static_cast<u32>(opCode));
-    }
+void Processor::executeLda(u8 value) {
+    regs.a = value;
+    updateArithmeticFlags(value);
 }
