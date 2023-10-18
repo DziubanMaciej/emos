@@ -1,10 +1,36 @@
 #include "fixtures.h"
 
-using CmpTest = EmosTest;
+struct CompareTest : testing::WithParamInterface<OpCode>, EmosTest {
+    void setRegisterForOpCode(OpCode opCode, u8 value) {
+        switch (opCode) {
+        case OpCode::CMP_imm:
+        case OpCode::CMP_z:
+        case OpCode::CMP_abs:
+            processor.regs.a = value;
+            break;
+        case OpCode::CPX_imm:
+        case OpCode::CPX_z:
+        case OpCode::CPX_abs:
+            processor.regs.x = value;
+            break;
+        case OpCode::CPY_imm:
+        case OpCode::CPY_z:
+        case OpCode::CPY_abs:
+            processor.regs.y = value;
+            break;
+        default:
+            break;
+        }
+    }
+};
 
-TEST_F(CmpTest, givenImmediateModeAndGreaterValueThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_imm);
+using CompareTestImm = CompareTest;
+
+TEST_P(CompareTestImm, givenImmediateModeAndGreaterValueThenProcessInstruction) {
+    auto opCode = GetParam();
+    setRegisterForOpCode(opCode, 0xCC);
+
+    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0xCD;
 
     processor.executeInstructions(1);
@@ -15,9 +41,10 @@ TEST_F(CmpTest, givenImmediateModeAndGreaterValueThenProcessInstruction) {
     EXPECT_TRUE(processor.regs.flags.n);
 }
 
-TEST_F(CmpTest, givenImmediateModeAndEqualValueThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_imm);
+TEST_P(CompareTestImm, givenImmediateModeAndEqualValueThenProcessInstruction) {
+    auto opCode = GetParam();
+    setRegisterForOpCode(opCode, 0xCC);
+    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0xCC;
 
     processor.executeInstructions(1);
@@ -28,9 +55,10 @@ TEST_F(CmpTest, givenImmediateModeAndEqualValueThenProcessInstruction) {
     EXPECT_FALSE(processor.regs.flags.n);
 }
 
-TEST_F(CmpTest, givenImmediateModeAndLessValueThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_imm);
+TEST_P(CompareTestImm, givenImmediateModeAndLessValueThenProcessInstruction) {
+    auto opCode = GetParam();
+    setRegisterForOpCode(opCode, 0xCC);
+    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0xCB;
 
     processor.executeInstructions(1);
@@ -41,9 +69,16 @@ TEST_F(CmpTest, givenImmediateModeAndLessValueThenProcessInstruction) {
     EXPECT_FALSE(processor.regs.flags.n);
 }
 
-TEST_F(CmpTest, givenZeroPageModeThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_z);
+OpCode opcodesImm[] = {OpCode::CMP_imm, OpCode::CPX_imm, OpCode::CPY_imm};
+
+INSTANTIATE_TEST_SUITE_P(, CompareTestImm,
+                         ::testing::ValuesIn(opcodesImm));
+
+using CompareTestZ = CompareTest;
+TEST_P(CompareTestZ, givenZeroPageModeThenProcessInstruction) {
+    auto opCode = GetParam();
+    setRegisterForOpCode(opCode, 0xCC);
+    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0x05;
     processor.memory[0x05] = 0xCD;
 
@@ -55,6 +90,35 @@ TEST_F(CmpTest, givenZeroPageModeThenProcessInstruction) {
     EXPECT_TRUE(processor.regs.flags.n);
 }
 
+OpCode opcodesZ[] = {OpCode::CMP_z, OpCode::CPX_z, OpCode::CPY_z};
+
+INSTANTIATE_TEST_SUITE_P(, CompareTestZ,
+                         ::testing::ValuesIn(opcodesZ));
+
+using CompareTestAbs = CompareTest;
+TEST_P(CompareTestAbs, givenAbsoluteModeThenProcessInstruction) {
+    auto opCode = GetParam();
+    setRegisterForOpCode(opCode, 0xCC);
+    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
+    processor.memory[startAddress + 1] = 0x34;
+    processor.memory[startAddress + 2] = 0x12;
+    processor.memory[0x1234] = 0xCD;
+
+    processor.executeInstructions(1);
+    EXPECT_EQ(3, processor.counters.bytesProcessed);
+    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+    EXPECT_FALSE(processor.regs.flags.c);
+    EXPECT_FALSE(processor.regs.flags.z);
+    EXPECT_TRUE(processor.regs.flags.n);
+}
+
+OpCode opcodesAbs[] = {OpCode::CMP_abs, OpCode::CPX_abs, OpCode::CPY_abs};
+
+INSTANTIATE_TEST_SUITE_P(, CompareTestAbs,
+                         ::testing::ValuesIn(opcodesAbs));
+
+using CmpTest = EmosTest;
+
 TEST_F(CmpTest, givenZeroPageModeXThenProcessInstruction) {
     processor.regs.a = 0xCC;
     processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_zx);
@@ -64,21 +128,6 @@ TEST_F(CmpTest, givenZeroPageModeXThenProcessInstruction) {
 
     processor.executeInstructions(1);
     EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
-}
-
-TEST_F(CmpTest, givenAbsoluteModeThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_abs);
-    processor.memory[startAddress + 1] = 0x34;
-    processor.memory[startAddress + 2] = 0x12;
-    processor.memory[0x1234] = 0xCD;
-
-    processor.executeInstructions(1);
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
     EXPECT_EQ(4, processor.counters.cyclesProcessed);
     EXPECT_FALSE(processor.regs.flags.c);
     EXPECT_FALSE(processor.regs.flags.z);

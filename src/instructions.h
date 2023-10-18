@@ -41,6 +41,16 @@ enum class OpCode : u8 {
     CMP_ix = 0xC1,
     CMP_iy = 0xD1,
 
+    // CPX - compare x register
+    CPX_imm = 0xE0,
+    CPX_z = 0xE4,
+    CPX_abs = 0xEC,
+
+    // CPY - compare y register
+    CPY_imm = 0xC0,
+    CPY_z = 0xC4,
+    CPY_abs = 0xCC,
+
     // Special values
     _MAX_VALUE = 0xFF,
 };
