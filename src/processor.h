@@ -18,11 +18,28 @@ protected:
     u8 fetchInstructionByte();
     u16 fetchInstructionTwoBytes();
 
-    // Helper functions to read from memory. They increase cycle counter.
+    // Helper functions to access the memory. They increase cycle counter.
     u8 readByteFromMemory(u16 address);
     u16 readTwoBytesFromMemory(u16 address);
+    void writeByteToMemory(u16 address, u8 byte);
+    void writeTwoBytesToMemory(u16 address, u16 bytes);
 
     // Helper functions to read values for different addressing mode
+    enum class AddressingMode {
+        Implied,
+        Immediate,
+        ZeroPage,
+        ZeroPageX,
+        Absolute,
+        AbsoluteX,
+        AbsoluteY,
+        IndexedIndirectX,
+        IndirectIndexedY,
+    };
+    u16 getAddress(AddressingMode mode, bool isReadOnly);
+    u8 readValue(AddressingMode mode, bool isReadOnly);
+    void writeValue(AddressingMode mode, u8 value);
+
     u8 getValueImplied();
     u8 getValueImmediate();
     u8 getValueZeroPage();
@@ -35,7 +52,7 @@ protected:
 
     // Helper functions on mathematical operations performed internally by the processor. They may
     // increase cycle counter and handle special behaviours, like value wraparounds.
-    u16 sumAddresses(u16 base, u16 offset);
+    u16 sumAddresses(u16 base, u16 offset, bool isReadOnly);
     u16 sumAddressesZeroPage(u8 base, u8 offset);
     void registerTransfer(u8 &dst, const u8 &src);
 
@@ -44,14 +61,14 @@ protected:
     void updateFlagsAfterComparison(u8 registerValue, u8 inputValue);
 
     // Functions for actually executing instructions
-    void executeLda(u8 value);
-    void executeCmp(u8 value);
-    void executeCpx(u8 value);
-    void executeCpy(u8 value);
-    void executeTax(u8 value);
-    void executeTay(u8 value);
-    void executeTxa(u8 value);
-    void executeTya(u8 value);
+    void executeLda(AddressingMode mode);
+    void executeCmp(AddressingMode mode);
+    void executeCpx(AddressingMode mode);
+    void executeCpy(AddressingMode mode);
+    void executeTax(AddressingMode mode);
+    void executeTay(AddressingMode mode);
+    void executeTxa(AddressingMode mode);
+    void executeTya(AddressingMode mode);
 
     // State of the CPU
     Counters counters = {};
@@ -60,15 +77,14 @@ protected:
 
     // Metadata for instruction executing
     struct InstructionData {
-        using GetFunction = u8 (Processor::*)();
-        using ExecFunction = void (Processor::*)(u8);
-        GetFunction get = nullptr;
+        using ExecFunction = void (Processor::*)(AddressingMode);
+        AddressingMode addressingMode;
         ExecFunction exec = nullptr;
     };
     InstructionData instructionData[static_cast<u8>(OpCode::_MAX_VALUE)];
-    void setInstructionData(OpCode opCode, InstructionData::GetFunction get, InstructionData::ExecFunction exec) {
+    void setInstructionData(OpCode opCode, AddressingMode addressingMode, InstructionData::ExecFunction exec) {
         u8 index = static_cast<u8>(opCode);
-        instructionData[index].get = get;
+        instructionData[index].addressingMode = addressingMode;
         instructionData[index].exec = exec;
     }
 };

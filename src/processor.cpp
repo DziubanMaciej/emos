@@ -4,48 +4,47 @@
 #include <cstring>
 
 Processor::Processor() {
-    setInstructionData(OpCode::LDA_imm, &Processor::getValueImmediate, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_z, &Processor::getValueZeroPage, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_zx, &Processor::getValueZeroPageX, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_abs, &Processor::getValueAbsolute, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_absx, &Processor::getValueAbsoluteX, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_absy, &Processor::getValueAbsoluteY, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_ix, &Processor::getValueIndexedIndirectX, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_iy, &Processor::getValueIndirectIndexedY, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_imm, AddressingMode::Immediate, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_z, AddressingMode::ZeroPage, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_zx, AddressingMode::ZeroPageX, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_abs, AddressingMode::Absolute, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_absx, AddressingMode::AbsoluteX, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_absy, AddressingMode::AbsoluteY, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_ix, AddressingMode::IndexedIndirectX, &Processor::executeLda);
+    setInstructionData(OpCode::LDA_iy, AddressingMode::IndirectIndexedY, &Processor::executeLda);
 
-    setInstructionData(OpCode::TAX, &Processor::getValueImplied, &Processor::executeTax);
-    setInstructionData(OpCode::TAY, &Processor::getValueImplied, &Processor::executeTay);
-    setInstructionData(OpCode::TXA, &Processor::getValueImplied, &Processor::executeTxa);
-    setInstructionData(OpCode::TYA, &Processor::getValueImplied, &Processor::executeTya);
+    setInstructionData(OpCode::TAX, AddressingMode::Implied, &Processor::executeTax);
+    setInstructionData(OpCode::TAY, AddressingMode::Implied, &Processor::executeTay);
+    setInstructionData(OpCode::TXA, AddressingMode::Implied, &Processor::executeTxa);
+    setInstructionData(OpCode::TYA, AddressingMode::Implied, &Processor::executeTya);
 
-    setInstructionData(OpCode::CMP_imm, &Processor::getValueImmediate, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_z, &Processor::getValueZeroPage, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_zx, &Processor::getValueZeroPageX, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_abs, &Processor::getValueAbsolute, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_absx, &Processor::getValueAbsoluteX, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_absy, &Processor::getValueAbsoluteY, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_ix, &Processor::getValueIndexedIndirectX, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_iy, &Processor::getValueIndirectIndexedY, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_imm, AddressingMode::Immediate, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_z, AddressingMode::ZeroPage, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_zx, AddressingMode::ZeroPageX, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_abs, AddressingMode::Absolute, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_absx, AddressingMode::AbsoluteX, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_absy, AddressingMode::AbsoluteY, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_ix, AddressingMode::IndexedIndirectX, &Processor::executeCmp);
+    setInstructionData(OpCode::CMP_iy, AddressingMode::IndirectIndexedY, &Processor::executeCmp);
 
-    setInstructionData(OpCode::CPX_imm, &Processor::getValueImmediate, &Processor::executeCpx);
-    setInstructionData(OpCode::CPX_z, &Processor::getValueZeroPage, &Processor::executeCpx);
-    setInstructionData(OpCode::CPX_abs, &Processor::getValueAbsolute, &Processor::executeCpx);
+    setInstructionData(OpCode::CPX_imm, AddressingMode::Immediate, &Processor::executeCpx);
+    setInstructionData(OpCode::CPX_z, AddressingMode::ZeroPage, &Processor::executeCpx);
+    setInstructionData(OpCode::CPX_abs, AddressingMode::Absolute, &Processor::executeCpx);
 
-    setInstructionData(OpCode::CPY_imm, &Processor::getValueImmediate, &Processor::executeCpy);
-    setInstructionData(OpCode::CPY_z, &Processor::getValueZeroPage, &Processor::executeCpy);
-    setInstructionData(OpCode::CPY_abs, &Processor::getValueAbsolute, &Processor::executeCpy);
+    setInstructionData(OpCode::CPY_imm, AddressingMode::Immediate, &Processor::executeCpy);
+    setInstructionData(OpCode::CPY_z, AddressingMode::ZeroPage, &Processor::executeCpy);
+    setInstructionData(OpCode::CPY_abs, AddressingMode::Absolute, &Processor::executeCpy);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
     for (u32 instructionIndex = 0; instructionIndex < maxInstructionCount; instructionIndex++) {
         const u8 opCode = fetchInstructionByte();
         const InstructionData &instruction = instructionData[opCode];
-        if (instruction.get == nullptr || instruction.exec == nullptr) {
+        if (instruction.exec == nullptr) {
             FATAL_ERROR("Unsupported instruction: ", static_cast<u32>(opCode));
         }
 
-        const u8 value = (this->*instruction.get)();
-        (this->*instruction.exec)(value);
+        (this->*instruction.exec)(instruction.addressingMode);
     }
 }
 
@@ -76,61 +75,82 @@ u16 Processor::readTwoBytesFromMemory(u16 address) {
     return (hi << 8) | lo;
 }
 
-u8 Processor::getValueImplied() {
-    // no need to fetch anything, return dummy value
-    return 0;
+void Processor::writeByteToMemory(u16 address, u8 byte) {
+    memory[address] = byte;
+    counters.cyclesProcessed += 1;
 }
 
-u8 Processor::getValueImmediate() {
-    return fetchInstructionByte();
-}
-u8 Processor::getValueZeroPage() {
-    u8 address = fetchInstructionByte();
-    return readByteFromMemory(address);
-}
-
-u8 Processor::getValueZeroPageX() {
-    u16 address = sumAddressesZeroPage(fetchInstructionByte(), regs.x);
-    return readByteFromMemory(address);
+void Processor::writeTwoBytesToMemory(u16 address, u16 bytes) {
+    const u8 lo = bytes & 0xFF;
+    const u8 hi = (bytes >> 8) & 0xFF;
+    memory[address] = lo;
+    memory[address + 1] = hi;
+    counters.cyclesProcessed += 2;
 }
 
-u8 Processor::getValueAbsolute() {
-    u16 address = fetchInstructionTwoBytes();
-    return readByteFromMemory(address);
+u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
+    switch (mode) {
+    case AddressingMode::Implied: {
+        FATAL_ERROR("Cannot get address in implied addressing mode")
+    }
+    case AddressingMode::Immediate: {
+        FATAL_ERROR("Cannot get address in implied addressing mode")
+    }
+    case AddressingMode::ZeroPage: {
+        return fetchInstructionByte();
+    }
+    case AddressingMode::ZeroPageX: {
+        return sumAddressesZeroPage(fetchInstructionByte(), regs.x);
+    }
+    case AddressingMode::Absolute: {
+        return fetchInstructionTwoBytes();
+    }
+    case AddressingMode::AbsoluteX: {
+        return sumAddresses(fetchInstructionTwoBytes(), regs.x, isReadOnly);
+    }
+    case AddressingMode::AbsoluteY: {
+        return sumAddresses(fetchInstructionTwoBytes(), regs.y, isReadOnly);
+    }
+    case AddressingMode::IndexedIndirectX: {
+        u8 tableAddress = fetchInstructionByte();
+        u16 address = sumAddressesZeroPage(tableAddress, regs.x);
+        address = readTwoBytesFromMemory(address);
+        return address;
+    }
+    case AddressingMode::IndirectIndexedY: {
+        u16 address = fetchInstructionByte();
+        address = readTwoBytesFromMemory(address);
+        address = sumAddresses(address, regs.y, isReadOnly);
+        return address;
+    }
+    default: {
+        FATAL_ERROR("Unknown addressing mode");
+    }
+    }
 }
 
-u8 Processor::getValueAbsoluteX() {
-    u16 address = sumAddresses(fetchInstructionTwoBytes(), regs.x);
-    return readByteFromMemory(address);
+u8 Processor::readValue(AddressingMode mode, bool isReadOnly) {
+    if (mode == AddressingMode::Immediate) {
+        return fetchInstructionByte();
+    } else {
+        const u16 address = getAddress(mode, isReadOnly);
+        return readByteFromMemory(address);
+    }
 }
 
-u8 Processor::getValueAbsoluteY() {
-    u16 address = sumAddresses(fetchInstructionTwoBytes(), regs.y);
-    return readByteFromMemory(address);
+void Processor::writeValue(AddressingMode mode, u8 value) {
+    const u16 address = getAddress(mode, false);
+    writeByteToMemory(address, value);
 }
 
-u8 Processor::getValueIndexedIndirectX() {
-    u8 tableAddress = fetchInstructionByte();
-    u16 address = sumAddressesZeroPage(tableAddress, regs.x);
-    address = readTwoBytesFromMemory(address);
-    return readByteFromMemory(address);
-}
-
-u8 Processor::getValueIndirectIndexedY() {
-    u16 address = fetchInstructionByte();
-    address = readTwoBytesFromMemory(address);
-    address = sumAddresses(address, regs.y);
-    return readByteFromMemory(address);
-}
-
-u16 Processor::sumAddresses(u16 base, u16 offset) {
+u16 Processor::sumAddresses(u16 base, u16 offset, bool isReadOnly) {
     const u16 result = base + offset;
 
     const u16 oldPage = base & 0xFF00;
     const u16 newPage = result & 0xFF00;
     const u16 changedPage = oldPage != newPage;
-    if (changedPage) {
-        // For some instructions (namely with abs X addressing mode) the latency of addition is hidden
+    if (changedPage || !isReadOnly) {
+        // For some instructions (e.g. with abs X addressing mode) the latency of addition is hidden
         // by the processor as follows:
         //  - cycle 1: first byte of the address is read
         //  - cycle 2: second byte of the address is read and simultaneously firstByte+X addition is performed
@@ -140,6 +160,10 @@ u16 Processor::sumAddresses(u16 base, u16 offset) {
         //
         // Latency cannot be hidden in sums for zero page X addressing mode, because we only read 1 byte
         // from the instruction.
+        //
+        // Latency also cannot be hidden for instructions performing memory write, because the processor performs
+        // a dummy memory operation on an incorrect address to achieve it. And clearly, it shouldn't be doing
+        // dummy write, as that would corrupt the result.
         //
         // Sources:
         //   https://forums.nesdev.org/viewtopic.php?t=13936
@@ -172,36 +196,40 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
     regs.flags.n = registerValue < inputValue;
 }
 
-void Processor::executeLda(u8 value) {
+void Processor::executeLda(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
     regs.a = value;
     updateArithmeticFlags(value);
 }
 
-void Processor::executeCmp(u8 value) {
+void Processor::executeCmp(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
     updateFlagsAfterComparison(regs.a, value);
 }
 
-void Processor::executeCpx(u8 value) {
+void Processor::executeCpx(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
     updateFlagsAfterComparison(regs.x, value);
 }
 
-void Processor::executeCpy(u8 value) {
+void Processor::executeCpy(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
     updateFlagsAfterComparison(regs.y, value);
 }
 
-void Processor::executeTax(u8) {
+void Processor::executeTax(AddressingMode) {
     registerTransfer(regs.x, regs.a);
     updateArithmeticFlags(regs.x);
 }
-void Processor::executeTay(u8) {
+void Processor::executeTay(AddressingMode) {
     registerTransfer(regs.y, regs.a);
     updateArithmeticFlags(regs.y);
 }
-void Processor::executeTxa(u8) {
+void Processor::executeTxa(AddressingMode) {
     registerTransfer(regs.a, regs.x);
     updateArithmeticFlags(regs.a);
 }
-void Processor::executeTya(u8) {
+void Processor::executeTya(AddressingMode) {
     registerTransfer(regs.a, regs.y);
     updateArithmeticFlags(regs.a);
 }
