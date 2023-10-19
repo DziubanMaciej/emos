@@ -5,6 +5,7 @@ Project **emos** is an **e**mulator of **MOS**6502 microprocessor developed in 1
 ## Resources
 - [Wikipedia article with historical context](https://en.wikipedia.org/wiki/MOS_Technology_6502)
 - [Architecture](http://www.6502.org/users/obelisk/6502/index.html)
+- [Alternative opcodes description](http://www.6502.org/tutorials/6502opcodes.html)
 - [Video series on the same project](https://www.youtube.com/playlist?list=PLLwK93hM93Z13TRzPx9JqTIn33feefl37)
 
 ## Building and testing
