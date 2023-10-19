@@ -24,7 +24,7 @@ protected:
     void writeByteToMemory(u16 address, u8 byte);
     void writeTwoBytesToMemory(u16 address, u16 bytes);
 
-    // Helper functions to read values for different addressing mode
+    // Helper functions to resolve addresses for different addressing modes.
     enum class AddressingMode {
         Implied,
         Immediate,
@@ -40,16 +40,6 @@ protected:
     u8 readValue(AddressingMode mode, bool isReadOnly);
     void writeValue(AddressingMode mode, u8 value);
 
-    u8 getValueImplied();
-    u8 getValueImmediate();
-    u8 getValueZeroPage();
-    u8 getValueZeroPageX();
-    u8 getValueAbsolute();
-    u8 getValueAbsoluteX();
-    u8 getValueAbsoluteY();
-    u8 getValueIndexedIndirectX();
-    u8 getValueIndirectIndexedY();
-
     // Helper functions on mathematical operations performed internally by the processor. They may
     // increase cycle counter and handle special behaviours, like value wraparounds.
     u16 sumAddresses(u16 base, u16 offset, bool isReadOnly);
@@ -57,11 +47,11 @@ protected:
     void registerTransfer(u8 &dst, const u8 &src);
     void aluOperation();
 
-    // Helper functions for flags register
+    // Helper functions for status flags.
     void updateArithmeticFlags(u8 value);
     void updateFlagsAfterComparison(u8 registerValue, u8 inputValue);
 
-    // Functions for actually executing instructions
+    // Functions for executing instructions.
     void executeLda(AddressingMode mode);
     void executeInc(AddressingMode mode);
     void executeDec(AddressingMode mode);
@@ -73,12 +63,12 @@ protected:
     void executeTxa(AddressingMode mode);
     void executeTya(AddressingMode mode);
 
-    // State of the CPU
+    // State of the CPU.
     Counters counters = {};
     Registers regs = {};
     u8 memory[memorySize] = {};
 
-    // Metadata for instruction executing
+    // Metadata for instruction executing.
     struct InstructionData {
         using ExecFunction = void (Processor::*)(AddressingMode);
         AddressingMode addressingMode;

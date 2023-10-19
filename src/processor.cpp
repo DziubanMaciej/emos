@@ -104,7 +104,7 @@ u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
         FATAL_ERROR("Cannot get address in implied addressing mode")
     }
     case AddressingMode::Immediate: {
-        FATAL_ERROR("Cannot get address in implied addressing mode")
+        FATAL_ERROR("Cannot get address in immediate addressing mode")
     }
     case AddressingMode::ZeroPage: {
         return fetchInstructionByte();
