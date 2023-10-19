@@ -18,6 +18,11 @@ Processor::Processor() {
     setInstructionData(OpCode::INC_abs, AddressingMode::Absolute, &Processor::executeInc);
     setInstructionData(OpCode::INC_absx, AddressingMode::AbsoluteX, &Processor::executeInc);
 
+    setInstructionData(OpCode::INX, AddressingMode::Implied, &Processor::executeInx);
+    setInstructionData(OpCode::INY, AddressingMode::Implied, &Processor::executeIny);
+    setInstructionData(OpCode::DEX, AddressingMode::Implied, &Processor::executeDex);
+    setInstructionData(OpCode::DEY, AddressingMode::Implied, &Processor::executeDey);
+
     setInstructionData(OpCode::DEC_z, AddressingMode::ZeroPage, &Processor::executeDec);
     setInstructionData(OpCode::DEC_zx, AddressingMode::ZeroPageX, &Processor::executeDec);
     setInstructionData(OpCode::DEC_abs, AddressingMode::Absolute, &Processor::executeDec);
@@ -232,6 +237,30 @@ void Processor::executeDec(AddressingMode mode) {
     aluOperation();
     writeByteToMemory(address, value);
     updateArithmeticFlags(value);
+}
+
+void Processor::executeInx(AddressingMode) {
+    regs.x++;
+    aluOperation();
+    updateArithmeticFlags(regs.x);
+}
+
+void Processor::executeIny(AddressingMode) {
+    regs.y++;
+    aluOperation();
+    updateArithmeticFlags(regs.y);
+}
+
+void Processor::executeDex(AddressingMode) {
+    regs.x--;
+    aluOperation();
+    updateArithmeticFlags(regs.x);
+}
+
+void Processor::executeDey(AddressingMode) {
+    regs.y--;
+    aluOperation();
+    updateArithmeticFlags(regs.y);
 }
 
 void Processor::executeCmp(AddressingMode mode) {
