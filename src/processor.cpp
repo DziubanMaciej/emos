@@ -13,6 +13,18 @@ Processor::Processor() {
     setInstructionData(OpCode::LDA_ix, AddressingMode::IndexedIndirectX, &Processor::executeLda);
     setInstructionData(OpCode::LDA_iy, AddressingMode::IndirectIndexedY, &Processor::executeLda);
 
+    setInstructionData(OpCode::LDX_imm, AddressingMode::Immediate, &Processor::executeLdx);
+    setInstructionData(OpCode::LDX_z, AddressingMode::ZeroPage, &Processor::executeLdx);
+    setInstructionData(OpCode::LDX_zy, AddressingMode::ZeroPageY, &Processor::executeLdx);
+    setInstructionData(OpCode::LDX_abs, AddressingMode::Absolute, &Processor::executeLdx);
+    setInstructionData(OpCode::LDX_absy, AddressingMode::AbsoluteY, &Processor::executeLdx);
+
+    setInstructionData(OpCode::LDY_imm, AddressingMode::Immediate, &Processor::executeLdy);
+    setInstructionData(OpCode::LDY_z, AddressingMode::ZeroPage, &Processor::executeLdy);
+    setInstructionData(OpCode::LDY_zx, AddressingMode::ZeroPageX, &Processor::executeLdy);
+    setInstructionData(OpCode::LDY_abs, AddressingMode::Absolute, &Processor::executeLdy);
+    setInstructionData(OpCode::LDY_absx, AddressingMode::AbsoluteX, &Processor::executeLdy);
+
     setInstructionData(OpCode::INC_z, AddressingMode::ZeroPage, &Processor::executeInc);
     setInstructionData(OpCode::INC_zx, AddressingMode::ZeroPageX, &Processor::executeInc);
     setInstructionData(OpCode::INC_abs, AddressingMode::Absolute, &Processor::executeInc);
@@ -117,6 +129,9 @@ u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
     case AddressingMode::ZeroPageX: {
         return sumAddressesZeroPage(fetchInstructionByte(), regs.x);
     }
+    case AddressingMode::ZeroPageY: {
+        return sumAddressesZeroPage(fetchInstructionByte(), regs.y);
+    }
     case AddressingMode::Absolute: {
         return fetchInstructionTwoBytes();
     }
@@ -218,6 +233,18 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
 void Processor::executeLda(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a = value;
+    updateArithmeticFlags(value);
+}
+
+void Processor::executeLdx(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
+    regs.x = value;
+    updateArithmeticFlags(value);
+}
+
+void Processor::executeLdy(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
+    regs.y = value;
     updateArithmeticFlags(value);
 }
 
