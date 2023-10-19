@@ -46,6 +46,8 @@ protected:
     // Functions for actually executing instructions
     void executeLda(u8 value);
     void executeCmp(u8 value);
+    void executeCpx(u8 value);
+    void executeCpy(u8 value);
     void executeTax(u8 value);
     void executeTay(u8 value);
     void executeTxa(u8 value);

@@ -26,6 +26,14 @@ Processor::Processor() {
     setInstructionData(OpCode::CMP_absy, &Processor::getValueAbsoluteY, &Processor::executeCmp);
     setInstructionData(OpCode::CMP_ix, &Processor::getValueIndexedIndirectX, &Processor::executeCmp);
     setInstructionData(OpCode::CMP_iy, &Processor::getValueIndirectIndexedY, &Processor::executeCmp);
+
+    setInstructionData(OpCode::CPX_imm, &Processor::getValueImmediate, &Processor::executeCpx);
+    setInstructionData(OpCode::CPX_z, &Processor::getValueZeroPage, &Processor::executeCpx);
+    setInstructionData(OpCode::CPX_abs, &Processor::getValueAbsolute, &Processor::executeCpx);
+
+    setInstructionData(OpCode::CPY_imm, &Processor::getValueImmediate, &Processor::executeCpy);
+    setInstructionData(OpCode::CPY_z, &Processor::getValueZeroPage, &Processor::executeCpy);
+    setInstructionData(OpCode::CPY_abs, &Processor::getValueAbsolute, &Processor::executeCpy);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -171,6 +179,14 @@ void Processor::executeLda(u8 value) {
 
 void Processor::executeCmp(u8 value) {
     updateFlagsAfterComparison(regs.a, value);
+}
+
+void Processor::executeCpx(u8 value) {
+    updateFlagsAfterComparison(regs.x, value);
+}
+
+void Processor::executeCpy(u8 value) {
+    updateFlagsAfterComparison(regs.y, value);
 }
 
 void Processor::executeTax(u8) {
