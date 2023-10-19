@@ -25,6 +25,18 @@ enum class OpCode : u8 {
     STA_ix = 0x81,
     STA_iy = 0x91,
 
+    // INC - increment memory
+    INC_z = 0xE6,
+    INC_zx = 0xF6,
+    INC_abs = 0xEE,
+    INC_absx = 0xFE,
+
+    // DEC - decrement memory
+    DEC_z = 0xC6,
+    DEC_zx = 0xD6,
+    DEC_abs = 0xCE,
+    DEC_absx = 0xDE,
+
     // TAX, TAY, TXA, TYA - register transfers
     TAX = 0xAA,
     TAY = 0xA8,
