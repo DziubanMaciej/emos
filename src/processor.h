@@ -55,6 +55,7 @@ protected:
     u16 sumAddresses(u16 base, u16 offset, bool isReadOnly);
     u16 sumAddressesZeroPage(u8 base, u8 offset);
     void registerTransfer(u8 &dst, const u8 &src);
+    void aluOperation();
 
     // Helper functions for flags register
     void updateArithmeticFlags(u8 value);
@@ -62,6 +63,8 @@ protected:
 
     // Functions for actually executing instructions
     void executeLda(AddressingMode mode);
+    void executeInc(AddressingMode mode);
+    void executeDec(AddressingMode mode);
     void executeCmp(AddressingMode mode);
     void executeCpx(AddressingMode mode);
     void executeCpy(AddressingMode mode);

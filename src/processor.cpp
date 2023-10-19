@@ -13,6 +13,16 @@ Processor::Processor() {
     setInstructionData(OpCode::LDA_ix, AddressingMode::IndexedIndirectX, &Processor::executeLda);
     setInstructionData(OpCode::LDA_iy, AddressingMode::IndirectIndexedY, &Processor::executeLda);
 
+    setInstructionData(OpCode::INC_z, AddressingMode::ZeroPage, &Processor::executeInc);
+    setInstructionData(OpCode::INC_zx, AddressingMode::ZeroPageX, &Processor::executeInc);
+    setInstructionData(OpCode::INC_abs, AddressingMode::Absolute, &Processor::executeInc);
+    setInstructionData(OpCode::INC_absx, AddressingMode::AbsoluteX, &Processor::executeInc);
+
+    setInstructionData(OpCode::DEC_z, AddressingMode::ZeroPage, &Processor::executeDec);
+    setInstructionData(OpCode::DEC_zx, AddressingMode::ZeroPageX, &Processor::executeDec);
+    setInstructionData(OpCode::DEC_abs, AddressingMode::Absolute, &Processor::executeDec);
+    setInstructionData(OpCode::DEC_absx, AddressingMode::AbsoluteX, &Processor::executeDec);
+
     setInstructionData(OpCode::TAX, AddressingMode::Implied, &Processor::executeTax);
     setInstructionData(OpCode::TAY, AddressingMode::Implied, &Processor::executeTay);
     setInstructionData(OpCode::TXA, AddressingMode::Implied, &Processor::executeTxa);
@@ -185,6 +195,10 @@ void Processor::registerTransfer(u8 &dst, const u8 &src) {
     dst = src;
 }
 
+void Processor::aluOperation() {
+    counters.cyclesProcessed++;
+}
+
 void Processor::updateArithmeticFlags(u8 value) {
     regs.flags.z = value == 0;
     regs.flags.n = bool(value & 0x80);
@@ -199,6 +213,24 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
 void Processor::executeLda(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a = value;
+    updateArithmeticFlags(value);
+}
+
+void Processor::executeInc(AddressingMode mode) {
+    const u16 address = getAddress(mode, false);
+    u8 value = readByteFromMemory(address);
+    value++;
+    aluOperation();
+    writeByteToMemory(address, value);
+    updateArithmeticFlags(value);
+}
+
+void Processor::executeDec(AddressingMode mode) {
+    const u16 address = getAddress(mode, false);
+    u8 value = readByteFromMemory(address);
+    value--;
+    aluOperation();
+    writeByteToMemory(address, value);
     updateArithmeticFlags(value);
 }
 
