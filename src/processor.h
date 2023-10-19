@@ -55,6 +55,10 @@ protected:
     void executeLda(AddressingMode mode);
     void executeInc(AddressingMode mode);
     void executeDec(AddressingMode mode);
+    void executeInx(AddressingMode mode);
+    void executeIny(AddressingMode mode);
+    void executeDex(AddressingMode mode);
+    void executeDey(AddressingMode mode);
     void executeCmp(AddressingMode mode);
     void executeCpx(AddressingMode mode);
     void executeCpy(AddressingMode mode);

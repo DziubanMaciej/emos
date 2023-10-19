@@ -31,6 +31,12 @@ enum class OpCode : u8 {
     INC_abs = 0xEE,
     INC_absx = 0xFE,
 
+    // INC, INY, DEX, DEY - increment/decrement index registers
+    INX = 0xE8,
+    INY = 0xC8,
+    DEX = 0xCA,
+    DEY = 0x88,
+
     // DEC - decrement memory
     DEC_z = 0xC6,
     DEC_zx = 0xD6,
