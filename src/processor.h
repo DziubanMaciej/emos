@@ -30,6 +30,7 @@ protected:
         Immediate,
         ZeroPage,
         ZeroPageX,
+        ZeroPageY,
         Absolute,
         AbsoluteX,
         AbsoluteY,
@@ -53,6 +54,8 @@ protected:
 
     // Functions for executing instructions.
     void executeLda(AddressingMode mode);
+    void executeLdx(AddressingMode mode);
+    void executeLdy(AddressingMode mode);
     void executeInc(AddressingMode mode);
     void executeDec(AddressingMode mode);
     void executeInx(AddressingMode mode);

@@ -16,6 +16,20 @@ enum class OpCode : u8 {
     LDA_ix = 0xA1,
     LDA_iy = 0xB1,
 
+    // LDX - Load X register
+    LDX_imm = 0xA2,
+    LDX_z = 0xA6,
+    LDX_zy = 0xB6,
+    LDX_abs = 0xAE,
+    LDX_absy = 0xBE,
+
+    // LDY - Load Y register
+    LDY_imm = 0xA0,
+    LDY_z = 0xA4,
+    LDY_zx = 0xB4,
+    LDY_abs = 0xAC,
+    LDY_absx = 0xBC,
+
     // STA - store accumulator
     STA_z = 0x85,
     STA_zx = 0x95,
@@ -70,5 +84,6 @@ enum class OpCode : u8 {
     CPY_abs = 0xCC,
 
     // Special values
+    _INVALID = 0x00,
     _MAX_VALUE = 0xFF,
 };
