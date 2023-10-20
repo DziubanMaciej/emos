@@ -47,10 +47,13 @@ protected:
     u16 sumAddressesZeroPage(u8 base, u8 offset);
     void registerTransfer(u8 &dst, const u8 &src);
     void aluOperation();
+    bool isSignBitSet(u8 value);
 
     // Helper functions for status flags.
     void updateArithmeticFlags(u8 value);
     void updateFlagsAfterComparison(u8 registerValue, u8 inputValue);
+    u16 updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2);
+    void updateCarryFlagIfOverflow(u16 value);
 
     // Functions for executing instructions.
     void executeLda(AddressingMode mode);
@@ -69,6 +72,7 @@ protected:
     void executeTay(AddressingMode mode);
     void executeTxa(AddressingMode mode);
     void executeTya(AddressingMode mode);
+    void executeAdc(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};

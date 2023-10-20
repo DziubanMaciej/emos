@@ -83,6 +83,16 @@ enum class OpCode : u8 {
     CPY_z = 0xC4,
     CPY_abs = 0xCC,
 
+    // ADC - add with carry
+    ADC_imm = 0x69,
+    ADC_z = 0x65,
+    ADC_zx = 0x75,
+    ADC_abs = 0x6D,
+    ADC_absx = 0x7D,
+    ADC_absy = 0x79,
+    ADC_ix = 0x61,
+    ADC_iy = 0x71,
+
     // Special values
     _INVALID = 0x00,
     _MAX_VALUE = 0xFF,
