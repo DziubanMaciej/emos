@@ -2,6 +2,7 @@
 #include "processor.h"
 
 #include <cstring>
+#include <limits>
 
 Processor::Processor() {
     setInstructionData(OpCode::LDA_imm, AddressingMode::Immediate, &Processor::executeLda);
@@ -49,6 +50,15 @@ Processor::Processor() {
     setInstructionData(OpCode::CPY_imm, AddressingMode::Immediate, &Processor::executeCpy);
     setInstructionData(OpCode::CPY_z, AddressingMode::ZeroPage, &Processor::executeCpy);
     setInstructionData(OpCode::CPY_abs, AddressingMode::Absolute, &Processor::executeCpy);
+
+    setInstructionData(OpCode::ADC_imm, AddressingMode::Immediate, &Processor::executeAdc);
+    setInstructionData(OpCode::ADC_z, AddressingMode::ZeroPage, &Processor::executeAdc);
+    setInstructionData(OpCode::ADC_zx, AddressingMode::ZeroPageX, &Processor::executeAdc);
+    setInstructionData(OpCode::ADC_abs, AddressingMode::Absolute, &Processor::executeAdc);
+    setInstructionData(OpCode::ADC_absx, AddressingMode::AbsoluteX, &Processor::executeAdc);
+    setInstructionData(OpCode::ADC_absy, AddressingMode::AbsoluteY, &Processor::executeAdc);
+    setInstructionData(OpCode::ADC_ix, AddressingMode::IndexedIndirectX, &Processor::executeAdc);
+    setInstructionData(OpCode::ADC_iy, AddressingMode::IndirectIndexedY, &Processor::executeAdc);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -204,9 +214,13 @@ void Processor::aluOperation() {
     counters.cyclesProcessed++;
 }
 
+bool Processor::isSignBitSet(u8 value) {
+    return value & 0x80;
+}
+
 void Processor::updateArithmeticFlags(u8 value) {
     regs.flags.z = value == 0;
-    regs.flags.n = bool(value & 0x80);
+    regs.flags.n = isSignBitSet(value);
 }
 
 void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
@@ -292,5 +306,26 @@ void Processor::executeTxa(AddressingMode) {
 }
 void Processor::executeTya(AddressingMode) {
     registerTransfer(regs.a, regs.y);
+    updateArithmeticFlags(regs.a);
+}
+
+void Processor::updateCarryFlagIfOverflow(u16 value) {
+    regs.flags.c = value > std::numeric_limits<u8>::max();
+}
+
+u16 Processor::updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2) {
+    u16 sum = inputValue1 + inputValue2;
+    if (!(isSignBitSet(inputValue1) ^ isSignBitSet(inputValue2))) { // when 0 && 0 or 1 && 1
+        regs.flags.o = isSignBitSet(sum) ^ isSignBitSet(inputValue1);
+    }
+    return sum;
+}
+
+void Processor::executeAdc(AddressingMode mode) {
+    const u8 addend = readValue(mode, true);
+    u16 sum = updateOverflowForSumWithCarry(regs.a, regs.flags.c);
+    sum = updateOverflowForSumWithCarry(sum, addend);
+    updateCarryFlagIfOverflow(sum);
+    regs.a = static_cast<u8>(sum);
     updateArithmeticFlags(regs.a);
 }
