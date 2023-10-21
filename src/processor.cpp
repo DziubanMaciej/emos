@@ -342,7 +342,7 @@ void Processor::updateCarryFlagIfOverflow(u16 value) {
 
 u16 Processor::updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2) {
     u16 sum = inputValue1 + inputValue2;
-    if (!(isSignBitSet(inputValue1) ^ isSignBitSet(inputValue2))) { // when 0 && 0 or 1 && 1
+    if (isSignBitSet(inputValue1) == isSignBitSet(inputValue2)) {
         regs.flags.o = isSignBitSet(sum) ^ isSignBitSet(inputValue1);
     }
     return sum;
@@ -350,6 +350,7 @@ u16 Processor::updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2) {
 
 void Processor::executeAdc(AddressingMode mode) {
     const u8 addend = readValue(mode, true);
+    regs.flags.o = 0;
     u16 sum = updateOverflowForSumWithCarry(regs.a, regs.flags.c);
     sum = updateOverflowForSumWithCarry(sum, addend);
     updateCarryFlagIfOverflow(sum);

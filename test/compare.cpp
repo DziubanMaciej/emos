@@ -1,6 +1,14 @@
 #include "fixtures.h"
 
+#include "src/error.h"
+
 struct CompareTest : testing::WithParamInterface<OpCode>, EmosTest {
+    void checkNotAffectedFlags() override {
+        EXPECT_EQ(flagsOnStart.i, processor.regs.flags.i);
+        EXPECT_EQ(flagsOnStart.d, processor.regs.flags.d);
+        EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
+        EXPECT_EQ(flagsOnStart.o, processor.regs.flags.o);
+    }
     void setRegisterForOpCode(OpCode opCode, u8 value) {
         switch (opCode) {
         case OpCode::CMP_imm:
@@ -20,6 +28,31 @@ struct CompareTest : testing::WithParamInterface<OpCode>, EmosTest {
             break;
         default:
             break;
+        }
+    }
+    static std::string constructParamName(const testing::TestParamInfo<OpCode> &info) {
+        OpCode opCode = info.param;
+        switch (opCode) {
+        case OpCode::CMP_imm:
+            return "CMP_imm";
+        case OpCode::CMP_z:
+            return "CMP_z";
+        case OpCode::CMP_abs:
+            return "CMP_abs";
+        case OpCode::CPX_imm:
+            return "CPX_imm";
+        case OpCode::CPX_z:
+            return "CPX_z";
+        case OpCode::CPX_abs:
+            return "CPX_abs";
+        case OpCode::CPY_imm:
+            return "CPY_imm";
+        case OpCode::CPY_z:
+            return "CPY_z";
+        case OpCode::CPY_abs:
+            return "CPY_abs";
+        default:
+            FATAL_ERROR("Wrong OpCode");
         }
     }
 };
@@ -72,7 +105,7 @@ TEST_P(CompareTestImm, givenImmediateModeAndLessValueThenProcessInstruction) {
 OpCode opcodesImm[] = {OpCode::CMP_imm, OpCode::CPX_imm, OpCode::CPY_imm};
 
 INSTANTIATE_TEST_SUITE_P(, CompareTestImm,
-                         ::testing::ValuesIn(opcodesImm));
+                         ::testing::ValuesIn(opcodesImm), CompareTestImm::constructParamName);
 
 using CompareTestZ = CompareTest;
 TEST_P(CompareTestZ, givenZeroPageModeThenProcessInstruction) {
@@ -115,9 +148,16 @@ TEST_P(CompareTestAbs, givenAbsoluteModeThenProcessInstruction) {
 OpCode opcodesAbs[] = {OpCode::CMP_abs, OpCode::CPX_abs, OpCode::CPY_abs};
 
 INSTANTIATE_TEST_SUITE_P(, CompareTestAbs,
-                         ::testing::ValuesIn(opcodesAbs));
+                         ::testing::ValuesIn(opcodesAbs), CompareTestAbs::constructParamName);
 
-using CmpTest = EmosTest;
+struct CmpTest : EmosTest {
+    void checkNotAffectedFlags() override {
+        EXPECT_EQ(flagsOnStart.i, processor.regs.flags.i);
+        EXPECT_EQ(flagsOnStart.d, processor.regs.flags.d);
+        EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
+        EXPECT_EQ(flagsOnStart.o, processor.regs.flags.o);
+    }
+};
 
 TEST_F(CmpTest, givenZeroPageModeXThenProcessInstruction) {
     processor.regs.a = 0xCC;
