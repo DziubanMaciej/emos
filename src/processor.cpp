@@ -71,6 +71,24 @@ Processor::Processor() {
     setInstructionData(OpCode::ADC_absy, AddressingMode::AbsoluteY, &Processor::executeAdc);
     setInstructionData(OpCode::ADC_ix, AddressingMode::IndexedIndirectX, &Processor::executeAdc);
     setInstructionData(OpCode::ADC_iy, AddressingMode::IndirectIndexedY, &Processor::executeAdc);
+
+    setInstructionData(OpCode::AND_imm, AddressingMode::Immediate, &Processor::executeAnd);
+    setInstructionData(OpCode::AND_z, AddressingMode::ZeroPage, &Processor::executeAnd);
+    setInstructionData(OpCode::AND_zx, AddressingMode::ZeroPageX, &Processor::executeAnd);
+    setInstructionData(OpCode::AND_abs, AddressingMode::Absolute, &Processor::executeAnd);
+    setInstructionData(OpCode::AND_absx, AddressingMode::AbsoluteX, &Processor::executeAnd);
+    setInstructionData(OpCode::AND_absy, AddressingMode::AbsoluteY, &Processor::executeAnd);
+    setInstructionData(OpCode::AND_ix, AddressingMode::IndexedIndirectX, &Processor::executeAnd);
+    setInstructionData(OpCode::AND_iy, AddressingMode::IndirectIndexedY, &Processor::executeAnd);
+
+    setInstructionData(OpCode::ORA_imm, AddressingMode::Immediate, &Processor::executeOra);
+    setInstructionData(OpCode::ORA_z, AddressingMode::ZeroPage, &Processor::executeOra);
+    setInstructionData(OpCode::ORA_zx, AddressingMode::ZeroPageX, &Processor::executeOra);
+    setInstructionData(OpCode::ORA_abs, AddressingMode::Absolute, &Processor::executeOra);
+    setInstructionData(OpCode::ORA_absx, AddressingMode::AbsoluteX, &Processor::executeOra);
+    setInstructionData(OpCode::ORA_absy, AddressingMode::AbsoluteY, &Processor::executeOra);
+    setInstructionData(OpCode::ORA_ix, AddressingMode::IndexedIndirectX, &Processor::executeOra);
+    setInstructionData(OpCode::ORA_iy, AddressingMode::IndirectIndexedY, &Processor::executeOra);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -355,5 +373,17 @@ void Processor::executeAdc(AddressingMode mode) {
     sum = updateOverflowForSumWithCarry(sum, addend);
     updateCarryFlagIfOverflow(sum);
     regs.a = static_cast<u8>(sum);
+    updateArithmeticFlags(regs.a);
+}
+
+void Processor::executeAnd(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
+    regs.a &= value;
+    updateArithmeticFlags(regs.a);
+}
+
+void Processor::executeOra(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
+    regs.a |= value;
     updateArithmeticFlags(regs.a);
 }

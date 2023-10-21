@@ -85,57 +85,109 @@ struct LdTest : testing::WithParamInterface<Reg>,
             FATAL_ERROR("Wrong reg");
         }
     }
+    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) override {
+
+        switch (opcode) {
+        case OpCode::LDA_imm:
+        case OpCode::LDX_imm:
+        case OpCode::LDY_imm:
+            initializeForImmediate(opcode, value.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 2u;
+            return;
+        case OpCode::LDA_z:
+        case OpCode::LDX_z:
+        case OpCode::LDY_z:
+            initializeForZeroPage(opcode, value.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 3u;
+            return;
+        case OpCode::LDA_zx:
+        case OpCode::LDY_zx:
+            initializeForZeroPageX(opcode, value.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 4u;
+            return;
+        case OpCode::LDX_zy:
+            initializeForZeroPageY(opcode, value.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 4u;
+            return;
+        case OpCode::LDA_ix:
+            initializeForIndirectX(opcode, value.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 6u;
+            return;
+        case OpCode::LDA_iy:
+            initializeForIndirectY(opcode, value.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 5u;
+            return;
+        case OpCode::LDA_abs:
+        case OpCode::LDX_abs:
+        case OpCode::LDY_abs:
+            initializeForAbsolute(opcode, value.value());
+            expectedBytesProcessed = 3u;
+            expectedCyclesProcessed = 4u;
+            return;
+        case OpCode::LDA_absx:
+        case OpCode::LDY_absx:
+            initializeForAbsoluteX(opcode, value.value());
+            expectedBytesProcessed = 3u;
+            expectedCyclesProcessed = 4u;
+            return;
+        case OpCode::LDX_absy:
+            initializeForAbsoluteY(opcode, value.value());
+            expectedBytesProcessed = 3u;
+            expectedCyclesProcessed = 4u;
+            return;
+        default:
+            FATAL_ERROR("Wrong OpCode");
+        }
+    }
 };
 
 TEST_P(LdTest, givenImmediateModeAndNegativeValueThenProcessInstruction) {
     const OpCode opCode = getOpCodeImm();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x84;
+
+    initializeProcessor(opCode, 0x84, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x84, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenImmediateModeAndZeroValueThenProcessInstruction) {
     const OpCode opCode = getOpCodeImm();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x0;
+    initializeProcessor(opCode, 0x0, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x0, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
+
     EXPECT_TRUE(processor.regs.flags.z);
     EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenImmediateModeAndPositiveValueThenProcessInstruction) {
     const OpCode opCode = getOpCodeImm();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x74;
+    initializeProcessor(opCode, 0x74, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x74, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenZeroPageModeThenProcessInstruction) {
     const OpCode opCode = getOpCodeZ();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x84;
-    processor.memory[0x84] = 0xDD;
+    initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(3, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -145,16 +197,11 @@ TEST_P(LdTest, givenZeroPageXModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
-
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x84;
-    processor.regs.x = 0x5;
-    processor.memory[0x89] = 0xDD;
+    initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -170,10 +217,12 @@ TEST_P(LdTest, givenZeroPageXModeAndWrapAroundThenProcessInstruction) {
     processor.regs.x = 0x30;
     processor.memory[0x20] = 0xDD; // address addition should wrap around to zero page address
 
+    expectedBytesProcessed = 2;
+    expectedCyclesProcessed = 4;
+
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -183,16 +232,11 @@ TEST_P(LdTest, givenZeroPageYModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
-
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x84;
-    processor.regs.y = 0x5;
-    processor.memory[0x89] = 0xDD;
+    initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -207,11 +251,12 @@ TEST_P(LdTest, givenZeroPageYModeAndWrapAroundThenProcessInstruction) {
     processor.memory[startAddress + 1] = 0xF0;
     processor.regs.y = 0x30;
     processor.memory[0x20] = 0xDD; // address addition should wrap around to zero page address
+    expectedBytesProcessed = 2;
+    expectedCyclesProcessed = 4;
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -221,16 +266,11 @@ TEST_P(LdTest, givenAbsoluteModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
-
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x34;
-    processor.memory[startAddress + 2] = 0x12;
-    processor.memory[0x1234] = 0xDD;
+    initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -240,17 +280,11 @@ TEST_P(LdTest, givenAbsoluteXModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
-
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x34;
-    processor.memory[startAddress + 2] = 0x12;
-    processor.regs.x = 0x5;
-    processor.memory[0x1239] = 0xDD;
+    initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -266,11 +300,12 @@ TEST_P(LdTest, givenAbsoluteXModeAndPageCrossThenProcessInstruction) {
     processor.memory[startAddress + 2] = 0x12;
     processor.regs.x = 0xF;
     processor.memory[0x1300] = 0xDD;
+    expectedBytesProcessed = 3;
+    expectedCyclesProcessed = 5;
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
-    EXPECT_EQ(5, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -280,17 +315,11 @@ TEST_P(LdTest, givenAbsoluteYModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
-
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x34;
-    processor.memory[startAddress + 2] = 0x12;
-    processor.regs.y = 0x5;
-    processor.memory[0x1239] = 0xDD;
+    initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -306,11 +335,12 @@ TEST_P(LdTest, givenAbsoluteYModeAndPageCrossThenProcessInstruction) {
     processor.memory[startAddress + 2] = 0x12;
     processor.regs.y = 0xF;
     processor.memory[0x1300] = 0xDD;
+    expectedBytesProcessed = 3;
+    expectedCyclesProcessed = 5;
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
-    EXPECT_EQ(5, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -320,18 +350,11 @@ TEST_P(LdTest, givenIndexedIndirectXModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
-
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x54;
-    processor.regs.x = 0x5;
-    processor.memory[0x59] = 0x34;
-    processor.memory[0x5A] = 0x12;
-    processor.memory[0x1234] = 0xDD;
+    initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(6, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -348,11 +371,12 @@ TEST_P(LdTest, givenIndexedIndirectXModeAndWraparoundThenProcessInstruction) {
     processor.memory[0x20] = 0x34;
     processor.memory[0x21] = 0x12;
     processor.memory[0x1234] = 0xDD;
+    expectedBytesProcessed = 2;
+    expectedCyclesProcessed = 6;
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(6, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -362,18 +386,11 @@ TEST_P(LdTest, givenIndirectIndexedYModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
-
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x54;
-    processor.memory[0x54] = 0x30;
-    processor.memory[0x55] = 0x12;
-    processor.regs.y = 0x4;
-    processor.memory[0x1234] = 0xDD;
+    initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(5, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
@@ -390,11 +407,12 @@ TEST_P(LdTest, givenIndirectIndexedYModeAndPageCrossedThenProcessInstruction) {
     processor.memory[0x55] = 0x12;
     processor.regs.y = 0x4;
     processor.memory[0x1303] = 0xDD;
+    expectedBytesProcessed = 2;
+    expectedCyclesProcessed = 6;
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(6, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }

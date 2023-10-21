@@ -16,6 +16,12 @@ struct InxInyDexDeyTest : testing::WithParamInterface<OpCode>, EmosTest {
             FATAL_ERROR("Wrong OpCode");
         }
     }
+    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) override {
+        processor.memory[startAddress + 0] = static_cast<u8>(opcode);
+        getReg(opcode) = loadToReg.value();
+        expectedBytesProcessed = 1;
+        expectedCyclesProcessed = 2;
+    }
     static std::string constructParamName(const testing::TestParamInfo<OpCode> &info) {
         OpCode opCode = info.param;
         switch (opCode) {
@@ -37,39 +43,33 @@ using InxInyTest = InxInyDexDeyTest;
 
 TEST_P(InxInyTest, givenIncrementOperationAndPositiveOutputThenProcessInstruction) {
     const OpCode opCode = GetParam();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    getReg(opCode) = 0x10;
+    u8 loadToReg = 0x10;
+    initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x11, getReg(opCode));
-    EXPECT_EQ(1, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(InxInyTest, givenNegativeOutputThenProcessInstruction) {
     const OpCode opCode = GetParam();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    getReg(opCode) = 0x7F;
+    u8 loadToReg = 0x7F;
+    initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, getReg(opCode));
-    EXPECT_EQ(1, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(InxInyTest, givenZeroOutputThenProcessInstruction) {
     const OpCode opCode = GetParam();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    getReg(opCode) = 0xFF;
+    u8 loadToReg = 0xFF;
+    initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, getReg(opCode));
-    EXPECT_EQ(1, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
     EXPECT_TRUE(processor.regs.flags.z);
     EXPECT_FALSE(processor.regs.flags.n);
 }
@@ -80,52 +80,45 @@ using DexDeyTest = InxInyDexDeyTest;
 
 TEST_P(DexDeyTest, givenDecrementOperationAndPositiveOutputThenProcessInstruction) {
     const OpCode opCode = GetParam();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    getReg(opCode) = 0x10;
+
+    u8 loadToReg = 0x10;
+    initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x0F, getReg(opCode));
-    EXPECT_EQ(1, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(DexDeyTest, givenDecrementOperationAndZeroOutputThenProcessInstruction) {
     const OpCode opCode = GetParam();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    getReg(opCode) = 0x01;
+    u8 loadToReg = 0x01;
+    initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, getReg(opCode));
-    EXPECT_EQ(1, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
     EXPECT_TRUE(processor.regs.flags.z);
     EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(DexDeyTest, givenDecrementOperationAndNegativeOutputThenProcessInstruction) {
     const OpCode opCode = GetParam();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    getReg(opCode) = 0x81;
+    u8 loadToReg = 0x81;
+    initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, getReg(opCode));
-    EXPECT_EQ(1, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(DexDeyTest, givenDecrementOperationWrapAroundThenProcessInstruction) {
     const OpCode opCode = GetParam();
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    getReg(opCode) = 0x00;
+    u8 loadToReg = 0x00;
+    initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xFF, getReg(opCode));
-    EXPECT_EQ(1, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
 }
