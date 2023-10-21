@@ -21,14 +21,24 @@ struct EmosTest : ::testing::Test {
         processor.regs.x = 0x23;
         processor.regs.y = 0x33;
         processor.regs.sp = 0x43;
-        processor.regs.flags.c = 0;
-        processor.regs.flags.z = 0;
-        processor.regs.flags.i = 0;
-        processor.regs.flags.d = 0;
-        processor.regs.flags.b = 0;
-        processor.regs.flags.o = 0;
-        processor.regs.flags.n = 0;
-        processor.regs.flags.r = 0;
+        processor.regs.flags.c = flagsOnStart.c = 1;
+        processor.regs.flags.z = flagsOnStart.z = 1;
+        processor.regs.flags.i = flagsOnStart.i = 1;
+        processor.regs.flags.d = flagsOnStart.d = 1;
+        processor.regs.flags.b = flagsOnStart.b = 1;
+        processor.regs.flags.o = flagsOnStart.o = 1;
+        processor.regs.flags.n = flagsOnStart.n = 1;
+        processor.regs.flags.r = flagsOnStart.r = 1;
+    }
+    void TearDown() {
+        checkNotAffectedFlags();
+    }
+    virtual void checkNotAffectedFlags() {
+        EXPECT_EQ(flagsOnStart.c, processor.regs.flags.c);
+        EXPECT_EQ(flagsOnStart.i, processor.regs.flags.i);
+        EXPECT_EQ(flagsOnStart.d, processor.regs.flags.d);
+        EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
+        EXPECT_EQ(flagsOnStart.o, processor.regs.flags.o);
     }
     void initializeForZeroPageX(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
@@ -87,4 +97,5 @@ struct EmosTest : ::testing::Test {
 
     u16 startAddress = {};
     WhiteboxProcessor processor = {};
+    StatusFlags flagsOnStart;
 };

@@ -3,10 +3,10 @@
 #include "src/error.h"
 
 struct AdcTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void checkNotAffectedFlags() {
-        EXPECT_FALSE(processor.regs.flags.i);
-        EXPECT_FALSE(processor.regs.flags.d);
-        EXPECT_FALSE(processor.regs.flags.b);
+    void checkNotAffectedFlags() override {
+        EXPECT_EQ(flagsOnStart.i, processor.regs.flags.i);
+        EXPECT_EQ(flagsOnStart.d, processor.regs.flags.d);
+        EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
     }
 
     void initializeProcessor(OpCode opcode, u8 regA, u8 addend) {
