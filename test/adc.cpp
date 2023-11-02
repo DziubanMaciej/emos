@@ -9,46 +9,46 @@ struct AdcTest : testing::WithParamInterface<OpCode>, EmosTest {
         EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
     }
 
-    void initializeProcessor(OpCode opcode, u8 regA, u8 addend) {
-        processor.regs.a = regA;
+    void initializeProcessor(OpCode opcode, std::optional<u8> addend, std::optional<u8> regA) override {
+        processor.regs.a = regA.value();
         switch (opcode) {
         case OpCode::ADC_imm:
-            initializeForImmediate(OpCode::ADC_imm, addend);
+            initializeForImmediate(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 2u;
             return;
         case OpCode::ADC_z:
-            initializeForZeroPage(OpCode::ADC_z, addend);
+            initializeForZeroPage(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 3u;
             return;
         case OpCode::ADC_zx:
-            initializeForZeroPageX(OpCode::ADC_zx, addend);
+            initializeForZeroPageX(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 4u;
             return;
         case OpCode::ADC_abs:
-            initializeForAbsolute(OpCode::ADC_abs, addend);
+            initializeForAbsolute(opcode, addend.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
             return;
         case OpCode::ADC_absx:
-            initializeForAbsoluteX(OpCode::ADC_absx, addend);
+            initializeForAbsoluteX(opcode, addend.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
             return;
         case OpCode::ADC_absy:
-            initializeForAbsoluteY(OpCode::ADC_absy, addend);
+            initializeForAbsoluteY(opcode, addend.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
             return;
         case OpCode::ADC_ix:
-            initializeForIndirectX(OpCode::ADC_ix, addend);
+            initializeForIndirectX(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
             return;
         case OpCode::ADC_iy:
-            initializeForIndirectY(OpCode::ADC_iy, addend);
+            initializeForIndirectY(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
             return;
@@ -91,7 +91,7 @@ struct AdcTest : testing::WithParamInterface<OpCode>, EmosTest {
         u8 expectedNegativeFlag;
     };
     void runAdcTest(ParamsAdcTests &params) {
-        initializeProcessor(params.opcode, params.regA, params.addend);
+        initializeProcessor(params.opcode, params.addend, params.regA);
         processor.regs.flags.c = params.inCarryFlag;
         processor.executeInstructions(1);
         EXPECT_EQ(expectedBytesProcessed, processor.counters.bytesProcessed);
@@ -102,11 +102,7 @@ struct AdcTest : testing::WithParamInterface<OpCode>, EmosTest {
         EXPECT_EQ(params.expectedCarryFlag, processor.regs.flags.c);
         EXPECT_EQ(params.expectedZeroFlag, processor.regs.flags.z);
         EXPECT_EQ(params.expectedNegativeFlag, processor.regs.flags.n);
-
-        checkNotAffectedFlags();
     }
-    u32 expectedBytesProcessed = 0u;
-    u32 expectedCyclesProcessed = 0u;
 };
 
 TEST_P(AdcTest, givenTwoValueThatSumSetBit7WhenCarryNotSetThenOverflowAndNegativeFlagsSet) {

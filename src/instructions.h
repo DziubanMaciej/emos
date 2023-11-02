@@ -93,6 +93,26 @@ enum class OpCode : u8 {
     ADC_ix = 0x61,
     ADC_iy = 0x71,
 
+    // AND - logical and
+    AND_imm = 0x29,
+    AND_z = 0x25,
+    AND_zx = 0x35,
+    AND_abs = 0x2D,
+    AND_absx = 0x3D,
+    AND_absy = 0x39,
+    AND_ix = 0x21,
+    AND_iy = 0x31,
+
+    // ORA - logical or
+    ORA_imm = 0x09,
+    ORA_z = 0x05,
+    ORA_zx = 0x15,
+    ORA_abs = 0x0D,
+    ORA_absx = 0x1D,
+    ORA_absy = 0x19,
+    ORA_ix = 0x01,
+    ORA_iy = 0x11,
+
     // Special values
     _INVALID = 0x00,
     _MAX_VALUE = 0xFF,

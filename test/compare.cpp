@@ -9,11 +9,69 @@ struct CompareTest : testing::WithParamInterface<OpCode>, EmosTest {
         EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
         EXPECT_EQ(flagsOnStart.o, processor.regs.flags.o);
     }
+    void initializeProcessor(OpCode opcode, std::optional<u8> addend, std::optional<u8> regVal) override {
+        setRegisterForOpCode(opcode, regVal.value());
+        switch (opcode) {
+        case OpCode::CMP_imm:
+        case OpCode::CPX_imm:
+        case OpCode::CPY_imm:
+            initializeForImmediate(opcode, addend.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 2u;
+            return;
+        case OpCode::CMP_z:
+        case OpCode::CPX_z:
+        case OpCode::CPY_z:
+            initializeForZeroPage(opcode, addend.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 3u;
+            return;
+        case OpCode::CMP_abs:
+        case OpCode::CPX_abs:
+        case OpCode::CPY_abs:
+            initializeForAbsolute(opcode, addend.value());
+            expectedBytesProcessed = 3u;
+            expectedCyclesProcessed = 4u;
+            return;
+        case OpCode::CMP_zx:
+            initializeForZeroPageX(opcode, addend.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 4u;
+            return;
+        case OpCode::CMP_absx:
+            initializeForAbsoluteX(opcode, addend.value());
+            expectedBytesProcessed = 3u;
+            expectedCyclesProcessed = 4u;
+            return;
+        case OpCode::CMP_absy:
+            initializeForAbsoluteY(opcode, addend.value());
+            expectedBytesProcessed = 3u;
+            expectedCyclesProcessed = 4u;
+            return;
+        case OpCode::CMP_ix:
+            initializeForIndirectX(opcode, addend.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 6u;
+            return;
+        case OpCode::CMP_iy:
+            initializeForIndirectY(opcode, addend.value());
+            expectedBytesProcessed = 2u;
+            expectedCyclesProcessed = 5u;
+            return;
+        default:
+            FATAL_ERROR("Wrong OpCode");
+        }
+    }
     void setRegisterForOpCode(OpCode opCode, u8 value) {
         switch (opCode) {
         case OpCode::CMP_imm:
         case OpCode::CMP_z:
         case OpCode::CMP_abs:
+        case OpCode::CMP_zx:
+        case OpCode::CMP_absx:
+        case OpCode::CMP_absy:
+        case OpCode::CMP_ix:
+        case OpCode::CMP_iy:
             processor.regs.a = value;
             break;
         case OpCode::CPX_imm:
@@ -61,14 +119,12 @@ using CompareTestImm = CompareTest;
 
 TEST_P(CompareTestImm, givenImmediateModeAndGreaterValueThenProcessInstruction) {
     auto opCode = GetParam();
-    setRegisterForOpCode(opCode, 0xCC);
-
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0xCD;
+    u8 loadToMem = 0xCD;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.c);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
@@ -76,13 +132,12 @@ TEST_P(CompareTestImm, givenImmediateModeAndGreaterValueThenProcessInstruction) 
 
 TEST_P(CompareTestImm, givenImmediateModeAndEqualValueThenProcessInstruction) {
     auto opCode = GetParam();
-    setRegisterForOpCode(opCode, 0xCC);
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0xCC;
+    u8 loadToMem = 0xCC;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
+
     EXPECT_TRUE(processor.regs.flags.c);
     EXPECT_TRUE(processor.regs.flags.z);
     EXPECT_FALSE(processor.regs.flags.n);
@@ -90,13 +145,12 @@ TEST_P(CompareTestImm, givenImmediateModeAndEqualValueThenProcessInstruction) {
 
 TEST_P(CompareTestImm, givenImmediateModeAndLessValueThenProcessInstruction) {
     auto opCode = GetParam();
-    setRegisterForOpCode(opCode, 0xCC);
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0xCB;
+    u8 loadToMem = 0xCB;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(2, processor.counters.cyclesProcessed);
+
     EXPECT_TRUE(processor.regs.flags.c);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_FALSE(processor.regs.flags.n);
@@ -110,14 +164,12 @@ INSTANTIATE_TEST_SUITE_P(, CompareTestImm,
 using CompareTestZ = CompareTest;
 TEST_P(CompareTestZ, givenZeroPageModeThenProcessInstruction) {
     auto opCode = GetParam();
-    setRegisterForOpCode(opCode, 0xCC);
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x05;
-    processor.memory[0x05] = 0xCD;
+    u8 loadToMem = 0xCD;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(3, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.c);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
@@ -131,15 +183,12 @@ INSTANTIATE_TEST_SUITE_P(, CompareTestZ,
 using CompareTestAbs = CompareTest;
 TEST_P(CompareTestAbs, givenAbsoluteModeThenProcessInstruction) {
     auto opCode = GetParam();
-    setRegisterForOpCode(opCode, 0xCC);
-    processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-    processor.memory[startAddress + 1] = 0x34;
-    processor.memory[startAddress + 2] = 0x12;
-    processor.memory[0x1234] = 0xCD;
+    u8 loadToMem = 0xCD;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
+
     EXPECT_FALSE(processor.regs.flags.c);
     EXPECT_FALSE(processor.regs.flags.z);
     EXPECT_TRUE(processor.regs.flags.n);
@@ -150,21 +199,13 @@ OpCode opcodesAbs[] = {OpCode::CMP_abs, OpCode::CPX_abs, OpCode::CPY_abs};
 INSTANTIATE_TEST_SUITE_P(, CompareTestAbs,
                          ::testing::ValuesIn(opcodesAbs), CompareTestAbs::constructParamName);
 
-struct CmpTest : EmosTest {
-    void checkNotAffectedFlags() override {
-        EXPECT_EQ(flagsOnStart.i, processor.regs.flags.i);
-        EXPECT_EQ(flagsOnStart.d, processor.regs.flags.d);
-        EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
-        EXPECT_EQ(flagsOnStart.o, processor.regs.flags.o);
-    }
-};
+using CmpTest = CompareTest;
 
 TEST_F(CmpTest, givenZeroPageModeXThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_zx);
-    processor.memory[startAddress + 1] = 0x05;
-    processor.regs.x = 0x3;
-    processor.memory[0x08] = 0xCD;
+    auto opCode = OpCode::CMP_zx;
+    u8 loadToMem = 0xCD;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(2, processor.counters.bytesProcessed);
@@ -175,12 +216,10 @@ TEST_F(CmpTest, givenZeroPageModeXThenProcessInstruction) {
 }
 
 TEST_F(CmpTest, givenAbsoluteModeXThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_absx);
-    processor.memory[startAddress + 1] = 0x34;
-    processor.memory[startAddress + 2] = 0x12;
-    processor.regs.x = 0x3;
-    processor.memory[0x1237] = 0xCD;
+    auto opCode = OpCode::CMP_absx;
+    u8 loadToMem = 0xCD;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(3, processor.counters.bytesProcessed);
@@ -191,12 +230,10 @@ TEST_F(CmpTest, givenAbsoluteModeXThenProcessInstruction) {
 }
 
 TEST_F(CmpTest, givenAbsoluteModeYThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_absy);
-    processor.memory[startAddress + 1] = 0x34;
-    processor.memory[startAddress + 2] = 0x12;
-    processor.regs.y = 0x3;
-    processor.memory[0x1237] = 0xCD;
+    auto opCode = OpCode::CMP_absy;
+    u8 loadToMem = 0xCD;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(3, processor.counters.bytesProcessed);
@@ -207,13 +244,10 @@ TEST_F(CmpTest, givenAbsoluteModeYThenProcessInstruction) {
 }
 
 TEST_F(CmpTest, givenIndexedIndirectXModeThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_ix);
-    processor.memory[startAddress + 1] = 0x54;
-    processor.regs.x = 0x5;
-    processor.memory[0x59] = 0x34;
-    processor.memory[0x5A] = 0x12;
-    processor.memory[0x1234] = 0xCD;
+    auto opCode = OpCode::CMP_ix;
+    u8 loadToMem = 0xCD;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(2, processor.counters.bytesProcessed);
@@ -224,13 +258,10 @@ TEST_F(CmpTest, givenIndexedIndirectXModeThenProcessInstruction) {
 }
 
 TEST_F(CmpTest, givenIndirectIndexedYModeThenProcessInstruction) {
-    processor.regs.a = 0xCC;
-    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::CMP_iy);
-    processor.memory[startAddress + 1] = 0x54;
-    processor.memory[0x54] = 0x30;
-    processor.memory[0x55] = 0x12;
-    processor.regs.y = 0x4;
-    processor.memory[0x1234] = 0xCD;
+    auto opCode = OpCode::CMP_iy;
+    u8 loadToMem = 0xCD;
+    u8 loadToReg = 0xCC;
+    initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(2, processor.counters.bytesProcessed);

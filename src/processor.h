@@ -73,6 +73,8 @@ protected:
     void executeTxa(AddressingMode mode);
     void executeTya(AddressingMode mode);
     void executeAdc(AddressingMode mode);
+    void executeAnd(AddressingMode mode);
+    void executeOra(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};
