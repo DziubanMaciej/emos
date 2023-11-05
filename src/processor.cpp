@@ -41,6 +41,30 @@ Processor::Processor() {
     setInstructionData(OpCode::DEC_abs, AddressingMode::Absolute, &Processor::executeDec);
     setInstructionData(OpCode::DEC_absx, AddressingMode::AbsoluteX, &Processor::executeDec);
 
+    setInstructionData(OpCode::ASL_acc, AddressingMode::Accumulator, &Processor::executeAsl);
+    setInstructionData(OpCode::ASL_z, AddressingMode::ZeroPage, &Processor::executeAsl);
+    setInstructionData(OpCode::ASL_zx, AddressingMode::ZeroPageX, &Processor::executeAsl);
+    setInstructionData(OpCode::ASL_abs, AddressingMode::Absolute, &Processor::executeAsl);
+    setInstructionData(OpCode::ASL_absx, AddressingMode::AbsoluteX, &Processor::executeAsl);
+
+    setInstructionData(OpCode::LSR_acc, AddressingMode::Accumulator, &Processor::executeLsr);
+    setInstructionData(OpCode::LSR_z, AddressingMode::ZeroPage, &Processor::executeLsr);
+    setInstructionData(OpCode::LSR_zx, AddressingMode::ZeroPageX, &Processor::executeLsr);
+    setInstructionData(OpCode::LSR_abs, AddressingMode::Absolute, &Processor::executeLsr);
+    setInstructionData(OpCode::LSR_absx, AddressingMode::AbsoluteX, &Processor::executeLsr);
+
+    setInstructionData(OpCode::ROL_acc, AddressingMode::Accumulator, &Processor::executeRol);
+    setInstructionData(OpCode::ROL_z, AddressingMode::ZeroPage, &Processor::executeRol);
+    setInstructionData(OpCode::ROL_zx, AddressingMode::ZeroPageX, &Processor::executeRol);
+    setInstructionData(OpCode::ROL_abs, AddressingMode::Absolute, &Processor::executeRol);
+    setInstructionData(OpCode::ROL_absx, AddressingMode::AbsoluteX, &Processor::executeRol);
+
+    setInstructionData(OpCode::ROR_acc, AddressingMode::Accumulator, &Processor::executeRor);
+    setInstructionData(OpCode::ROR_z, AddressingMode::ZeroPage, &Processor::executeRor);
+    setInstructionData(OpCode::ROR_zx, AddressingMode::ZeroPageX, &Processor::executeRor);
+    setInstructionData(OpCode::ROR_abs, AddressingMode::Absolute, &Processor::executeRor);
+    setInstructionData(OpCode::ROR_absx, AddressingMode::AbsoluteX, &Processor::executeRor);
+
     setInstructionData(OpCode::TAX, AddressingMode::Implied, &Processor::executeTax);
     setInstructionData(OpCode::TAY, AddressingMode::Implied, &Processor::executeTay);
     setInstructionData(OpCode::TXA, AddressingMode::Implied, &Processor::executeTxa);
@@ -145,6 +169,9 @@ void Processor::writeTwoBytesToMemory(u16 address, u16 bytes) {
 
 u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
     switch (mode) {
+    case AddressingMode::Accumulator: {
+        FATAL_ERROR("Cannot get address in accumulator addressing mode")
+    }
     case AddressingMode::Implied: {
         FATAL_ERROR("Cannot get address in implied addressing mode")
     }
@@ -187,18 +214,42 @@ u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
     }
 }
 
-u8 Processor::readValue(AddressingMode mode, bool isReadOnly) {
-    if (mode == AddressingMode::Immediate) {
-        return fetchInstructionByte();
-    } else {
-        const u16 address = getAddress(mode, isReadOnly);
-        return readByteFromMemory(address);
+u8 Processor::readValue(AddressingMode mode, bool isReadOnly, u16 *outAddress) {
+    u16 address{};
+    u8 value{};
+
+    switch (mode) {
+    case AddressingMode::Accumulator:
+        address = 0xFFFF;
+        value = regs.a;
+        break;
+    case AddressingMode::Immediate:
+        address = 0xFFFF;
+        value = fetchInstructionByte();
+        break;
+    default:
+        address = getAddress(mode, isReadOnly);
+        value = readByteFromMemory(address);
+        break;
     }
+
+    if (outAddress) {
+        *outAddress = address;
+    }
+    return value;
 }
 
-void Processor::writeValue(AddressingMode mode, u8 value) {
-    const u16 address = getAddress(mode, false);
-    writeByteToMemory(address, value);
+void Processor::writeValue(AddressingMode mode, u8 value, u16 *address) {
+    switch (mode) {
+    case AddressingMode::Accumulator:
+        regs.a = value;
+        break;
+    default: {
+        const u16 memoryAddress = address ? *address : getAddress(mode, false);
+        writeByteToMemory(memoryAddress, value);
+        break;
+    }
+    }
 }
 
 u16 Processor::sumAddresses(u16 base, u16 offset, bool isReadOnly) {
@@ -249,6 +300,16 @@ void Processor::aluOperation() {
 
 bool Processor::isSignBitSet(u8 value) {
     return value & 0x80;
+}
+
+bool Processor::isZeroBitSet(u8 value) {
+    return value & 0x01;
+}
+
+void Processor::setBit(u8 &value, u8 bitIndex, bool bit) {
+    FATAL_ERROR_IF(bitIndex >= 8, "bit index for u8 must be within <0,7>")
+    value |= bit << bitIndex;
+    value &= ~((!bit) << bitIndex);
 }
 
 void Processor::updateArithmeticFlags(u8 value) {
@@ -320,6 +381,54 @@ void Processor::executeDey(AddressingMode) {
     regs.y--;
     aluOperation();
     updateArithmeticFlags(regs.y);
+}
+
+void Processor::executeAsl(AddressingMode mode) {
+    u16 address{};
+    u8 value = readValue(mode, false, &address);
+    aluOperation();
+    regs.flags.c = isSignBitSet(value);
+    value <<= 1;
+    writeValue(mode, value, &address);
+    updateArithmeticFlags(value);
+}
+
+void Processor::executeLsr(AddressingMode mode) {
+    u16 address{};
+    u8 value = readValue(mode, false, &address);
+    aluOperation();
+    regs.flags.c = isZeroBitSet(value);
+    value >>= 1;
+    writeValue(mode, value, &address);
+    updateArithmeticFlags(value);
+}
+
+void Processor::executeRol(AddressingMode mode) {
+    u16 address{};
+    u8 value = readValue(mode, false, &address);
+
+    const bool zeroBit = regs.flags.c;
+    regs.flags.c = isSignBitSet(value);
+    value <<= 1;
+    setBit(value, 0, zeroBit);
+
+    aluOperation();
+    writeValue(mode, value, &address);
+    updateArithmeticFlags(value);
+}
+
+void Processor::executeRor(AddressingMode mode) {
+    u16 address{};
+    u8 value = readValue(mode, false, &address);
+
+    const bool oldestBit = regs.flags.c;
+    regs.flags.c = isZeroBitSet(value);
+    value >>= 1;
+    setBit(value, 7, oldestBit);
+
+    aluOperation();
+    writeValue(mode, value, &address);
+    updateArithmeticFlags(value);
 }
 
 void Processor::executeCmp(AddressingMode mode) {
