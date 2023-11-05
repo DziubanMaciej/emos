@@ -64,7 +64,7 @@ TEST_P(RolTest, givenNumberThenRotateProperly) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RolTest, givenMostSignificantBitSetThenSetCarryBit) {
@@ -77,7 +77,7 @@ TEST_P(RolTest, givenMostSignificantBitSetThenSetCarryBit) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RolTest, givenNegativeResultThenSetNegativeBit) {
@@ -90,7 +90,7 @@ TEST_P(RolTest, givenNegativeResultThenSetNegativeBit) {
     flags.expectNegativeFlag(true);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RolTest, givenZeroValueThenZeroFlagSet) {
@@ -103,7 +103,7 @@ TEST_P(RolTest, givenZeroValueThenZeroFlagSet) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RolTest, givenZeroValueAfterShiftThenZeroFlagSet) {
@@ -116,7 +116,7 @@ TEST_P(RolTest, givenZeroValueAfterShiftThenZeroFlagSet) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RolTest, givenCarryFlagSetThenRotateIntoLeastSignificantBit) {
@@ -129,7 +129,7 @@ TEST_P(RolTest, givenCarryFlagSetThenRotateIntoLeastSignificantBit) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RolTest, givenCarryFlagAndLeastSignificantBitSetThenRotateIntoLeastSignificantBit) {
@@ -142,7 +142,7 @@ TEST_P(RolTest, givenCarryFlagAndLeastSignificantBitSetThenRotateIntoLeastSignif
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RolTest, givenCarryFlagAndMostSignificantBitSetThenRotateThroughCarry) {
@@ -155,7 +155,7 @@ TEST_P(RolTest, givenCarryFlagAndMostSignificantBitSetThenRotateThroughCarry) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 INSTANTIATE_TEST_SUITE_P(,

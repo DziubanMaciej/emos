@@ -44,7 +44,7 @@ TEST_F(IncTest, givenZeroPageModeThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x71, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x71, referencedValue.read());
 }
 
 TEST_F(IncTest, givenZeroPageModeAndNegativeValueThenProcessInstruction) {
@@ -56,7 +56,7 @@ TEST_F(IncTest, givenZeroPageModeAndNegativeValueThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x80, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x80, referencedValue.read());
 }
 
 TEST_F(IncTest, givenZeroPageModeAndWrapAroundThenProcessInstruction) {
@@ -68,7 +68,7 @@ TEST_F(IncTest, givenZeroPageModeAndWrapAroundThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x00, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x00, referencedValue.read());
 }
 
 TEST_F(IncTest, givenZeroPageXModeThenProcessInstruction) {
@@ -80,7 +80,7 @@ TEST_F(IncTest, givenZeroPageXModeThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x71, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x71, referencedValue.read());
 }
 
 TEST_F(IncTest, givenAbsoluteModeThenProcessInstruction) {
@@ -92,7 +92,7 @@ TEST_F(IncTest, givenAbsoluteModeThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x71, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x71, referencedValue.read());
 }
 
 TEST_F(IncTest, givenAbsoluteXModeThenProcessInstruction) {
@@ -104,7 +104,7 @@ TEST_F(IncTest, givenAbsoluteXModeThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x71, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x71, referencedValue.read());
 }
 
 using DecTest = IncDecTest;
@@ -118,7 +118,7 @@ TEST_F(DecTest, givenZeroPageModeThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x7F, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x7F, referencedValue.read());
 }
 
 TEST_F(DecTest, givenZeroPageModeAndNegativeValueThenProcessInstruction) {
@@ -130,7 +130,7 @@ TEST_F(DecTest, givenZeroPageModeAndNegativeValueThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x80, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x80, referencedValue.read());
 }
 
 TEST_F(DecTest, givenZeroPageModeAndResultIsZeroThenProcessInstruction) {
@@ -142,7 +142,7 @@ TEST_F(DecTest, givenZeroPageModeAndResultIsZeroThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x00, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x00, referencedValue.read());
 }
 
 TEST_F(DecTest, givenZeroPageModeAndWrapAroundThenProcessInstruction) {
@@ -154,7 +154,7 @@ TEST_F(DecTest, givenZeroPageModeAndWrapAroundThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0xFF, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0xFF, referencedValue.read());
 }
 
 TEST_F(DecTest, givenZeroPageXModeThenProcessInstruction) {
@@ -166,7 +166,7 @@ TEST_F(DecTest, givenZeroPageXModeThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x6F, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x6F, referencedValue.read());
 }
 
 TEST_F(DecTest, givenAbsoluteModeThenProcessInstruction) {
@@ -178,7 +178,7 @@ TEST_F(DecTest, givenAbsoluteModeThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x6F, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x6F, referencedValue.read());
 }
 
 TEST_F(DecTest, givenAbsoluteXModeThenProcessInstruction) {
@@ -190,5 +190,5 @@ TEST_F(DecTest, givenAbsoluteXModeThenProcessInstruction) {
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(0x6F, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(0x6F, referencedValue.read());
 }
