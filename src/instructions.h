@@ -85,11 +85,13 @@ enum class OpCode : u8 {
     ROR_abs = 0x6E,
     ROR_absx = 0x7E,
 
-    // TAX, TAY, TXA, TYA - register transfers
+    // TAX, TAY, TXA, TYA, TSX, TXS - register transfers
     TAX = 0xAA,
     TAY = 0xA8,
-    TXA = 0xBA,
-    TYA = 0x8A,
+    TXA = 0x8A,
+    TYA = 0x98,
+    TSX = 0xBA,
+    TXS = 0x9A,
 
     // CMP - compare
     CMP_imm = 0xC9,

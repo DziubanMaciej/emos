@@ -80,6 +80,8 @@ protected:
     void executeTay(AddressingMode mode);
     void executeTxa(AddressingMode mode);
     void executeTya(AddressingMode mode);
+    void executeTsx(AddressingMode mode);
+    void executeTxs(AddressingMode mode);
     void executeAdc(AddressingMode mode);
     void executeAnd(AddressingMode mode);
     void executeOra(AddressingMode mode);

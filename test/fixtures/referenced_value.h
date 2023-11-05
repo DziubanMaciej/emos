@@ -20,6 +20,11 @@ struct ReferencedValue {
         value = &processor.regs.a;
     }
 
+    void set(u8 *address) {
+        EXPECT_EQ(nullptr, value); // we should set this only once
+        value = address;
+    }
+
     void setImmediate(u8 v) {
         EXPECT_EQ(nullptr, value); // we should set this only once
         immediate = v;

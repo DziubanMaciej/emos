@@ -69,6 +69,8 @@ Processor::Processor() {
     setInstructionData(OpCode::TAY, AddressingMode::Implied, &Processor::executeTay);
     setInstructionData(OpCode::TXA, AddressingMode::Implied, &Processor::executeTxa);
     setInstructionData(OpCode::TYA, AddressingMode::Implied, &Processor::executeTya);
+    setInstructionData(OpCode::TSX, AddressingMode::Implied, &Processor::executeTsx);
+    setInstructionData(OpCode::TXS, AddressingMode::Implied, &Processor::executeTxs);
 
     setInstructionData(OpCode::CMP_imm, AddressingMode::Immediate, &Processor::executeCmp);
     setInstructionData(OpCode::CMP_z, AddressingMode::ZeroPage, &Processor::executeCmp);
@@ -461,6 +463,15 @@ void Processor::executeTxa(AddressingMode) {
 void Processor::executeTya(AddressingMode) {
     registerTransfer(regs.a, regs.y);
     updateArithmeticFlags(regs.a);
+}
+
+void Processor::executeTsx(AddressingMode) {
+    registerTransfer(regs.x, regs.sp);
+    updateArithmeticFlags(regs.x);
+}
+void Processor::executeTxs(AddressingMode) {
+    registerTransfer(regs.sp, regs.x);
+    updateArithmeticFlags(regs.sp);
 }
 
 void Processor::updateCarryFlagIfOverflow(u16 value) {
