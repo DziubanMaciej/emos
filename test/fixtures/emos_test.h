@@ -1,6 +1,7 @@
 #pragma once
 
 #include "test/fixtures/flags_tracker.h"
+#include "test/fixtures/referenced_value.h"
 #include "test/fixtures/whitebox.h"
 
 #include <gtest/gtest.h>
@@ -30,21 +31,28 @@ struct EmosTest : ::testing::Test {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x05;
         processor.regs.x = 0x3;
-        dummyAddressUsedForWriteValueToMemory = processor.memory[startAddress + 1] + processor.regs.x; // 0x8
-        processor.memory[dummyAddressUsedForWriteValueToMemory] = value;
+        const u16 address = processor.memory[startAddress + 1] + processor.regs.x;
+        processor.memory[address] = value;
+
+        referencedValue.setMemory(processor, address);
     }
     void initializeForZeroPageY(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x84;
         processor.regs.y = 0x5;
-        processor.memory[0x89] = value;
+        const u16 address = processor.memory[startAddress + 1] + processor.regs.y;
+        processor.memory[address] = value;
+
+        referencedValue.setMemory(processor, address);
     }
 
     void initializeForZeroPage(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x05;
-        dummyAddressUsedForWriteValueToMemory = processor.memory[startAddress + 1];
-        processor.memory[dummyAddressUsedForWriteValueToMemory] = value;
+        const u16 address = processor.memory[startAddress + 1];
+        processor.memory[address] = value;
+
+        referencedValue.setMemory(processor, address);
     }
     void initializeForImmediate(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
@@ -54,8 +62,10 @@ struct EmosTest : ::testing::Test {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x34;
         processor.memory[startAddress + 2] = 0x12;
-        dummyAddressUsedForWriteValueToMemory = (processor.memory[startAddress + 2] << 0x8) + processor.memory[startAddress + 1]; // 0x1234
-        processor.memory[dummyAddressUsedForWriteValueToMemory] = value;
+        const u16 address = (processor.memory[startAddress + 2] << 8) | (processor.memory[startAddress + 1]); // 0x1234
+        processor.memory[address] = value;
+
+        referencedValue.setMemory(processor, address);
     }
 
     void initializeForAbsoluteX(OpCode opCode, u8 value) {
@@ -63,8 +73,10 @@ struct EmosTest : ::testing::Test {
         processor.memory[startAddress + 1] = 0x34;
         processor.memory[startAddress + 2] = 0x12;
         processor.regs.x = 0x3;
-        dummyAddressUsedForWriteValueToMemory = (processor.memory[startAddress + 2] << 0x8) + processor.memory[startAddress + 1] + processor.regs.x; // 0x1234
-        processor.memory[dummyAddressUsedForWriteValueToMemory] = value;
+        const u16 address = (processor.memory[startAddress + 2] << 8) | (processor.memory[startAddress + 1] + processor.regs.x); // 0x1234
+        processor.memory[address] = value;
+
+        referencedValue.setMemory(processor, address);
     }
 
     void initializeForAbsoluteY(OpCode opCode, u8 value) {
@@ -72,8 +84,10 @@ struct EmosTest : ::testing::Test {
         processor.memory[startAddress + 1] = 0x34;
         processor.memory[startAddress + 2] = 0x12;
         processor.regs.y = 0x3;
-        dummyAddressUsedForWriteValueToMemory = (processor.memory[startAddress + 2] << 0x8) + processor.memory[startAddress + 1] + processor.regs.y; // 0x1234
-        processor.memory[dummyAddressUsedForWriteValueToMemory] = value;
+        const u16 address = (processor.memory[startAddress + 2] << 8) | (processor.memory[startAddress + 1] + processor.regs.y); // 0x1234
+        processor.memory[address] = value;
+
+        referencedValue.setMemory(processor, address);
     }
 
     void initializeForIndirectX(OpCode opCode, u8 value) {
@@ -83,8 +97,10 @@ struct EmosTest : ::testing::Test {
         u16 tempAddress = processor.memory[startAddress + 1] + processor.regs.x; // 0x59
         processor.memory[tempAddress] = 0x34;
         processor.memory[tempAddress + 1] = 0x12;
-        dummyAddressUsedForWriteValueToMemory = (processor.memory[tempAddress + 1] << 0x8) + processor.memory[tempAddress]; // 0x1234
-        processor.memory[dummyAddressUsedForWriteValueToMemory] = value;
+        const u16 address = (processor.memory[tempAddress + 1] << 8) | (processor.memory[tempAddress]); // 0x1234
+        processor.memory[address] = value;
+
+        referencedValue.setMemory(processor, address);
     }
     void initializeForIndirectY(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
@@ -93,14 +109,16 @@ struct EmosTest : ::testing::Test {
         processor.memory[tempAddress] = 0x30;
         processor.memory[tempAddress + 1] = 0x12;
         processor.regs.y = 0x4;
-        dummyAddressUsedForWriteValueToMemory = (processor.memory[tempAddress + 1] << 0x8) + processor.memory[tempAddress] + processor.regs.y; // 0x1234
-        processor.memory[dummyAddressUsedForWriteValueToMemory] = value;
+        const u16 address = (processor.memory[tempAddress + 1] << 8) + (processor.memory[tempAddress] + processor.regs.y); // 0x1234
+        processor.memory[address] = value;
+
+        referencedValue.setMemory(processor, address);
     }
 
-    u16 dummyAddressUsedForWriteValueToMemory = {};
     u16 startAddress = {};
     WhiteboxProcessor processor = {};
     FlagsTracker flags{};
+    ReferencedValue referencedValue = {};
     u32 expectedBytesProcessed = 0u;
     u32 expectedCyclesProcessed = 0u;
 };

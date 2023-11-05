@@ -64,7 +64,7 @@ TEST_P(LsrTest, givenNumberThenShiftProperly) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(LsrTest, givenLeastSignificantBitSetThenSetCarryBit) {
@@ -77,7 +77,7 @@ TEST_P(LsrTest, givenLeastSignificantBitSetThenSetCarryBit) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(LsrTest, givenZeroValueThenZeroFlagSet) {
@@ -90,7 +90,7 @@ TEST_P(LsrTest, givenZeroValueThenZeroFlagSet) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(LsrTest, givenZeroValueAfterShiftThenZeroFlagSet) {
@@ -103,7 +103,7 @@ TEST_P(LsrTest, givenZeroValueAfterShiftThenZeroFlagSet) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 INSTANTIATE_TEST_SUITE_P(,

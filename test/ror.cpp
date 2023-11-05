@@ -64,7 +64,7 @@ TEST_P(RorTest, givenNumberThenShiftProperly) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RorTest, givenLeastSignificantBitSetThenSetCarryBit) {
@@ -77,7 +77,7 @@ TEST_P(RorTest, givenLeastSignificantBitSetThenSetCarryBit) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RorTest, givenZeroValueThenZeroFlagSet) {
@@ -90,7 +90,7 @@ TEST_P(RorTest, givenZeroValueThenZeroFlagSet) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RorTest, givenZeroValueAfterShiftThenZeroFlagSet) {
@@ -103,7 +103,7 @@ TEST_P(RorTest, givenZeroValueAfterShiftThenZeroFlagSet) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RorTest, givenCarryFlagSetThenRotateIntoMostSignificantBit) {
@@ -116,7 +116,7 @@ TEST_P(RorTest, givenCarryFlagSetThenRotateIntoMostSignificantBit) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RorTest, givenCarryFlagAndMostSignificantBitSetThenRotateIntoMostSignificantBit) {
@@ -129,7 +129,7 @@ TEST_P(RorTest, givenCarryFlagAndMostSignificantBitSetThenRotateIntoMostSignific
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(RorTest, givenCarryFlagAndLeastSignificantBitSetThenRotateThroughCarry) {
@@ -142,7 +142,7 @@ TEST_P(RorTest, givenCarryFlagAndLeastSignificantBitSetThenRotateThroughCarry) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 INSTANTIATE_TEST_SUITE_P(,

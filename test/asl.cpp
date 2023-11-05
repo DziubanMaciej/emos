@@ -64,7 +64,7 @@ TEST_P(AslTest, givenNumberThenShiftProperly) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(AslTest, givenMostSignificantBitSetThenSetCarryBit) {
@@ -77,7 +77,7 @@ TEST_P(AslTest, givenMostSignificantBitSetThenSetCarryBit) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(AslTest, givenNegativeResultThenSetNegativeBit) {
@@ -90,7 +90,7 @@ TEST_P(AslTest, givenNegativeResultThenSetNegativeBit) {
     flags.expectNegativeFlag(true);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(AslTest, givenZeroValueThenZeroFlagSet) {
@@ -103,7 +103,7 @@ TEST_P(AslTest, givenZeroValueThenZeroFlagSet) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 TEST_P(AslTest, givenZeroValueAfterShiftThenZeroFlagSet) {
@@ -116,7 +116,7 @@ TEST_P(AslTest, givenZeroValueAfterShiftThenZeroFlagSet) {
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
-    EXPECT_EQ(outValue, processor.memory[dummyAddressUsedForWriteValueToMemory]);
+    EXPECT_EQ(outValue, referencedValue.read());
 }
 
 INSTANTIATE_TEST_SUITE_P(,
