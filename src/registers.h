@@ -11,6 +11,9 @@ struct StatusFlags {
     u8 o : 1; // overflow flag
     u8 n : 1; // negative flag
     u8 r : 1; // reserved
+
+    u8 toU8() const;
+    static StatusFlags fromU8(u8 value);
 };
 
 struct Registers {

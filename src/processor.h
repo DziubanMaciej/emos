@@ -47,7 +47,8 @@ protected:
     // increase cycle counter and handle special behaviours, like value wraparounds.
     u16 sumAddresses(u16 base, u16 offset, bool isReadOnly);
     u16 sumAddressesZeroPage(u8 base, u8 offset);
-    void registerTransfer(u8 &dst, const u8 &src);
+    template <typename RegT>
+    void registerTransfer(RegT &dst, const RegT &src);
     void aluOperation();
     bool isSignBitSet(u8 value);
     bool isZeroBitSet(u8 value);
@@ -58,6 +59,10 @@ protected:
     void updateFlagsAfterComparison(u8 registerValue, u8 inputValue);
     u16 updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2);
     void updateCarryFlagIfOverflow(u16 value);
+
+    // Helper functions for stack operations
+    void pushToStack(u8 value);
+    u8 popFromStack();
 
     // Functions for executing instructions.
     void executeLda(AddressingMode mode);
@@ -82,6 +87,10 @@ protected:
     void executeTya(AddressingMode mode);
     void executeTsx(AddressingMode mode);
     void executeTxs(AddressingMode mode);
+    void executePha(AddressingMode mode);
+    void executePhp(AddressingMode mode);
+    void executePla(AddressingMode mode);
+    void executePlp(AddressingMode mode);
     void executeAdc(AddressingMode mode);
     void executeAnd(AddressingMode mode);
     void executeOra(AddressingMode mode);

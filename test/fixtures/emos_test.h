@@ -59,6 +59,9 @@ struct EmosTest : ::testing::Test {
 
         referencedValue.setMemory(processor, address);
     }
+    void initializeForImplied(OpCode opCode) {
+        processor.memory[startAddress + 0] = static_cast<u8>(opCode);
+    }
     void initializeForImmediate(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = value;
