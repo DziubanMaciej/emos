@@ -57,6 +57,34 @@ enum class OpCode : u8 {
     DEC_abs = 0xCE,
     DEC_absx = 0xDE,
 
+    // ASL - arithmetic shift left
+    ASL_acc = 0x0A,
+    ASL_z = 0x06,
+    ASL_zx = 0x16,
+    ASL_abs = 0x0E,
+    ASL_absx = 0x1E,
+
+    // LSR - logical shift right
+    LSR_acc = 0x4A,
+    LSR_z = 0x46,
+    LSR_zx = 0x56,
+    LSR_abs = 0x4E,
+    LSR_absx = 0x5E,
+
+    // ROL - Rotate Left
+    ROL_acc = 0x2A,
+    ROL_z = 0x26,
+    ROL_zx = 0x36,
+    ROL_abs = 0x2E,
+    ROL_absx = 0x3E,
+
+    // ROR - Rotate Right
+    ROR_acc = 0x6A,
+    ROR_z = 0x66,
+    ROR_zx = 0x76,
+    ROR_abs = 0x6E,
+    ROR_absx = 0x7E,
+
     // TAX, TAY, TXA, TYA - register transfers
     TAX = 0xAA,
     TAY = 0xA8,

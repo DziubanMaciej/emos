@@ -6,6 +6,20 @@
 
 constexpr u32 memorySize = 64 * 1024;
 
+enum class AddressingMode {
+    Accumulator,
+    Implied,
+    Immediate,
+    ZeroPage,
+    ZeroPageX,
+    ZeroPageY,
+    Absolute,
+    AbsoluteX,
+    AbsoluteY,
+    IndexedIndirectX,
+    IndirectIndexedY,
+};
+
 class Processor {
 
 public:
@@ -25,21 +39,9 @@ protected:
     void writeTwoBytesToMemory(u16 address, u16 bytes);
 
     // Helper functions to resolve addresses for different addressing modes.
-    enum class AddressingMode {
-        Implied,
-        Immediate,
-        ZeroPage,
-        ZeroPageX,
-        ZeroPageY,
-        Absolute,
-        AbsoluteX,
-        AbsoluteY,
-        IndexedIndirectX,
-        IndirectIndexedY,
-    };
     u16 getAddress(AddressingMode mode, bool isReadOnly);
-    u8 readValue(AddressingMode mode, bool isReadOnly);
-    void writeValue(AddressingMode mode, u8 value);
+    u8 readValue(AddressingMode mode, bool isReadOnly, u16 *outAddress = nullptr);
+    void writeValue(AddressingMode mode, u8 value, u16 *address = nullptr);
 
     // Helper functions on mathematical operations performed internally by the processor. They may
     // increase cycle counter and handle special behaviours, like value wraparounds.
@@ -48,6 +50,8 @@ protected:
     void registerTransfer(u8 &dst, const u8 &src);
     void aluOperation();
     bool isSignBitSet(u8 value);
+    bool isZeroBitSet(u8 value);
+    void setBit(u8 &value, u8 bitIndex, bool bit);
 
     // Helper functions for status flags.
     void updateArithmeticFlags(u8 value);
@@ -65,6 +69,10 @@ protected:
     void executeIny(AddressingMode mode);
     void executeDex(AddressingMode mode);
     void executeDey(AddressingMode mode);
+    void executeAsl(AddressingMode mode);
+    void executeLsr(AddressingMode mode);
+    void executeRol(AddressingMode mode);
+    void executeRor(AddressingMode mode);
     void executeCmp(AddressingMode mode);
     void executeCpx(AddressingMode mode);
     void executeCpy(AddressingMode mode);
