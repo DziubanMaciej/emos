@@ -81,13 +81,12 @@ TEST_P(OraTest, givenZeroValuesWhenExecuteOraThenAIsZeroAndZeroFlagSet) {
     u8 value = 0b0000'0000;
     initializeProcessor(GetParam(), value, regA);
 
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
     u8 expectedResult = 0b0000'0000;
     EXPECT_EQ(expectedResult, processor.regs.a);
-
-    EXPECT_TRUE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(OraTest, givenBit7SetInBothValuesWhenExecuteOraThenNegativeFlagSet) {
@@ -95,13 +94,12 @@ TEST_P(OraTest, givenBit7SetInBothValuesWhenExecuteOraThenNegativeFlagSet) {
     u8 value = 0b1001'0010;
     initializeProcessor(GetParam(), value, regA);
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     processor.executeInstructions(1);
 
     u8 expectedResult = 0b1001'1111;
     EXPECT_EQ(expectedResult, processor.regs.a);
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(OraTest, givenFewSameBitsInBothValuesWhenExecuteOraThenCorrectResult) {
@@ -109,13 +107,12 @@ TEST_P(OraTest, givenFewSameBitsInBothValuesWhenExecuteOraThenCorrectResult) {
     u8 value = 0b0101'0010;
     initializeProcessor(GetParam(), value, regA);
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
     u8 expectedResult = 0b0101'0011;
     EXPECT_EQ(expectedResult, processor.regs.a);
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(OraTest, givenValuesWithBit7SetWhenExecuteOraThenNegativeFlagSetAndCorrectResult) {
@@ -123,13 +120,12 @@ TEST_P(OraTest, givenValuesWithBit7SetWhenExecuteOraThenNegativeFlagSetAndCorrec
     u8 value = 0b1101'0010;
     initializeProcessor(GetParam(), value, regA);
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     processor.executeInstructions(1);
 
     u8 expectedResult = 0b1101'0011;
     EXPECT_EQ(expectedResult, processor.regs.a);
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 OpCode opcodesOra[] = {OpCode::ORA_imm, OpCode::ORA_z, OpCode::ORA_zx, OpCode::ORA_abs, OpCode::ORA_absx, OpCode::ORA_absy, OpCode::ORA_ix, OpCode::ORA_iy};

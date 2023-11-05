@@ -3,12 +3,6 @@
 #include "src/error.h"
 
 struct AdcTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void checkNotAffectedFlags() override {
-        EXPECT_EQ(flagsOnStart.i, processor.regs.flags.i);
-        EXPECT_EQ(flagsOnStart.d, processor.regs.flags.d);
-        EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
-    }
-
     void initializeProcessor(OpCode opcode, std::optional<u8> addend, std::optional<u8> regA) override {
         processor.regs.a = regA.value();
         switch (opcode) {
@@ -84,178 +78,167 @@ struct AdcTest : testing::WithParamInterface<OpCode>, EmosTest {
         u8 regA;
         u8 addend;
         u8 result;
-        u8 inCarryFlag;
-        u8 expectedOverflowFlag;
-        u8 expectedCarryFlag;
-        u8 expectedZeroFlag;
-        u8 expectedNegativeFlag;
     };
     void runAdcTest(ParamsAdcTests &params) {
         initializeProcessor(params.opcode, params.addend, params.regA);
-        processor.regs.flags.c = params.inCarryFlag;
         processor.executeInstructions(1);
         EXPECT_EQ(expectedBytesProcessed, processor.counters.bytesProcessed);
         EXPECT_EQ(expectedCyclesProcessed, processor.counters.cyclesProcessed);
-
-        EXPECT_EQ(params.expectedOverflowFlag, processor.regs.flags.o);
         EXPECT_EQ(params.result, processor.regs.a);
-        EXPECT_EQ(params.expectedCarryFlag, processor.regs.flags.c);
-        EXPECT_EQ(params.expectedZeroFlag, processor.regs.flags.z);
-        EXPECT_EQ(params.expectedNegativeFlag, processor.regs.flags.n);
     }
 };
 
-TEST_P(AdcTest, givenTwoValueThatSumSetBit7WhenCarryNotSetThenOverflowAndNegativeFlagsSet) {
+TEST_P(AdcTest, givenTwoValuesThatSumSetBit7WhenCarryNotSetThenOverflowAndNegativeFlagsSet) {
+    flags.expectCarryFlag(false, false);
+    flags.expectOverflowFlag(true);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b0100'0000;   // 64
     params.addend = 0b0100'0000; // 64
     params.result = 0b1000'0000; // 128
-    params.inCarryFlag = false;
-    params.expectedOverflowFlag = true;
-    params.expectedCarryFlag = false;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = true;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoZeroWhenCarryNotSetThenZeroFlagSet) {
+    flags.expectCarryFlag(false, false);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b0000'0000;   // 0
     params.addend = 0b0000'0000; // 0
     params.result = 0b0000'0000; // 0
-    params.inCarryFlag = false;
-    params.expectedOverflowFlag = false;
-    params.expectedCarryFlag = false;
-    params.expectedZeroFlag = true;
-    params.expectedNegativeFlag = false;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoZeroWhenCarrySetThenZeroFlagSet) {
+    flags.expectCarryFlag(true, false);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b0000'0000;   // 0
     params.addend = 0b0000'0000; // 0
     params.result = 0b0000'0001; // 0
-    params.inCarryFlag = true;
-    params.expectedOverflowFlag = false;
-    params.expectedCarryFlag = false;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = false;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoNegativeValueWhenCarryNotSetThenCarryAndNegativeFlagSet) {
+    flags.expectCarryFlag(false, true);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b1111'0000;   // -16
     params.addend = 0b1110'1010; // -22
     params.result = 0b1101'1010; // -38
-    params.inCarryFlag = false;
-    params.expectedOverflowFlag = false;
-    params.expectedCarryFlag = true;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = true;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoPositiveValuesWhenCarryNotSetThenOverflowAndNegativFlagsSet) {
+    flags.expectCarryFlag(false, false);
+    flags.expectOverflowFlag(true);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b0111'1111;   // 127
     params.addend = 0b0000'0001; // 1
     params.result = 0b1000'0000; // 128
-    params.inCarryFlag = false;
-    params.expectedOverflowFlag = true;
-    params.expectedCarryFlag = false;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = true;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoPositiveValuesWhenCarrySetThenNoFlagsSet) {
+    flags.expectCarryFlag(true, false);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b0000'0011;   // 3
     params.addend = 0b0000'0001; // 1
     params.result = 0b0000'0101; // 5
-    params.inCarryFlag = true;
-    params.expectedOverflowFlag = false;
-    params.expectedCarryFlag = false;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = false;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoValuesWithDifferenSignWhenCarrySetThenCarryFlagSet) {
+    flags.expectCarryFlag(true, true);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b0011'1000;   // 56
     params.addend = 0b1111'0010; // -14
     params.result = 0b0010'1011; // 43
-    params.inCarryFlag = true;
-    params.expectedOverflowFlag = false;
-    params.expectedCarryFlag = true;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = false;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoSameValuesWithDifferenSignWhenCarryNoSetThenZeroAndCarrySet) {
+    flags.expectCarryFlag(false, true);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b1111'1101;   // -3
     params.addend = 0b0000'0011; // 3
     params.result = 0b0000'0000; // 0
-    params.inCarryFlag = false;
-    params.expectedOverflowFlag = false;
-    params.expectedCarryFlag = true;
-    params.expectedZeroFlag = true;
-    params.expectedNegativeFlag = false;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenZeroAndNegativeValueWhenCarryNotSetThenNegativeFlagSet) {
+    flags.expectCarryFlag(false, false);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b0000'0000;   // 0
     params.addend = 0b1111'1111; // -1
     params.result = 0b1111'1111; // -1
-    params.inCarryFlag = false;
-    params.expectedOverflowFlag = false;
-    params.expectedCarryFlag = false;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = true;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoNegativeValuesWhenCarryNotSetThenCarryAndOverflowFlagSet) {
+    flags.expectCarryFlag(false, true);
+    flags.expectOverflowFlag(true);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b1000'0000;   // -128
     params.addend = 0b1111'1111; // -1
     params.result = 0b0111'1111; // 127
-    params.inCarryFlag = false;
-    params.expectedOverflowFlag = true;
-    params.expectedCarryFlag = true;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = false;
     runAdcTest(params);
 }
 
 TEST_P(AdcTest, givenTwoNegativeValuesWhenCarrySetThenCarryAndOverflowFlagSet) {
+    flags.expectCarryFlag(true, true);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     ParamsAdcTests params{};
     params.opcode = GetParam();
     params.regA = 0b1000'0000;   // -128
     params.addend = 0b1111'1111; // -1
     params.result = 0b1000'0000; // -128
-    params.inCarryFlag = true;
-    params.expectedOverflowFlag = false;
-    params.expectedCarryFlag = true;
-    params.expectedZeroFlag = false;
-    params.expectedNegativeFlag = true;
     runAdcTest(params);
 }
 

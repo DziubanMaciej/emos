@@ -40,72 +40,72 @@ TEST_F(IncTest, givenZeroPageModeThenProcessInstruction) {
     auto opCode = OpCode::INC_z;
     u8 loadToMem = 0x70;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x71, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_F(IncTest, givenZeroPageModeAndNegativeValueThenProcessInstruction) {
     auto opCode = OpCode::INC_z;
     u8 loadToMem = 0x7F;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_F(IncTest, givenZeroPageModeAndWrapAroundThenProcessInstruction) {
     auto opCode = OpCode::INC_z;
     u8 loadToMem = 0xFF;
 
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_TRUE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_F(IncTest, givenZeroPageXModeThenProcessInstruction) {
     auto opCode = OpCode::INC_zx;
     u8 loadToMem = 0x70;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x71, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_F(IncTest, givenAbsoluteModeThenProcessInstruction) {
     auto opCode = OpCode::INC_abs;
     u8 loadToMem = 0x70;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x71, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_F(IncTest, givenAbsoluteXModeThenProcessInstruction) {
     auto opCode = OpCode::INC_absx;
     u8 loadToMem = 0x70;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x71, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 using DecTest = IncDecTest;
@@ -114,82 +114,82 @@ TEST_F(DecTest, givenZeroPageModeThenProcessInstruction) {
     auto opCode = OpCode::DEC_z;
     u8 loadToMem = 0x80;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x7F, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_F(DecTest, givenZeroPageModeAndNegativeValueThenProcessInstruction) {
     auto opCode = OpCode::DEC_z;
     u8 loadToMem = 0x81;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_F(DecTest, givenZeroPageModeAndResultIsZeroThenProcessInstruction) {
     auto opCode = OpCode::DEC_z;
     u8 loadToMem = 0x01;
 
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_TRUE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_F(DecTest, givenZeroPageModeAndWrapAroundThenProcessInstruction) {
     auto opCode = OpCode::DEC_z;
     u8 loadToMem = 0x00;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xFF, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_F(DecTest, givenZeroPageXModeThenProcessInstruction) {
     auto opCode = OpCode::DEC_zx;
     u8 loadToMem = 0x70;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x6F, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_F(DecTest, givenAbsoluteModeThenProcessInstruction) {
     auto opCode = OpCode::DEC_abs;
     u8 loadToMem = 0x70;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x6F, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_F(DecTest, givenAbsoluteXModeThenProcessInstruction) {
     auto opCode = OpCode::DEC_absx;
     u8 loadToMem = 0x70;
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x6F, processor.memory[dummyAddressUsedForWriteValueToMemory]);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }

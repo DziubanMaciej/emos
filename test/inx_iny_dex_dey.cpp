@@ -42,36 +42,36 @@ struct InxInyDexDeyTest : testing::WithParamInterface<OpCode>, EmosTest {
 using InxInyTest = InxInyDexDeyTest;
 
 TEST_P(InxInyTest, givenIncrementOperationAndPositiveOutputThenProcessInstruction) {
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     const OpCode opCode = GetParam();
     u8 loadToReg = 0x10;
     initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x11, getReg(opCode));
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(InxInyTest, givenNegativeOutputThenProcessInstruction) {
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     const OpCode opCode = GetParam();
     u8 loadToReg = 0x7F;
     initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, getReg(opCode));
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(InxInyTest, givenZeroOutputThenProcessInstruction) {
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
     const OpCode opCode = GetParam();
     u8 loadToReg = 0xFF;
     initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, getReg(opCode));
-    EXPECT_TRUE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 INSTANTIATE_TEST_SUITE_P(, InxInyTest, ::testing::ValuesIn({OpCode::INX, OpCode::INY}), InxInyTest::constructParamName);
@@ -79,48 +79,47 @@ INSTANTIATE_TEST_SUITE_P(, InxInyTest, ::testing::ValuesIn({OpCode::INX, OpCode:
 using DexDeyTest = InxInyDexDeyTest;
 
 TEST_P(DexDeyTest, givenDecrementOperationAndPositiveOutputThenProcessInstruction) {
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     const OpCode opCode = GetParam();
-
     u8 loadToReg = 0x10;
     initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x0F, getReg(opCode));
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(DexDeyTest, givenDecrementOperationAndZeroOutputThenProcessInstruction) {
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
     const OpCode opCode = GetParam();
     u8 loadToReg = 0x01;
     initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, getReg(opCode));
-    EXPECT_TRUE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(DexDeyTest, givenDecrementOperationAndNegativeOutputThenProcessInstruction) {
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     const OpCode opCode = GetParam();
     u8 loadToReg = 0x81;
     initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, getReg(opCode));
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(DexDeyTest, givenDecrementOperationWrapAroundThenProcessInstruction) {
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     const OpCode opCode = GetParam();
     u8 loadToReg = 0x00;
     initializeProcessor(opCode, std::nullopt, loadToReg);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xFF, getReg(opCode));
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 INSTANTIATE_TEST_SUITE_P(, DexDeyTest, ::testing::ValuesIn({OpCode::DEX, OpCode::DEY}), DexDeyTest::constructParamName);
