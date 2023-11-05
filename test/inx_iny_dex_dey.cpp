@@ -1,6 +1,5 @@
-#include "fixtures.h"
-
 #include "src/error.h"
+#include "test/fixtures/emos_test.h"
 
 struct InxInyDexDeyTest : testing::WithParamInterface<OpCode>, EmosTest {
 

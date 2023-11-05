@@ -1,6 +1,5 @@
-#include "fixtures.h"
-
 #include "src/error.h"
+#include "test/fixtures/emos_test.h"
 
 struct AndTest : testing::WithParamInterface<OpCode>, EmosTest {
     void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8> regA) override {
