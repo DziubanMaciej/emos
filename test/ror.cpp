@@ -7,7 +7,7 @@ struct RorTest : testing::WithParamInterface<OpCode>, EmosTest {
     void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) override {
         switch (opcode) {
         case OpCode::ROR_acc:
-            UNREACHABLE_CODE; // TODO!!!
+            initializeForAccumulator(opcode, value.value());
             expectedBytesProcessed = 1u;
             expectedCyclesProcessed = 2u;
             return;
@@ -147,5 +147,5 @@ TEST_P(RorTest, givenCarryFlagAndLeastSignificantBitSetThenRotateThroughCarry) {
 
 INSTANTIATE_TEST_SUITE_P(,
                          RorTest,
-                         ::testing::ValuesIn({OpCode::ROR_z, OpCode::ROR_zx, OpCode::ROR_abs, OpCode::ROR_absx}),
+                         ::testing::ValuesIn({OpCode::ROR_acc, OpCode::ROR_z, OpCode::ROR_zx, OpCode::ROR_abs, OpCode::ROR_absx}),
                          RorTest::constructParamName);

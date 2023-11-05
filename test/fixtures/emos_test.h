@@ -27,6 +27,11 @@ struct EmosTest : ::testing::Test {
 
     virtual void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8> loadToReg) = 0;
 
+    void initializeForAccumulator(OpCode opCode, u8 value) {
+        processor.memory[startAddress + 0] = static_cast<u8>(opCode);
+        referencedValue.setRegisterA(processor);
+        processor.regs.a = value;
+    }
     void initializeForZeroPageX(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x05;

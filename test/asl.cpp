@@ -7,7 +7,7 @@ struct AslTest : testing::WithParamInterface<OpCode>, EmosTest {
     void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) override {
         switch (opcode) {
         case OpCode::ASL_acc:
-            UNREACHABLE_CODE; // TODO!!!
+            initializeForAccumulator(opcode, value.value());
             expectedBytesProcessed = 1u;
             expectedCyclesProcessed = 2u;
             return;
@@ -121,5 +121,5 @@ TEST_P(AslTest, givenZeroValueAfterShiftThenZeroFlagSet) {
 
 INSTANTIATE_TEST_SUITE_P(,
                          AslTest,
-                         ::testing::ValuesIn({OpCode::ASL_z, OpCode::ASL_zx, OpCode::ASL_abs, OpCode::ASL_absx}),
+                         ::testing::ValuesIn({OpCode::ASL_acc, OpCode::ASL_z, OpCode::ASL_zx, OpCode::ASL_abs, OpCode::ASL_absx}),
                          AslTest::constructParamName);

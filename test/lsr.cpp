@@ -7,7 +7,7 @@ struct LsrTest : testing::WithParamInterface<OpCode>, EmosTest {
     void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) override {
         switch (opcode) {
         case OpCode::LSR_acc:
-            UNREACHABLE_CODE; // TODO!!!
+            initializeForAccumulator(opcode, value.value());
             expectedBytesProcessed = 1u;
             expectedCyclesProcessed = 2u;
             return;
@@ -108,5 +108,5 @@ TEST_P(LsrTest, givenZeroValueAfterShiftThenZeroFlagSet) {
 
 INSTANTIATE_TEST_SUITE_P(,
                          LsrTest,
-                         ::testing::ValuesIn({OpCode::LSR_z, OpCode::LSR_zx, OpCode::LSR_abs, OpCode::LSR_absx}),
+                         ::testing::ValuesIn({OpCode::LSR_acc, OpCode::LSR_z, OpCode::LSR_zx, OpCode::LSR_abs, OpCode::LSR_absx}),
                          LsrTest::constructParamName);
