@@ -93,6 +93,12 @@ enum class OpCode : u8 {
     TSX = 0xBA,
     TXS = 0x9A,
 
+    // PHA, PHP, PLA, PLP - stack operations
+    PHA = 0x48,
+    PHP = 0x08,
+    PLA = 0x68,
+    PLP = 0x28,
+
     // CMP - compare
     CMP_imm = 0xC9,
     CMP_z = 0xC5,

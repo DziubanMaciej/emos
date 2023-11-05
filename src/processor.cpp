@@ -72,6 +72,11 @@ Processor::Processor() {
     setInstructionData(OpCode::TSX, AddressingMode::Implied, &Processor::executeTsx);
     setInstructionData(OpCode::TXS, AddressingMode::Implied, &Processor::executeTxs);
 
+    setInstructionData(OpCode::PHA, AddressingMode::Implied, &Processor::executePha);
+    setInstructionData(OpCode::PHP, AddressingMode::Implied, &Processor::executePhp);
+    setInstructionData(OpCode::PLA, AddressingMode::Implied, &Processor::executePla);
+    setInstructionData(OpCode::PLP, AddressingMode::Implied, &Processor::executePlp);
+
     setInstructionData(OpCode::CMP_imm, AddressingMode::Immediate, &Processor::executeCmp);
     setInstructionData(OpCode::CMP_z, AddressingMode::ZeroPage, &Processor::executeCmp);
     setInstructionData(OpCode::CMP_zx, AddressingMode::ZeroPageX, &Processor::executeCmp);
@@ -290,7 +295,9 @@ u16 Processor::sumAddressesZeroPage(u8 base, u8 offset) {
     return static_cast<u16>(result);
 }
 
-void Processor::registerTransfer(u8 &dst, const u8 &src) {
+template <typename RegT>
+void Processor::registerTransfer(RegT &dst, const RegT &src) {
+    static_assert(sizeof(RegT) == 1);
     FATAL_ERROR_IF(&dst == &src, "Cannot do register transfer on one register");
     counters.cyclesProcessed++;
     dst = src;
@@ -323,6 +330,28 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
     regs.flags.c = registerValue >= inputValue;
     regs.flags.z = registerValue == inputValue;
     regs.flags.n = registerValue < inputValue;
+}
+
+void Processor::pushToStack(u8 value) {
+    // 1 cycle for writing value
+    // 1 cycle for incrementing pointer
+    counters.cyclesProcessed += 2;
+
+    constexpr u16 stackBase = 0x0100;
+    const u16 address = stackBase + regs.sp;
+    memory[address] = value;
+    regs.sp--;
+}
+
+u8 Processor::popFromStack() {
+    // 1 cycle for writing value
+    // 1 cycle for incrementing pointer
+    counters.cyclesProcessed += 2;
+
+    constexpr u16 stackBase = 0x0100;
+    regs.sp++;
+    const u16 address = stackBase + regs.sp;
+    return memory[address];
 }
 
 void Processor::executeLda(AddressingMode mode) {
@@ -472,6 +501,24 @@ void Processor::executeTsx(AddressingMode) {
 void Processor::executeTxs(AddressingMode) {
     registerTransfer(regs.sp, regs.x);
     updateArithmeticFlags(regs.sp);
+}
+
+void Processor::executePha(AddressingMode) {
+    pushToStack(regs.a);
+}
+
+void Processor::executePhp(AddressingMode) {
+    pushToStack(regs.flags.toU8());
+}
+
+void Processor::executePla(AddressingMode) {
+    const u8 tmpReg = popFromStack();
+    registerTransfer(regs.a, tmpReg);
+}
+
+void Processor::executePlp(AddressingMode) {
+    const StatusFlags tmpReg = StatusFlags::fromU8(popFromStack());
+    registerTransfer(regs.flags, tmpReg);
 }
 
 void Processor::updateCarryFlagIfOverflow(u16 value) {
