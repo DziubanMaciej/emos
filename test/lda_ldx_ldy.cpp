@@ -1,6 +1,5 @@
-#include "fixtures.h"
-
 #include "src/error.h"
+#include "test/fixtures/emos_test.h"
 
 enum class Reg {
     A,

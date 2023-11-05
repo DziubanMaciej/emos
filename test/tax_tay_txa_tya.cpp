@@ -1,6 +1,5 @@
-#include "fixtures.h"
-
 #include "src/error.h"
+#include "test/fixtures/emos_test.h"
 
 struct TaxTayTxaTyaTest : EmosTest {
     u8 &getReg(OpCode opCode) {
