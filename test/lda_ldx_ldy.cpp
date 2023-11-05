@@ -148,48 +148,43 @@ struct LdTest : testing::WithParamInterface<Reg>,
 };
 
 TEST_P(LdTest, givenImmediateModeAndNegativeValueThenProcessInstruction) {
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     const OpCode opCode = getOpCodeImm();
-
     initializeProcessor(opCode, 0x84, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x84, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenImmediateModeAndZeroValueThenProcessInstruction) {
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
     const OpCode opCode = getOpCodeImm();
     initializeProcessor(opCode, 0x0, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x0, getReg());
-
-    EXPECT_TRUE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenImmediateModeAndPositiveValueThenProcessInstruction) {
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     const OpCode opCode = getOpCodeImm();
     initializeProcessor(opCode, 0x74, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x74, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenZeroPageModeThenProcessInstruction) {
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     const OpCode opCode = getOpCodeZ();
     initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenZeroPageXModeThenProcessInstruction) {
@@ -197,13 +192,12 @@ TEST_P(LdTest, givenZeroPageXModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenZeroPageXModeAndWrapAroundThenProcessInstruction) {
@@ -211,6 +205,8 @@ TEST_P(LdTest, givenZeroPageXModeAndWrapAroundThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
 
     processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0xF0;
@@ -222,9 +218,6 @@ TEST_P(LdTest, givenZeroPageXModeAndWrapAroundThenProcessInstruction) {
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenZeroPageYModeThenProcessInstruction) {
@@ -232,13 +225,12 @@ TEST_P(LdTest, givenZeroPageYModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenZeroPageYModeAndWrapAroundThenProcessInstruction) {
@@ -246,6 +238,8 @@ TEST_P(LdTest, givenZeroPageYModeAndWrapAroundThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
 
     processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0xF0;
@@ -256,9 +250,6 @@ TEST_P(LdTest, givenZeroPageYModeAndWrapAroundThenProcessInstruction) {
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenAbsoluteModeThenProcessInstruction) {
@@ -266,13 +257,12 @@ TEST_P(LdTest, givenAbsoluteModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenAbsoluteXModeThenProcessInstruction) {
@@ -280,13 +270,12 @@ TEST_P(LdTest, givenAbsoluteXModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenAbsoluteXModeAndPageCrossThenProcessInstruction) {
@@ -294,6 +283,8 @@ TEST_P(LdTest, givenAbsoluteXModeAndPageCrossThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
 
     processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0xF1;
@@ -305,9 +296,6 @@ TEST_P(LdTest, givenAbsoluteXModeAndPageCrossThenProcessInstruction) {
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenAbsoluteYModeThenProcessInstruction) {
@@ -315,13 +303,12 @@ TEST_P(LdTest, givenAbsoluteYModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenAbsoluteYModeAndPageCrossThenProcessInstruction) {
@@ -329,6 +316,8 @@ TEST_P(LdTest, givenAbsoluteYModeAndPageCrossThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
 
     processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0xF1;
@@ -340,9 +329,6 @@ TEST_P(LdTest, givenAbsoluteYModeAndPageCrossThenProcessInstruction) {
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenIndexedIndirectXModeThenProcessInstruction) {
@@ -350,13 +336,12 @@ TEST_P(LdTest, givenIndexedIndirectXModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenIndexedIndirectXModeAndWraparoundThenProcessInstruction) {
@@ -364,6 +349,8 @@ TEST_P(LdTest, givenIndexedIndirectXModeAndWraparoundThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
 
     processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0xF0;
@@ -376,9 +363,6 @@ TEST_P(LdTest, givenIndexedIndirectXModeAndWraparoundThenProcessInstruction) {
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenIndirectIndexedYModeThenProcessInstruction) {
@@ -386,13 +370,12 @@ TEST_P(LdTest, givenIndirectIndexedYModeThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     initializeProcessor(opCode, 0xDD, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(LdTest, givenIndirectIndexedYModeAndPageCrossedThenProcessInstruction) {
@@ -400,6 +383,8 @@ TEST_P(LdTest, givenIndirectIndexedYModeAndPageCrossedThenProcessInstruction) {
     if (opCode == OpCode::_INVALID) {
         GTEST_SKIP();
     }
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
 
     processor.memory[startAddress + 0] = static_cast<u8>(opCode);
     processor.memory[startAddress + 1] = 0x54;
@@ -412,9 +397,6 @@ TEST_P(LdTest, givenIndirectIndexedYModeAndPageCrossedThenProcessInstruction) {
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xDD, getReg());
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 INSTANTIATE_TEST_SUITE_P(, LdTest, ::testing::ValuesIn({Reg::A, Reg::X, Reg::Y}), LdTest::constructParamName);

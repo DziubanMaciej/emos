@@ -3,12 +3,6 @@
 #include "src/error.h"
 
 struct CompareTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void checkNotAffectedFlags() override {
-        EXPECT_EQ(flagsOnStart.i, processor.regs.flags.i);
-        EXPECT_EQ(flagsOnStart.d, processor.regs.flags.d);
-        EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
-        EXPECT_EQ(flagsOnStart.o, processor.regs.flags.o);
-    }
     void initializeProcessor(OpCode opcode, std::optional<u8> addend, std::optional<u8> regVal) override {
         setRegisterForOpCode(opcode, regVal.value());
         switch (opcode) {
@@ -118,42 +112,42 @@ struct CompareTest : testing::WithParamInterface<OpCode>, EmosTest {
 using CompareTestImm = CompareTest;
 
 TEST_P(CompareTestImm, givenImmediateModeAndGreaterValueThenProcessInstruction) {
+    flags.expectCarryFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     auto opCode = GetParam();
     u8 loadToMem = 0xCD;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(CompareTestImm, givenImmediateModeAndEqualValueThenProcessInstruction) {
+    flags.expectCarryFlag(true);
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
+
     auto opCode = GetParam();
     u8 loadToMem = 0xCC;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-
-    EXPECT_TRUE(processor.regs.flags.c);
-    EXPECT_TRUE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(CompareTestImm, givenImmediateModeAndLessValueThenProcessInstruction) {
+    flags.expectCarryFlag(true);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
+
     auto opCode = GetParam();
     u8 loadToMem = 0xCB;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-
-    EXPECT_TRUE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 OpCode opcodesImm[] = {OpCode::CMP_imm, OpCode::CPX_imm, OpCode::CPY_imm};
@@ -163,16 +157,16 @@ INSTANTIATE_TEST_SUITE_P(, CompareTestImm,
 
 using CompareTestZ = CompareTest;
 TEST_P(CompareTestZ, givenZeroPageModeThenProcessInstruction) {
+    flags.expectCarryFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     auto opCode = GetParam();
     u8 loadToMem = 0xCD;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 OpCode opcodesZ[] = {OpCode::CMP_z, OpCode::CPX_z, OpCode::CPY_z};
@@ -182,16 +176,16 @@ INSTANTIATE_TEST_SUITE_P(, CompareTestZ,
 
 using CompareTestAbs = CompareTest;
 TEST_P(CompareTestAbs, givenAbsoluteModeThenProcessInstruction) {
+    flags.expectCarryFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     auto opCode = GetParam();
     u8 loadToMem = 0xCD;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 OpCode opcodesAbs[] = {OpCode::CMP_abs, OpCode::CPX_abs, OpCode::CPY_abs};
@@ -202,62 +196,62 @@ INSTANTIATE_TEST_SUITE_P(, CompareTestAbs,
 using CmpTest = CompareTest;
 
 TEST_F(CmpTest, givenZeroPageModeXThenProcessInstruction) {
+    flags.expectCarryFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     auto opCode = OpCode::CMP_zx;
     u8 loadToMem = 0xCD;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_F(CmpTest, givenAbsoluteModeXThenProcessInstruction) {
+    flags.expectCarryFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     auto opCode = OpCode::CMP_absx;
     u8 loadToMem = 0xCD;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_F(CmpTest, givenAbsoluteModeYThenProcessInstruction) {
+    flags.expectCarryFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     auto opCode = OpCode::CMP_absy;
     u8 loadToMem = 0xCD;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(3, processor.counters.bytesProcessed);
-    EXPECT_EQ(4, processor.counters.cyclesProcessed);
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_F(CmpTest, givenIndexedIndirectXModeThenProcessInstruction) {
+    flags.expectCarryFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     auto opCode = OpCode::CMP_ix;
     u8 loadToMem = 0xCD;
     u8 loadToReg = 0xCC;
     initializeProcessor(opCode, loadToMem, loadToReg);
 
     processor.executeInstructions(1);
-    EXPECT_EQ(2, processor.counters.bytesProcessed);
-    EXPECT_EQ(6, processor.counters.cyclesProcessed);
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_F(CmpTest, givenIndirectIndexedYModeThenProcessInstruction) {
+    flags.expectCarryFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
+
     auto opCode = OpCode::CMP_iy;
     u8 loadToMem = 0xCD;
     u8 loadToReg = 0xCC;
@@ -266,7 +260,4 @@ TEST_F(CmpTest, givenIndirectIndexedYModeThenProcessInstruction) {
     processor.executeInstructions(1);
     EXPECT_EQ(2, processor.counters.bytesProcessed);
     EXPECT_EQ(5, processor.counters.cyclesProcessed);
-    EXPECT_FALSE(processor.regs.flags.c);
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }

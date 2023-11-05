@@ -81,13 +81,12 @@ TEST_P(AndTest, givenDifferentValuesWhenExecuteAndThenAIsZeroAndZeroFlagSet) {
     u8 value = 0b1001'0010;
     initializeProcessor(GetParam(), value, regA);
 
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
     u8 expectedResult = 0b0000'0000;
     EXPECT_EQ(expectedResult, processor.regs.a);
-
-    EXPECT_TRUE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(AndTest, givenBit7SetInBothValuesWhenExecuteAndThenNegativeFlagSet) {
@@ -95,13 +94,12 @@ TEST_P(AndTest, givenBit7SetInBothValuesWhenExecuteAndThenNegativeFlagSet) {
     u8 value = 0b1001'0010;
     initializeProcessor(GetParam(), value, regA);
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     processor.executeInstructions(1);
 
     u8 expectedResult = 0b1000'0000;
     EXPECT_EQ(expectedResult, processor.regs.a);
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 TEST_P(AndTest, givenFewSameBitsInBothValuesWhenExecuteAndThenCorrectResult) {
@@ -109,13 +107,12 @@ TEST_P(AndTest, givenFewSameBitsInBothValuesWhenExecuteAndThenCorrectResult) {
     u8 value = 0b0101'0010;
     initializeProcessor(GetParam(), value, regA);
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
     u8 expectedResult = 0b0101'0000;
     EXPECT_EQ(expectedResult, processor.regs.a);
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_FALSE(processor.regs.flags.n);
 }
 
 TEST_P(AndTest, givenFewSameBitsInBothValuesWithBit7SetWhenExecuteAndThenNegativeFlagSetAndCorrectResult) {
@@ -123,13 +120,12 @@ TEST_P(AndTest, givenFewSameBitsInBothValuesWithBit7SetWhenExecuteAndThenNegativ
     u8 value = 0b1101'0010;
     initializeProcessor(GetParam(), value, regA);
 
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(true);
     processor.executeInstructions(1);
 
     u8 expectedResult = 0b1101'0000;
     EXPECT_EQ(expectedResult, processor.regs.a);
-
-    EXPECT_FALSE(processor.regs.flags.z);
-    EXPECT_TRUE(processor.regs.flags.n);
 }
 
 OpCode opcodesAnd[] = {OpCode::AND_imm, OpCode::AND_z, OpCode::AND_zx, OpCode::AND_abs, OpCode::AND_absx, OpCode::AND_absy, OpCode::AND_ix, OpCode::AND_iy};

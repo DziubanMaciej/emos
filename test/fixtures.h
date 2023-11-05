@@ -10,8 +10,60 @@ struct WhiteboxProcessor : Processor {
     using Processor::regs;
 };
 
+class FlagsTracker {
+public:
+    void setUp(WhiteboxProcessor &processor) {
+        actualFlags = &processor.regs.flags;
+
+        actualFlags->c = 0;
+        actualFlags->z = 0;
+        actualFlags->i = 0;
+        actualFlags->d = 0;
+        actualFlags->b = 0;
+        actualFlags->o = 0;
+        actualFlags->n = 0;
+        actualFlags->r = 0;
+        expectedFlags = *actualFlags;
+    }
+
+    void tearDown() {
+        EXPECT_EQ(expectedFlags.c, actualFlags->c);
+        EXPECT_EQ(expectedFlags.z, actualFlags->z);
+        EXPECT_EQ(expectedFlags.i, actualFlags->i);
+        EXPECT_EQ(expectedFlags.d, actualFlags->d);
+        EXPECT_EQ(expectedFlags.b, actualFlags->b);
+        EXPECT_EQ(expectedFlags.o, actualFlags->o);
+        EXPECT_EQ(expectedFlags.r, actualFlags->r);
+    }
+
+#define EXPECT_FUNC(flagName, fieldName)                   \
+    void expect##flagName##Flag(bool before, bool after) { \
+        actualFlags->fieldName = before;                   \
+        expectedFlags.fieldName = after;                   \
+    }                                                      \
+                                                           \
+    void expect##flagName##Flag(bool after) {              \
+        actualFlags->fieldName = !after;                   \
+        expectedFlags.fieldName = after;                   \
+    }
+
+    EXPECT_FUNC(Carry, c)
+    EXPECT_FUNC(Zero, z)
+    EXPECT_FUNC(Interrupt, i)
+    EXPECT_FUNC(Decimal, d)
+    EXPECT_FUNC(Break, b)
+    EXPECT_FUNC(Overflow, o)
+    EXPECT_FUNC(Negative, n)
+    EXPECT_FUNC(Reserved, r)
+#undef EXPECT_FUNC
+
+private:
+    StatusFlags *actualFlags = nullptr;
+    StatusFlags expectedFlags{};
+};
+
 struct EmosTest : ::testing::Test {
-    void SetUp() {
+    void SetUp() override {
         // Set PC to an arbitrary value - we have to start somewhere.
         startAddress = 0xFF00;
         processor.regs.pc = startAddress;
@@ -21,26 +73,12 @@ struct EmosTest : ::testing::Test {
         processor.regs.x = 0x23;
         processor.regs.y = 0x33;
         processor.regs.sp = 0x43;
-        processor.regs.flags.c = flagsOnStart.c = 1;
-        processor.regs.flags.z = flagsOnStart.z = 1;
-        processor.regs.flags.i = flagsOnStart.i = 1;
-        processor.regs.flags.d = flagsOnStart.d = 1;
-        processor.regs.flags.b = flagsOnStart.b = 1;
-        processor.regs.flags.o = flagsOnStart.o = 1;
-        processor.regs.flags.n = flagsOnStart.n = 1;
-        processor.regs.flags.r = flagsOnStart.r = 1;
+        flags.setUp(processor);
     }
-    void TearDown() {
+    void TearDown() override {
         EXPECT_EQ(expectedBytesProcessed, processor.counters.bytesProcessed);
         EXPECT_EQ(expectedCyclesProcessed, processor.counters.cyclesProcessed);
-        checkNotAffectedFlags();
-    }
-    virtual void checkNotAffectedFlags() {
-        EXPECT_EQ(flagsOnStart.c, processor.regs.flags.c);
-        EXPECT_EQ(flagsOnStart.i, processor.regs.flags.i);
-        EXPECT_EQ(flagsOnStart.d, processor.regs.flags.d);
-        EXPECT_EQ(flagsOnStart.b, processor.regs.flags.b);
-        EXPECT_EQ(flagsOnStart.o, processor.regs.flags.o);
+        flags.tearDown();
     }
 
     virtual void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8> loadToReg) = 0;
@@ -119,7 +157,7 @@ struct EmosTest : ::testing::Test {
     u16 dummyAddressUsedForWriteValueToMemory = {};
     u16 startAddress = {};
     WhiteboxProcessor processor = {};
-    StatusFlags flagsOnStart;
+    FlagsTracker flags{};
     u32 expectedBytesProcessed = 0u;
     u32 expectedCyclesProcessed = 0u;
 };
