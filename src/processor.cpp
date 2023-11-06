@@ -319,6 +319,18 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
     regs.flags.n = registerValue < inputValue;
 }
 
+u16 Processor::updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2) {
+    u16 sum = inputValue1 + inputValue2;
+    if (isSignBitSet(inputValue1) == isSignBitSet(inputValue2)) {
+        regs.flags.o = isSignBitSet(sum) ^ isSignBitSet(inputValue1);
+    }
+    return sum;
+}
+
+void Processor::updateCarryFlagIfOverflow(u16 value) {
+    regs.flags.c = value > std::numeric_limits<u8>::max();
+}
+
 void Processor::pushToStack(u8 value) {
     // 1 cycle for writing value
     // 1 cycle for incrementing pointer
@@ -506,18 +518,6 @@ void Processor::executePla(AddressingMode) {
 void Processor::executePlp(AddressingMode) {
     const StatusFlags tmpReg = StatusFlags::fromU8(popFromStack());
     registerTransfer(regs.flags, tmpReg);
-}
-
-void Processor::updateCarryFlagIfOverflow(u16 value) {
-    regs.flags.c = value > std::numeric_limits<u8>::max();
-}
-
-u16 Processor::updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2) {
-    u16 sum = inputValue1 + inputValue2;
-    if (isSignBitSet(inputValue1) == isSignBitSet(inputValue2)) {
-        regs.flags.o = isSignBitSet(sum) ^ isSignBitSet(inputValue1);
-    }
-    return sum;
 }
 
 void Processor::executeAdc(AddressingMode mode) {
