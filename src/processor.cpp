@@ -1,3 +1,4 @@
+#include "bit_operations.h"
 #include "error.h"
 #include "processor.h"
 
@@ -307,20 +308,6 @@ void Processor::aluOperation() {
     counters.cyclesProcessed++;
 }
 
-bool Processor::isSignBitSet(u8 value) {
-    return value & 0x80;
-}
-
-bool Processor::isZeroBitSet(u8 value) {
-    return value & 0x01;
-}
-
-void Processor::setBit(u8 &value, u8 bitIndex, bool bit) {
-    FATAL_ERROR_IF(bitIndex >= 8, "bit index for u8 must be within <0,7>")
-    value |= bit << bitIndex;
-    value &= ~((!bit) << bitIndex);
-}
-
 void Processor::updateArithmeticFlags(u8 value) {
     regs.flags.z = value == 0;
     regs.flags.n = isSignBitSet(value);
@@ -441,7 +428,7 @@ void Processor::executeRol(AddressingMode mode) {
     const bool zeroBit = regs.flags.c;
     regs.flags.c = isSignBitSet(value);
     value <<= 1;
-    setBit(value, 0, zeroBit);
+    setBit<0>(value, zeroBit);
 
     aluOperation();
     writeValue(mode, value, &address);
@@ -455,7 +442,7 @@ void Processor::executeRor(AddressingMode mode) {
     const bool oldestBit = regs.flags.c;
     regs.flags.c = isZeroBitSet(value);
     value >>= 1;
-    setBit(value, 7, oldestBit);
+    setBit<7>(value, oldestBit);
 
     aluOperation();
     writeValue(mode, value, &address);

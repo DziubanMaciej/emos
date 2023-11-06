@@ -50,9 +50,6 @@ protected:
     template <typename RegT>
     void registerTransfer(RegT &dst, const RegT &src);
     void aluOperation();
-    bool isSignBitSet(u8 value);
-    bool isZeroBitSet(u8 value);
-    void setBit(u8 &value, u8 bitIndex, bool bit);
 
     // Helper functions for status flags.
     void updateArithmeticFlags(u8 value);
