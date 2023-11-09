@@ -149,6 +149,11 @@ enum class OpCode : u8 {
     ORA_ix = 0x01,
     ORA_iy = 0x11,
 
+    // SEC, SED, SEI - set flags
+    SEC = 0x38,
+    SED = 0xF8,
+    SEI = 0x78,
+
     // Special values
     _INVALID = 0x00,
     _MAX_VALUE = 0xFF,

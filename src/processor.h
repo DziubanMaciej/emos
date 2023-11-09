@@ -91,6 +91,9 @@ protected:
     void executeAdc(AddressingMode mode);
     void executeAnd(AddressingMode mode);
     void executeOra(AddressingMode mode);
+    void executeSec(AddressingMode mode);
+    void executeSed(AddressingMode mode);
+    void executeSei(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};
