@@ -121,6 +121,10 @@ Processor::Processor() {
     setInstructionData(OpCode::ORA_absy, AddressingMode::AbsoluteY, &Processor::executeOra);
     setInstructionData(OpCode::ORA_ix, AddressingMode::IndexedIndirectX, &Processor::executeOra);
     setInstructionData(OpCode::ORA_iy, AddressingMode::IndirectIndexedY, &Processor::executeOra);
+
+    setInstructionData(OpCode::SEC, AddressingMode::Implied, &Processor::executeSec);
+    setInstructionData(OpCode::SED, AddressingMode::Implied, &Processor::executeSed);
+    setInstructionData(OpCode::SEI, AddressingMode::Implied, &Processor::executeSei);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -540,4 +544,17 @@ void Processor::executeOra(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a |= value;
     updateArithmeticFlags(regs.a);
+}
+
+void Processor::executeSec(AddressingMode) {
+    regs.flags.c = 1;
+    counters.cyclesProcessed++;
+}
+void Processor::executeSed(AddressingMode) {
+    regs.flags.d = 1;
+    counters.cyclesProcessed++;
+}
+void Processor::executeSei(AddressingMode) {
+    regs.flags.i = 1;
+    counters.cyclesProcessed++;
 }
