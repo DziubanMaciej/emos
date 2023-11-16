@@ -94,6 +94,8 @@ protected:
     void executeSec(AddressingMode mode);
     void executeSed(AddressingMode mode);
     void executeSei(AddressingMode mode);
+    void executeStx(AddressingMode mode);
+    void executeSty(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};
