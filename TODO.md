@@ -48,8 +48,8 @@
 - [x] SED
 - [x] SEI
 - [x] STA
-- [ ] STX
-- [ ] STY
+- [x] STX
+- [x] STY
 - [x] TAX
 - [x] TAY
 - [x] TSX

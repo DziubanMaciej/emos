@@ -36,7 +36,7 @@ struct EmosTest : ::testing::Test {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x05;
         processor.regs.x = 0x3;
-        const u16 address = processor.memory[startAddress + 1] + processor.regs.x;
+        const u8 address = processor.memory[startAddress + 1] + processor.regs.x;
         processor.memory[address] = value;
 
         referencedValue.setMemory(processor, address);
@@ -45,7 +45,7 @@ struct EmosTest : ::testing::Test {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x84;
         processor.regs.y = 0x5;
-        const u16 address = processor.memory[startAddress + 1] + processor.regs.y;
+        const u8 address = processor.memory[startAddress + 1] + processor.regs.y;
         processor.memory[address] = value;
 
         referencedValue.setMemory(processor, address);
@@ -54,7 +54,7 @@ struct EmosTest : ::testing::Test {
     void initializeForZeroPage(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x05;
-        const u16 address = processor.memory[startAddress + 1];
+        const u8 address = processor.memory[startAddress + 1];
         processor.memory[address] = value;
 
         referencedValue.setMemory(processor, address);

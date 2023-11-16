@@ -154,6 +154,14 @@ enum class OpCode : u8 {
     SED = 0xF8,
     SEI = 0x78,
 
+    // STX, STY - store register into memory
+    STX_z = 0x86,
+    STX_zy = 0x96,
+    STX_abs = 0x8E,
+    STY_z = 0x84,
+    STY_zx = 0x94,
+    STY_abs = 0x8C,
+
     // Special values
     _INVALID = 0x00,
     _MAX_VALUE = 0xFF,
