@@ -126,6 +126,14 @@ Processor::Processor() {
     setInstructionData(OpCode::SED, AddressingMode::Implied, &Processor::executeSed);
     setInstructionData(OpCode::SEI, AddressingMode::Implied, &Processor::executeSei);
 
+    setInstructionData(OpCode::STA_z, AddressingMode::ZeroPage, &Processor::executeSta);
+    setInstructionData(OpCode::STA_zx, AddressingMode::ZeroPageX, &Processor::executeSta);
+    setInstructionData(OpCode::STA_abs, AddressingMode::Absolute, &Processor::executeSta);
+    setInstructionData(OpCode::STA_absx, AddressingMode::AbsoluteX, &Processor::executeSta);
+    setInstructionData(OpCode::STA_absy, AddressingMode::AbsoluteY, &Processor::executeSta);
+    setInstructionData(OpCode::STA_ix, AddressingMode::IndexedIndirectX, &Processor::executeSta);
+    setInstructionData(OpCode::STA_iy, AddressingMode::IndirectIndexedY, &Processor::executeSta);
+
     setInstructionData(OpCode::STX_z, AddressingMode::ZeroPage, &Processor::executeStx);
     setInstructionData(OpCode::STX_zy, AddressingMode::ZeroPageY, &Processor::executeStx);
     setInstructionData(OpCode::STX_abs, AddressingMode::Absolute, &Processor::executeStx);
@@ -565,6 +573,11 @@ void Processor::executeSed(AddressingMode) {
 void Processor::executeSei(AddressingMode) {
     regs.flags.i = 1;
     counters.cyclesProcessed++;
+}
+
+void Processor::executeSta(AddressingMode mode) {
+    const u16 address = getAddress(mode, false);
+    writeByteToMemory(address, regs.a);
 }
 
 void Processor::executeStx(AddressingMode mode) {
