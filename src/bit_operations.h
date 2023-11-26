@@ -16,6 +16,12 @@ constexpr bool isBitSet(u8 value) {
     return static_cast<bool>(value & (1 << bitIndex));
 }
 
+template <u8 bitIndex>
+constexpr bool isBitSet(u16 value) {
+    static_assert(bitIndex < 15);
+    return static_cast<bool>(value & (1 << bitIndex));
+}
+
 constexpr bool isSignBitSet(u8 value) {
     return isBitSet<7>(value);
 }

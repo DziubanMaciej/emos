@@ -162,6 +162,16 @@ enum class OpCode : u8 {
     STY_zx = 0x94,
     STY_abs = 0x8C,
 
+    // SBC - Substrack with carry
+    SBC_imm = 0xE9,
+    SBC_z = 0xE5,
+    SBC_zx = 0xF5,
+    SBC_abs = 0xED,
+    SBC_absx = 0xFD,
+    SBC_absy = 0xF9,
+    SBC_ix = 0xE1,
+    SBC_iy = 0xF1,
+
     // Special values
     _INVALID = 0x00,
     _MAX_VALUE = 0xFF,

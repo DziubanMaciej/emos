@@ -54,8 +54,10 @@ protected:
     // Helper functions for status flags.
     void updateArithmeticFlags(u8 value);
     void updateFlagsAfterComparison(u8 registerValue, u8 inputValue);
-    u16 updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2);
-    void updateCarryFlagIfOverflow(u16 value);
+    u16 updateOverflowForSumWithCarry(u8 addend);
+    void updateCarryFlagIfOverflow(u16 value, bool OverflowValue);
+
+    void sumWithCarry(u8 addend, bool OverflowValue);
 
     // Helper functions for stack operations
     void pushToStack(u8 value);
@@ -97,6 +99,7 @@ protected:
     void executeSta(AddressingMode mode);
     void executeStx(AddressingMode mode);
     void executeSty(AddressingMode mode);
+    void executeSbc(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};
