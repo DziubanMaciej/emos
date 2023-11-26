@@ -25,7 +25,7 @@ function(target_setup_vs_folders TARGET_NAME)
 endfunction()
 
 function(target_find_sources_and_add TARGET_NAME)
-    file(GLOB SOURCE_FILES
+    file(GLOB SOURCE_FILES CONFIGURE_DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/*.h
     )

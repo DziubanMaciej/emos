@@ -141,6 +141,15 @@ Processor::Processor() {
     setInstructionData(OpCode::STY_z, AddressingMode::ZeroPage, &Processor::executeSty);
     setInstructionData(OpCode::STY_zx, AddressingMode::ZeroPageX, &Processor::executeSty);
     setInstructionData(OpCode::STY_abs, AddressingMode::Absolute, &Processor::executeSty);
+
+    setInstructionData(OpCode::SBC_imm, AddressingMode::Immediate, &Processor::executeSbc);
+    setInstructionData(OpCode::SBC_z, AddressingMode::ZeroPage, &Processor::executeSbc);
+    setInstructionData(OpCode::SBC_zx, AddressingMode::ZeroPageX, &Processor::executeSbc);
+    setInstructionData(OpCode::SBC_abs, AddressingMode::Absolute, &Processor::executeSbc);
+    setInstructionData(OpCode::SBC_absx, AddressingMode::AbsoluteX, &Processor::executeSbc);
+    setInstructionData(OpCode::SBC_absy, AddressingMode::AbsoluteY, &Processor::executeSbc);
+    setInstructionData(OpCode::SBC_ix, AddressingMode::IndexedIndirectX, &Processor::executeSbc);
+    setInstructionData(OpCode::SBC_iy, AddressingMode::IndirectIndexedY, &Processor::executeSbc);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -339,16 +348,28 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
     regs.flags.n = registerValue < inputValue;
 }
 
-u16 Processor::updateOverflowForSumWithCarry(u8 inputValue1, u8 inputValue2) {
-    u16 sum = inputValue1 + inputValue2;
-    if (isSignBitSet(inputValue1) == isSignBitSet(inputValue2)) {
-        regs.flags.o = isSignBitSet(sum) ^ isSignBitSet(inputValue1);
+u16 Processor::updateOverflowForSumWithCarry(u8 addend) {
+    u16 accumulatorWithCarry = regs.a + regs.flags.c;
+    u16 sum = accumulatorWithCarry + addend;
+
+    if (isSignBitSet(addend) == isSignBitSet(accumulatorWithCarry)) {
+        regs.flags.o = isSignBitSet(sum) ^ isSignBitSet(addend);
     }
     return sum;
 }
 
-void Processor::updateCarryFlagIfOverflow(u16 value) {
-    regs.flags.c = value > std::numeric_limits<u8>::max();
+void Processor::updateCarryFlagIfOverflow(u16 value, bool OverflowValue) {
+    // if true then ADC :1 SBC: 0, if false then ADC :0 SBC: 1
+    regs.flags.c = (value > std::numeric_limits<u8>::max()) ? OverflowValue : !OverflowValue;
+}
+
+void Processor::sumWithCarry(u8 addend, bool OverflowValue) {
+    // sum =  a + addend + c
+    regs.flags.o = 0;
+    u16 sum = updateOverflowForSumWithCarry(addend);
+    updateCarryFlagIfOverflow(sum, OverflowValue);
+    regs.a = static_cast<u8>(sum);
+    updateArithmeticFlags(regs.a);
 }
 
 void Processor::pushToStack(u8 value) {
@@ -542,12 +563,7 @@ void Processor::executePlp(AddressingMode) {
 
 void Processor::executeAdc(AddressingMode mode) {
     const u8 addend = readValue(mode, true);
-    regs.flags.o = 0;
-    u16 sum = updateOverflowForSumWithCarry(regs.a, regs.flags.c);
-    sum = updateOverflowForSumWithCarry(sum, addend);
-    updateCarryFlagIfOverflow(sum);
-    regs.a = static_cast<u8>(sum);
-    updateArithmeticFlags(regs.a);
+    sumWithCarry(addend, true);
 }
 
 void Processor::executeAnd(AddressingMode mode) {
@@ -588,4 +604,16 @@ void Processor::executeStx(AddressingMode mode) {
 void Processor::executeSty(AddressingMode mode) {
     const u16 address = getAddress(mode, false);
     writeByteToMemory(address, regs.y);
+}
+
+void Processor::executeSbc(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
+    // convert substraction to addition :
+    // a - m - (1 -c) =
+    // = a - m - 1 + c =
+    // = a - (m + 1) + c =
+    // = a + (-1)*( m + 1 ) + c
+    // => addend = (-1)*( m + 1 )
+    u8 addend = (-1) * (value + 1);
+    sumWithCarry(addend, false);
 }
