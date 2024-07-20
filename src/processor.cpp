@@ -150,6 +150,9 @@ Processor::Processor() {
     setInstructionData(OpCode::SBC_absy, AddressingMode::AbsoluteY, &Processor::executeSbc);
     setInstructionData(OpCode::SBC_ix, AddressingMode::IndexedIndirectX, &Processor::executeSbc);
     setInstructionData(OpCode::SBC_iy, AddressingMode::IndirectIndexedY, &Processor::executeSbc);
+
+    setInstructionData(OpCode::JMP_abs, AddressingMode::Absolute, &Processor::executeJmp);
+    setInstructionData(OpCode::JMP_i, AddressingMode::Indirect, &Processor::executeJmp);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -243,6 +246,11 @@ u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
         u16 address = fetchInstructionByte();
         address = readTwoBytesFromMemory(address);
         address = sumAddresses(address, regs.y, isReadOnly);
+        return address;
+    }
+    case AddressingMode::Indirect: {
+        u16 address = fetchInstructionTwoBytes();
+        address = readTwoBytesFromMemory(address);
         return address;
     }
     default: {
@@ -616,4 +624,9 @@ void Processor::executeSbc(AddressingMode mode) {
     // => addend = (-1)*( m + 1 )
     u8 addend = (-1) * (value + 1);
     sumWithCarry(addend, false);
+}
+
+void Processor::executeJmp(AddressingMode mode) {
+    const u16 address = getAddress(mode, true);
+    regs.pc = address;
 }

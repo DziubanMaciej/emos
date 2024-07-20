@@ -172,6 +172,10 @@ enum class OpCode : u8 {
     SBC_ix = 0xE1,
     SBC_iy = 0xF1,
 
+    // JMP - jumps and calls
+    JMP_abs = 0x4C,
+    JMP_i = 0x6C,
+
     // Special values
     _INVALID = 0x00,
     _MAX_VALUE = 0xFF,

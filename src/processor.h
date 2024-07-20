@@ -18,6 +18,7 @@ enum class AddressingMode {
     AbsoluteY,
     IndexedIndirectX,
     IndirectIndexedY,
+    Indirect,
 };
 
 class Processor {
@@ -100,6 +101,7 @@ protected:
     void executeStx(AddressingMode mode);
     void executeSty(AddressingMode mode);
     void executeSbc(AddressingMode mode);
+    void executeJmp(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};
