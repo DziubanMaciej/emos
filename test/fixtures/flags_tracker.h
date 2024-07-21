@@ -9,6 +9,15 @@ public:
     void setUp(WhiteboxProcessor &processor) {
         actualFlags = &processor.regs.flags;
 
+        assertionMask.c = 1;
+        assertionMask.z = 1;
+        assertionMask.i = 1;
+        assertionMask.d = 1;
+        assertionMask.b = 1;
+        assertionMask.o = 1;
+        assertionMask.n = 1;
+        assertionMask.r = 1;
+
         actualFlags->c = 0;
         actualFlags->z = 0;
         actualFlags->i = 0;
@@ -20,14 +29,19 @@ public:
         expectedFlags = *actualFlags;
     }
 
-    void tearDown() {
-        EXPECT_EQ(expectedFlags.c, actualFlags->c);
-        EXPECT_EQ(expectedFlags.z, actualFlags->z);
-        EXPECT_EQ(expectedFlags.i, actualFlags->i);
-        EXPECT_EQ(expectedFlags.d, actualFlags->d);
-        EXPECT_EQ(expectedFlags.b, actualFlags->b);
-        EXPECT_EQ(expectedFlags.o, actualFlags->o);
-        EXPECT_EQ(expectedFlags.r, actualFlags->r);
+    void expect() {
+#define ASSERTION(fieldName)                                        \
+    if (assertionMask.fieldName) {                                  \
+        EXPECT_EQ(expectedFlags.fieldName, actualFlags->fieldName); \
+    }
+        ASSERTION(c)
+        ASSERTION(z)
+        ASSERTION(i)
+        ASSERTION(d)
+        ASSERTION(b)
+        ASSERTION(o)
+        ASSERTION(r)
+#undef ASSERTION
     }
 
 #define EXPECT_FUNC(flagName, fieldName)                   \
@@ -39,6 +53,10 @@ public:
     void expect##flagName##Flag(bool after) {              \
         actualFlags->fieldName = !after;                   \
         expectedFlags.fieldName = after;                   \
+    }                                                      \
+                                                           \
+    void ignore##flagName##Flag() {                        \
+        assertionMask.fieldName = 0;                       \
     }
 
     EXPECT_FUNC(Carry, c)
@@ -54,4 +72,8 @@ public:
 private:
     StatusFlags *actualFlags = nullptr;
     StatusFlags expectedFlags{};
+
+    // Each bit in this mask selects whether we should make an assertion about
+    // given status flag or ignore it.
+    StatusFlags assertionMask = {};
 };

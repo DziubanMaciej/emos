@@ -122,6 +122,9 @@ Processor::Processor() {
     setInstructionData(OpCode::EOR_ix, AddressingMode::IndexedIndirectX, &Processor::executeEor);
     setInstructionData(OpCode::EOR_iy, AddressingMode::IndirectIndexedY, &Processor::executeEor);
 
+    setInstructionData(OpCode::BIT_z, AddressingMode::ZeroPage, &Processor::executeBit);
+    setInstructionData(OpCode::BIT_abs, AddressingMode::Absolute, &Processor::executeBit);
+
     setInstructionData(OpCode::ORA_imm, AddressingMode::Immediate, &Processor::executeOra);
     setInstructionData(OpCode::ORA_z, AddressingMode::ZeroPage, &Processor::executeOra);
     setInstructionData(OpCode::ORA_zx, AddressingMode::ZeroPageX, &Processor::executeOra);
@@ -645,6 +648,13 @@ void Processor::executeOra(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a |= value;
     updateArithmeticFlags(regs.a);
+}
+
+void Processor::executeBit(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
+    regs.flags.z = (regs.a & value) == 0;
+    regs.flags.o = isBitSet<6>(value);
+    regs.flags.n = isBitSet<7>(value);
 }
 
 void Processor::executeSec(AddressingMode) {

@@ -5,6 +5,11 @@
 #include <gtest/gtest.h>
 
 struct ReferencedValue {
+    void clear() {
+        immediate = {};
+        value = nullptr;
+    }
+
     u8 read() {
         EXPECT_NE(nullptr, value);
         return *value;

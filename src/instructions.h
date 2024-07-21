@@ -149,6 +149,10 @@ enum class OpCode : u8 {
     EOR_ix = 0x41,
     EOR_iy = 0x51,
 
+    // BIT - bit test
+    BIT_z = 0x24,
+    BIT_abs = 0x2c,
+
     // ORA - logical or
     ORA_imm = 0x09,
     ORA_z = 0x05,

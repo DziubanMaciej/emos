@@ -22,7 +22,7 @@ struct EmosTest : ::testing::Test {
     void TearDown() override {
         EXPECT_EQ(expectedBytesProcessed, processor.counters.bytesProcessed);
         EXPECT_EQ(expectedCyclesProcessed, processor.counters.cyclesProcessed);
-        flags.tearDown();
+        flags.expect();
     }
 
     void setStartAddress(u16 arg) {
