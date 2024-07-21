@@ -323,7 +323,7 @@ u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
         return address;
     }
     case AddressingMode::Relative: {
-        const u8 offset = fetchInstructionByte();
+        const i8 offset = static_cast<i8>(fetchInstructionByte());
         return sumAddresses(regs.pc, offset, isReadOnly);
     }
     default: {

@@ -41,11 +41,26 @@ TEST_P(BranchTest, givenBranchIsTakenThenUpdatePc) {
 
     setStartAddress(0xAA00);
     processor.memory[startAddress + 0] = static_cast<u8>(GetParam());
-    processor.memory[startAddress + 1] = 0xFD;
+    processor.memory[startAddress + 1] = 0x55;
 
     processor.executeInstructions(1);
 
-    EXPECT_EQ(startAddress + 2 + 0xFD, processor.regs.pc);
+    EXPECT_EQ(startAddress + 2 + 0x55, processor.regs.pc);
+
+    expectedBytesProcessed = 2;
+    expectedCyclesProcessed = 3; // additional cycle for branching
+}
+
+TEST_P(BranchTest, givenBackwardsBranchIsTakenThenUpdatePc) {
+    setupFlagsForBranch(true);
+
+    setStartAddress(0xAA60);
+    processor.memory[startAddress + 0] = static_cast<u8>(GetParam());
+    processor.memory[startAddress + 1] = -30;
+
+    processor.executeInstructions(1);
+
+    EXPECT_EQ(startAddress + 2 - 30, processor.regs.pc);
 
     expectedBytesProcessed = 2;
     expectedCyclesProcessed = 3; // additional cycle for branching
@@ -56,7 +71,7 @@ TEST_P(BranchTest, givenBranchIsNotTakenThenDoNotUpdatePc) {
 
     setStartAddress(0xAA00);
     processor.memory[startAddress + 0] = static_cast<u8>(GetParam());
-    processor.memory[startAddress + 1] = 0xFD;
+    processor.memory[startAddress + 1] = 0x55;
 
     processor.executeInstructions(1);
 
@@ -71,22 +86,22 @@ TEST_P(BranchTest, givenCrossPageBranchIsTakenThenUpdatePc) {
 
     setStartAddress(0xAA80);
     processor.memory[startAddress + 0] = static_cast<u8>(GetParam());
-    processor.memory[startAddress + 1] = 0xFD;
+    processor.memory[startAddress + 1] = 0x7F;
 
     processor.executeInstructions(1);
 
-    EXPECT_EQ(startAddress + 2 + 0xFD, processor.regs.pc);
+    EXPECT_EQ(startAddress + 2 + 0x7F, processor.regs.pc);
 
     expectedBytesProcessed = 2;
     expectedCyclesProcessed = 4; // additional cycle for branching, additional cycle for page crossing
 }
 
-TEST_P(BranchTest, givenCrosPageBranchIsNotTakenThenDoNotUpdatePc) {
+TEST_P(BranchTest, givenCrossPageBranchIsNotTakenThenDoNotUpdatePc) {
     setupFlagsForBranch(false);
 
     setStartAddress(0xAA80);
     processor.memory[startAddress + 0] = static_cast<u8>(GetParam());
-    processor.memory[startAddress + 1] = 0xFD;
+    processor.memory[startAddress + 1] = 0x55;
 
     processor.executeInstructions(1);
 
