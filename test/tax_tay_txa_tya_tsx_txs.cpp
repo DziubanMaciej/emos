@@ -46,7 +46,7 @@ struct RegisterTransferTest : EmosTest, ::testing::WithParamInterface<Param> {
             UNREACHABLE_CODE
         }
     }
-    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) override {
+    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) {
         const Register src = std::get<0>(GetParam());
         const Register dst = std::get<1>(GetParam());
 

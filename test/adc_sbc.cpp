@@ -2,7 +2,7 @@
 #include "test/fixtures/emos_test.h"
 
 struct AdcSbcTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> memValue, std::optional<u8> regA) override {
+    void initializeProcessor(OpCode opcode, std::optional<u8> memValue, std::optional<u8> regA) {
         processor.regs.a = regA.value();
         switch (opcode) {
         case OpCode::SBC_imm:

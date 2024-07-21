@@ -2,7 +2,7 @@
 #include "test/fixtures/emos_test.h"
 
 struct OraTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8> loadToReg) override {
+    void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8> loadToReg) {
         processor.regs.a = loadToReg.value();
         switch (opcode) {
         case OpCode::ORA_imm:

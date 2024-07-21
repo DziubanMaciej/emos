@@ -4,7 +4,7 @@
 #include <tuple>
 
 struct LsrTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) override {
+    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
         switch (opcode) {
         case OpCode::LSR_acc:
             initializeForAccumulator(opcode, value.value());

@@ -15,7 +15,7 @@ struct InxInyDexDeyTest : testing::WithParamInterface<OpCode>, EmosTest {
             FATAL_ERROR("Wrong OpCode");
         }
     }
-    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) override {
+    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) {
         processor.memory[startAddress + 0] = static_cast<u8>(opcode);
         getReg(opcode) = loadToReg.value();
         expectedBytesProcessed = 1;

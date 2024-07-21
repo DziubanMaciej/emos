@@ -1,7 +1,7 @@
 #include "src/error.h"
 #include "test/fixtures/emos_test.h"
 struct IncDecTest : EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8>) override {
+    void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8>) {
         switch (opcode) {
         case OpCode::INC_z:
         case OpCode::DEC_z:

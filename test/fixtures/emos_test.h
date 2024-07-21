@@ -25,9 +25,6 @@ struct EmosTest : ::testing::Test {
         flags.tearDown();
     }
 
-    // TODO remove this
-    virtual void initializeProcessor(OpCode, std::optional<u8>, std::optional<u8>) {}
-
     void initializeForAccumulator(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         referencedValue.setRegisterA(processor);

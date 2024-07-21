@@ -2,7 +2,7 @@
 #include "test/fixtures/emos_test.h"
 
 struct SecSedSeiTests : EmosTest {
-    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) override {
+    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
         initializeForImplied(opcode);
         expectedBytesProcessed = 1u;
         expectedCyclesProcessed = 2u;

@@ -84,7 +84,7 @@ struct LdTest : testing::WithParamInterface<Reg>,
             FATAL_ERROR("Wrong reg");
         }
     }
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) override {
+    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
 
         switch (opcode) {
         case OpCode::LDA_imm:

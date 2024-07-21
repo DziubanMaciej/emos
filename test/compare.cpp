@@ -2,7 +2,7 @@
 #include "test/fixtures/emos_test.h"
 
 struct CompareTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> addend, std::optional<u8> regVal) override {
+    void initializeProcessor(OpCode opcode, std::optional<u8> addend, std::optional<u8> regVal) {
         setRegisterForOpCode(opcode, regVal.value());
         switch (opcode) {
         case OpCode::CMP_imm:
