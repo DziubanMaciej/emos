@@ -1,8 +1,8 @@
 #pragma once
 
-#include "test/fixtures/flags_tracker.h"
-#include "test/fixtures/referenced_value.h"
-#include "test/fixtures/whitebox.h"
+#include "unit_test/fixtures/flags_tracker.h"
+#include "unit_test/fixtures/referenced_value.h"
+#include "unit_test/fixtures/whitebox.h"
 
 #include <gtest/gtest.h>
 
