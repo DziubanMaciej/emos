@@ -153,6 +153,10 @@ Processor::Processor() {
 
     setInstructionData(OpCode::JMP_abs, AddressingMode::Absolute, &Processor::executeJmp);
     setInstructionData(OpCode::JMP_i, AddressingMode::Indirect, &Processor::executeJmp);
+
+    setInstructionData(OpCode::JSR, AddressingMode::Absolute, &Processor::executeJsr);
+
+    setInstructionData(OpCode::RTS, AddressingMode::Implied, &Processor::executeRts);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -345,6 +349,10 @@ void Processor::aluOperation() {
     counters.cyclesProcessed++;
 }
 
+void Processor::idleCycle() {
+    counters.cyclesProcessed++;
+}
+
 void Processor::updateArithmeticFlags(u8 value) {
     regs.flags.z = value == 0;
     regs.flags.n = isSignBitSet(value);
@@ -382,7 +390,7 @@ void Processor::sumWithCarry(u8 addend, bool OverflowValue) {
 
 void Processor::pushToStack(u8 value) {
     // 1 cycle for writing value
-    // 1 cycle for incrementing pointer
+    // 1 cycle for decrementing stack pointer
     counters.cyclesProcessed += 2;
 
     constexpr u16 stackBase = 0x0100;
@@ -391,8 +399,20 @@ void Processor::pushToStack(u8 value) {
     regs.sp--;
 }
 
+void Processor::pushToStack16(u16 value) {
+    // 2 cycles for writing value
+    // 1 cycle for decreasing stack pointer
+    counters.cyclesProcessed += 3;
+
+    constexpr u16 stackBase = 0x0100;
+    const u16 address = stackBase + regs.sp;
+    memory[address] = (value & 0xFF00) >> 8;
+    memory[address - 1] = value & 0xFF;
+    regs.sp -= 2;
+}
+
 u8 Processor::popFromStack() {
-    // 1 cycle for writing value
+    // 1 cycle for reading value
     // 1 cycle for incrementing pointer
     counters.cyclesProcessed += 2;
 
@@ -400,6 +420,19 @@ u8 Processor::popFromStack() {
     regs.sp++;
     const u16 address = stackBase + regs.sp;
     return memory[address];
+}
+
+u16 Processor::popFromStack16() {
+    // 2 cycles for reading value
+    // 1 cycle for incrementing pointer
+    counters.cyclesProcessed += 3;
+
+    constexpr u16 stackBase = 0x0100;
+    regs.sp += 2;
+    const u16 address = stackBase + regs.sp;
+    const u16 lo = memory[address - 1];
+    const u16 hi = memory[address];
+    return (hi << 8) | lo;
 }
 
 void Processor::executeLda(AddressingMode mode) {
@@ -629,4 +662,17 @@ void Processor::executeSbc(AddressingMode mode) {
 void Processor::executeJmp(AddressingMode mode) {
     const u16 address = getAddress(mode, true);
     regs.pc = address;
+}
+
+void Processor::executeJsr(AddressingMode mode) {
+    const u16 calledAddress = getAddress(mode, true);
+    pushToStack16(regs.pc - 1);
+    regs.pc = calledAddress;
+}
+
+void Processor::executeRts(AddressingMode) {
+    idleCycle(); // Fetching a second instruction byte needlessly. See http://forum.6502.org/viewtopic.php?f=2&t=5146
+    const u16 returnAddress = popFromStack16() + 1;
+    aluOperation(); // Incrementing PC
+    regs.pc = returnAddress;
 }

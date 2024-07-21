@@ -50,7 +50,10 @@ protected:
     u16 sumAddressesZeroPage(u8 base, u8 offset);
     template <typename RegT>
     void registerTransfer(RegT &dst, const RegT &src);
+
+    // Helper functions for expressing additional cycles used by some instructions
     void aluOperation();
+    void idleCycle();
 
     // Helper functions for status flags.
     void updateArithmeticFlags(u8 value);
@@ -62,7 +65,9 @@ protected:
 
     // Helper functions for stack operations
     void pushToStack(u8 value);
+    void pushToStack16(u16 value);
     u8 popFromStack();
+    u16 popFromStack16();
 
     // Functions for executing instructions.
     void executeLda(AddressingMode mode);
@@ -102,6 +107,8 @@ protected:
     void executeSty(AddressingMode mode);
     void executeSbc(AddressingMode mode);
     void executeJmp(AddressingMode mode);
+    void executeJsr(AddressingMode mode);
+    void executeRts(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};

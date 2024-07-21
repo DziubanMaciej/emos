@@ -175,6 +175,8 @@ enum class OpCode : u8 {
     // JMP - jumps and calls
     JMP_abs = 0x4C,
     JMP_i = 0x6C,
+    JSR = 0x20,
+    RTS = 0x60,
 
     // Special values
     _INVALID = 0x00,

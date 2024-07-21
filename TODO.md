@@ -27,8 +27,8 @@
 - [x] INC
 - [x] INX
 - [x] INY
-- [ ] JMP
-- [ ] JSR
+- [x] JMP
+- [x] JSR
 - [x] LDA
 - [x] LDX
 - [x] LDY
@@ -42,7 +42,7 @@
 - [x] ROL
 - [x] ROR
 - [ ] RTI
-- [ ] RTS
+- [x] RTS
 - [x] SBC
 - [x] SEC
 - [x] SED
