@@ -106,6 +106,10 @@ protected:
     void executeSec(AddressingMode mode);
     void executeSed(AddressingMode mode);
     void executeSei(AddressingMode mode);
+    void executeClc(AddressingMode mode);
+    void executeCld(AddressingMode mode);
+    void executeCli(AddressingMode mode);
+    void executeClv(AddressingMode mode);
     void executeSta(AddressingMode mode);
     void executeStx(AddressingMode mode);
     void executeSty(AddressingMode mode);

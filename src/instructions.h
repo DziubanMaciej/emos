@@ -168,6 +168,12 @@ enum class OpCode : u8 {
     SED = 0xF8,
     SEI = 0x78,
 
+    // CLC, CLD, CLI, CLV - clear flags
+    CLC = 0x18,
+    CLD = 0xD8,
+    CLI = 0x58,
+    CLV = 0xB8,
+
     // STX, STY - store register into memory
     STX_z = 0x86,
     STX_zy = 0x96,

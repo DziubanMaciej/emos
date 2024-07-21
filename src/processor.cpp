@@ -138,6 +138,11 @@ Processor::Processor() {
     setInstructionData(OpCode::SED, AddressingMode::Implied, &Processor::executeSed);
     setInstructionData(OpCode::SEI, AddressingMode::Implied, &Processor::executeSei);
 
+    setInstructionData(OpCode::CLC, AddressingMode::Implied, &Processor::executeClc);
+    setInstructionData(OpCode::CLD, AddressingMode::Implied, &Processor::executeCld);
+    setInstructionData(OpCode::CLI, AddressingMode::Implied, &Processor::executeCli);
+    setInstructionData(OpCode::CLV, AddressingMode::Implied, &Processor::executeClv);
+
     setInstructionData(OpCode::STA_z, AddressingMode::ZeroPage, &Processor::executeSta);
     setInstructionData(OpCode::STA_zx, AddressingMode::ZeroPageX, &Processor::executeSta);
     setInstructionData(OpCode::STA_abs, AddressingMode::Absolute, &Processor::executeSta);
@@ -679,6 +684,26 @@ void Processor::executeSed(AddressingMode) {
 }
 void Processor::executeSei(AddressingMode) {
     regs.flags.i = 1;
+    counters.cyclesProcessed++;
+}
+
+void Processor::executeClc(AddressingMode) {
+    regs.flags.c = 0;
+    counters.cyclesProcessed++;
+}
+
+void Processor::executeCld(AddressingMode) {
+    regs.flags.d = 0;
+    counters.cyclesProcessed++;
+}
+
+void Processor::executeCli(AddressingMode) {
+    regs.flags.i = 0;
+    counters.cyclesProcessed++;
+}
+
+void Processor::executeClv(AddressingMode) {
+    regs.flags.o = 0;
     counters.cyclesProcessed++;
 }
 
