@@ -27,6 +27,8 @@ class Processor {
 public:
     Processor();
 
+    void loadMemory(u32 start, u32 length, const u8 *data);
+    void loadProgramCounter(u16 newPc);
     void executeInstructions(u32 maxInstructionCount);
 
 protected:

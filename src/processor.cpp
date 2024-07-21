@@ -192,7 +192,7 @@ Processor::Processor() {
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
-    for (u32 instructionIndex = 0; instructionIndex < maxInstructionCount; instructionIndex++) {
+    for (u32 instructionIndex = 0; maxInstructionCount == 0 || instructionIndex < maxInstructionCount; instructionIndex++) {
         const u8 opCode = fetchInstructionByte();
         const InstructionData &instruction = instructionData[opCode];
         if (instruction.exec == nullptr) {
@@ -201,6 +201,15 @@ void Processor::executeInstructions(u32 maxInstructionCount) {
 
         (this->*instruction.exec)(instruction.addressingMode);
     }
+}
+
+void Processor::loadMemory(u32 start, u32 length, const u8 *data) {
+    FATAL_ERROR_IF(start + length < memorySize, "Out of memory bounds.");
+    memcpy(memory + start, data, length);
+}
+
+void Processor::loadProgramCounter(u16 newPc) {
+    regs.pc = newPc;
 }
 
 u8 Processor::fetchInstructionByte() {
