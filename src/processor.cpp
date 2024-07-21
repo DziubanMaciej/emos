@@ -191,7 +191,7 @@ Processor::Processor() {
     setInstructionData(OpCode::RTI, AddressingMode::Implied, &Processor::executeRti);
 }
 
-void Processor::executeInstructions(u32 maxInstructionCount) {
+bool Processor::executeInstructions(u32 maxInstructionCount) {
     for (u32 instructionIndex = 0; maxInstructionCount == 0 || instructionIndex < maxInstructionCount; instructionIndex++) {
         const u8 opCode = fetchInstructionByte();
         const InstructionData &instruction = instructionData[opCode];
@@ -199,8 +199,16 @@ void Processor::executeInstructions(u32 maxInstructionCount) {
             FATAL_ERROR("Unsupported instruction: ", static_cast<u32>(opCode));
         }
 
+        hangDetector.instruction(static_cast<OpCode>(opCode), regs.pc - 1);
+        if (hangDetector.isHangDetected()) {
+            INFO("Hang detected at 0x", std::hex, hangDetector.getHangAddress());
+            return false;
+        }
+
         (this->*instruction.exec)(instruction.addressingMode);
     }
+
+    return true;
 }
 
 void Processor::loadMemory(u32 start, u32 length, const u8 *data) {
@@ -210,6 +218,10 @@ void Processor::loadMemory(u32 start, u32 length, const u8 *data) {
 
 void Processor::loadProgramCounter(u16 newPc) {
     regs.pc = newPc;
+}
+
+void Processor::activateHangDetector() {
+    hangDetector.setActive(true);
 }
 
 u8 Processor::fetchInstructionByte() {

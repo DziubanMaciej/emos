@@ -16,6 +16,9 @@ inline void dumpLog(std::ostream &out, Arg &&arg, Args &&...args) {
     dumpLog(out, std::forward<Args>(args)...);
 }
 
+#define INFO(...) \
+    dumpLog(std::cout, __VA_ARGS__);
+
 #define FATAL_ERROR(...)             \
     dumpLog(std::cerr, __VA_ARGS__); \
     performAbort();

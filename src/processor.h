@@ -4,6 +4,8 @@
 #include "instructions.h"
 #include "registers.h"
 
+#include "src/hang_detector.h"
+
 constexpr u32 memorySize = 64 * 1024;
 
 enum class AddressingMode {
@@ -29,7 +31,8 @@ public:
 
     void loadMemory(u32 start, u32 length, const u8 *data);
     void loadProgramCounter(u16 newPc);
-    void executeInstructions(u32 maxInstructionCount);
+    void activateHangDetector();
+    bool executeInstructions(u32 maxInstructionCount);
 
 protected:
     // Helper functions to fetch from instruction stream. They increase cycle counter and program counter.
@@ -131,6 +134,8 @@ protected:
     void executeNop(AddressingMode mode);
     void executeBrk(AddressingMode mode);
     void executeRti(AddressingMode mode);
+
+    HangDetector hangDetector = {};
 
     // State of the CPU.
     Counters counters = {};
