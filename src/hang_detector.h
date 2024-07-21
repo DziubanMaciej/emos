@@ -5,7 +5,7 @@
 class HangDetector {
 public:
     void instruction(OpCode opCode, u16 pc) {
-        if (!isActive || hangDetected) {
+        if (hangDetected) {
             return;
         }
 
@@ -22,13 +22,10 @@ public:
         hangAddress = snapshots[0].pc;
     }
 
-    void setActive(bool newValue) { isActive = newValue; }
     bool isHangDetected() const { return hangDetected; }
     u16 getHangAddress() const { return hangAddress; }
 
 private:
-    bool isActive = false;
-
     struct StateSnapshot {
         OpCode opCode = OpCode::_INVALID;
         u16 pc = 0xFFFF;
