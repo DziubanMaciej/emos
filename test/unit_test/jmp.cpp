@@ -1,5 +1,5 @@
 #include "src/error.h"
-#include "test/fixtures/emos_test.h"
+#include "unit_test/fixtures/emos_test.h"
 
 struct JmpTest : EmosTest {
 };

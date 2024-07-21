@@ -1,28 +1,28 @@
 #include "src/error.h"
-#include "test/fixtures/emos_test.h"
+#include "unit_test/fixtures/emos_test.h"
 
 #include <tuple>
 
-struct RorTest : testing::WithParamInterface<OpCode>, EmosTest {
+struct LsrTest : testing::WithParamInterface<OpCode>, EmosTest {
     ReferencedValue initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
         switch (opcode) {
-        case OpCode::ROR_acc:
+        case OpCode::LSR_acc:
             expectedBytesProcessed = 1u;
             expectedCyclesProcessed = 2u;
             return initializeForAccumulator(opcode, value.value());
-        case OpCode::ROR_z:
+        case OpCode::LSR_z:
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
             return initializeForZeroPage(opcode, value.value());
-        case OpCode::ROR_zx:
+        case OpCode::LSR_zx:
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
             return initializeForZeroPageX(opcode, value.value());
-        case OpCode::ROR_abs:
+        case OpCode::LSR_abs:
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 6u;
             return initializeForAbsolute(opcode, value.value());
-        case OpCode::ROR_absx:
+        case OpCode::LSR_absx:
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 7u;
             return initializeForAbsoluteX(opcode, value.value());
@@ -33,28 +33,28 @@ struct RorTest : testing::WithParamInterface<OpCode>, EmosTest {
 
     static std::string constructParamName(const testing::TestParamInfo<OpCode> &info) {
         switch (info.param) {
-        case OpCode::ROR_acc:
-            return "ROR_acc";
-        case OpCode::ROR_z:
-            return "ROR_z";
-        case OpCode::ROR_zx:
-            return "ROR_zx";
-        case OpCode::ROR_abs:
-            return "ROR_abs";
-        case OpCode::ROR_absx:
-            return "ROR_absx";
+        case OpCode::LSR_acc:
+            return "LSR_acc";
+        case OpCode::LSR_z:
+            return "LSR_z";
+        case OpCode::LSR_zx:
+            return "LSR_zx";
+        case OpCode::LSR_abs:
+            return "LSR_abs";
+        case OpCode::LSR_absx:
+            return "LSR_absx";
         default:
             FATAL_ERROR("Wrong OpCode");
         }
     }
 };
 
-TEST_P(RorTest, givenNumberThenShiftProperly) {
+TEST_P(LsrTest, givenNumberThenShiftProperly) {
     const u8 inpValue = 0b00110010;
     const u8 outValue = 0b00011001;
     ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
-    flags.expectCarryFlag(false, false);
+    flags.expectCarryFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
@@ -62,12 +62,12 @@ TEST_P(RorTest, givenNumberThenShiftProperly) {
     EXPECT_EQ(outValue, referencedValue.read());
 }
 
-TEST_P(RorTest, givenLeastSignificantBitSetThenSetCarryBit) {
+TEST_P(LsrTest, givenLeastSignificantBitSetThenSetCarryBit) {
     const u8 inpValue = 0b00010001;
     const u8 outValue = 0b00001000;
     ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
-    flags.expectCarryFlag(false, true);
+    flags.expectCarryFlag(true);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
@@ -75,12 +75,12 @@ TEST_P(RorTest, givenLeastSignificantBitSetThenSetCarryBit) {
     EXPECT_EQ(outValue, referencedValue.read());
 }
 
-TEST_P(RorTest, givenZeroValueThenZeroFlagSet) {
+TEST_P(LsrTest, givenZeroValueThenZeroFlagSet) {
     const u8 inpValue = 0b00000000;
     const u8 outValue = 0b00000000;
     ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
-    flags.expectCarryFlag(false, false);
+    flags.expectCarryFlag(false);
     flags.expectZeroFlag(true);
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
@@ -88,52 +88,13 @@ TEST_P(RorTest, givenZeroValueThenZeroFlagSet) {
     EXPECT_EQ(outValue, referencedValue.read());
 }
 
-TEST_P(RorTest, givenZeroValueAfterShiftThenZeroFlagSet) {
+TEST_P(LsrTest, givenZeroValueAfterShiftThenZeroFlagSet) {
     const u8 inpValue = 0b00000001;
     const u8 outValue = 0b00000000;
     ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
-    flags.expectCarryFlag(false, true);
+    flags.expectCarryFlag(true);
     flags.expectZeroFlag(true);
-    flags.expectNegativeFlag(false);
-    processor.executeInstructions(1);
-
-    EXPECT_EQ(outValue, referencedValue.read());
-}
-
-TEST_P(RorTest, givenCarryFlagSetThenRotateIntoMostSignificantBit) {
-    const u8 inpValue = 0b00001110;
-    const u8 outValue = 0b10000111;
-    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
-
-    flags.expectCarryFlag(true, false);
-    flags.expectZeroFlag(false);
-    flags.expectNegativeFlag(false);
-    processor.executeInstructions(1);
-
-    EXPECT_EQ(outValue, referencedValue.read());
-}
-
-TEST_P(RorTest, givenCarryFlagAndMostSignificantBitSetThenRotateIntoMostSignificantBit) {
-    const u8 inpValue = 0b10001110;
-    const u8 outValue = 0b11000111;
-    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
-
-    flags.expectCarryFlag(true, false);
-    flags.expectZeroFlag(false);
-    flags.expectNegativeFlag(false);
-    processor.executeInstructions(1);
-
-    EXPECT_EQ(outValue, referencedValue.read());
-}
-
-TEST_P(RorTest, givenCarryFlagAndLeastSignificantBitSetThenRotateThroughCarry) {
-    const u8 inpValue = 0b00000001;
-    const u8 outValue = 0b10000000;
-    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
-
-    flags.expectCarryFlag(true, true);
-    flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
     processor.executeInstructions(1);
 
@@ -141,6 +102,6 @@ TEST_P(RorTest, givenCarryFlagAndLeastSignificantBitSetThenRotateThroughCarry) {
 }
 
 INSTANTIATE_TEST_SUITE_P(,
-                         RorTest,
-                         ::testing::ValuesIn({OpCode::ROR_acc, OpCode::ROR_z, OpCode::ROR_zx, OpCode::ROR_abs, OpCode::ROR_absx}),
-                         RorTest::constructParamName);
+                         LsrTest,
+                         ::testing::ValuesIn({OpCode::LSR_acc, OpCode::LSR_z, OpCode::LSR_zx, OpCode::LSR_abs, OpCode::LSR_absx}),
+                         LsrTest::constructParamName);
