@@ -9,8 +9,7 @@
 struct EmosTest : ::testing::Test {
     void SetUp() override {
         // Set PC to an arbitrary value - we have to start somewhere.
-        startAddress = 0xFF00;
-        processor.regs.pc = startAddress;
+        setStartAddress(0xFF00);
 
         // Set registers to bogus values, to make sure they are not used accidentally.
         processor.regs.a = 0x13;
@@ -19,10 +18,16 @@ struct EmosTest : ::testing::Test {
         processor.regs.sp = 0x43;
         flags.setUp(processor);
     }
+
     void TearDown() override {
         EXPECT_EQ(expectedBytesProcessed, processor.counters.bytesProcessed);
         EXPECT_EQ(expectedCyclesProcessed, processor.counters.cyclesProcessed);
         flags.tearDown();
+    }
+
+    void setStartAddress(u16 arg) {
+        startAddress = arg;
+        processor.regs.pc = arg;
     }
 
     void initializeForAccumulator(OpCode opCode, u8 value) {

@@ -3,16 +3,16 @@
 - [x] ADC
 - [x] AND
 - [x] ASL
-- [ ] BCC
-- [ ] BCS
-- [ ] BEQ
+- [x] BCC
+- [x] BCS
+- [x] BEQ
 - [ ] BIT
-- [ ] BMI
-- [ ] BNE
-- [ ] BPL
+- [x] BMI
+- [x] BNE
+- [x] BPL
 - [ ] BRK
-- [ ] BVC
-- [ ] BVS
+- [x] BVC
+- [x] BVS
 - [ ] CLC
 - [ ] CLD
 - [ ] CLI

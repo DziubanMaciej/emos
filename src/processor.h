@@ -19,6 +19,7 @@ enum class AddressingMode {
     IndexedIndirectX,
     IndirectIndexedY,
     Indirect,
+    Relative,
 };
 
 class Processor {
@@ -109,6 +110,15 @@ protected:
     void executeJmp(AddressingMode mode);
     void executeJsr(AddressingMode mode);
     void executeRts(AddressingMode mode);
+    void executeBranch(AddressingMode mode, bool take);
+    void executeBcc(AddressingMode mode);
+    void executeBcs(AddressingMode mode);
+    void executeBeq(AddressingMode mode);
+    void executeBmi(AddressingMode mode);
+    void executeBne(AddressingMode mode);
+    void executeBpl(AddressingMode mode);
+    void executeBvc(AddressingMode mode);
+    void executeBvs(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};

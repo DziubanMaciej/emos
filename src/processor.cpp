@@ -157,6 +157,15 @@ Processor::Processor() {
     setInstructionData(OpCode::JSR, AddressingMode::Absolute, &Processor::executeJsr);
 
     setInstructionData(OpCode::RTS, AddressingMode::Implied, &Processor::executeRts);
+
+    setInstructionData(OpCode::BCC, AddressingMode::Relative, &Processor::executeBcc);
+    setInstructionData(OpCode::BCS, AddressingMode::Relative, &Processor::executeBcs);
+    setInstructionData(OpCode::BEQ, AddressingMode::Relative, &Processor::executeBeq);
+    setInstructionData(OpCode::BMI, AddressingMode::Relative, &Processor::executeBmi);
+    setInstructionData(OpCode::BNE, AddressingMode::Relative, &Processor::executeBne);
+    setInstructionData(OpCode::BPL, AddressingMode::Relative, &Processor::executeBpl);
+    setInstructionData(OpCode::BVC, AddressingMode::Relative, &Processor::executeBvc);
+    setInstructionData(OpCode::BVS, AddressingMode::Relative, &Processor::executeBvs);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -256,6 +265,10 @@ u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
         u16 address = fetchInstructionTwoBytes();
         address = readTwoBytesFromMemory(address);
         return address;
+    }
+    case AddressingMode::Relative: {
+        const u8 offset = fetchInstructionByte();
+        return sumAddresses(regs.pc, offset, isReadOnly);
     }
     default: {
         FATAL_ERROR("Unknown addressing mode");
@@ -675,4 +688,46 @@ void Processor::executeRts(AddressingMode) {
     const u16 returnAddress = popFromStack16() + 1;
     aluOperation(); // Incrementing PC
     regs.pc = returnAddress;
+}
+
+void Processor::executeBranch(AddressingMode mode, bool take) {
+    if (take) {
+        const u16 branchAddress = getAddress(mode, true);
+        regs.pc = branchAddress;
+        idleCycle(); // when pc is calculated, it's already too late to schedule memory fetch, so there's an extra cycle
+    } else {
+        fetchInstructionByte();
+    }
+}
+
+void Processor::executeBcc(AddressingMode mode) {
+    executeBranch(mode, !regs.flags.c);
+}
+
+void Processor::executeBcs(AddressingMode mode) {
+    executeBranch(mode, regs.flags.c);
+}
+
+void Processor::executeBeq(AddressingMode mode) {
+    executeBranch(mode, regs.flags.z);
+}
+
+void Processor::executeBmi(AddressingMode mode) {
+    executeBranch(mode, regs.flags.n);
+}
+
+void Processor::executeBne(AddressingMode mode) {
+    executeBranch(mode, !regs.flags.z);
+}
+
+void Processor::executeBpl(AddressingMode mode) {
+    executeBranch(mode, !regs.flags.n);
+}
+
+void Processor::executeBvc(AddressingMode mode) {
+    executeBranch(mode, !regs.flags.o);
+}
+
+void Processor::executeBvs(AddressingMode mode) {
+    executeBranch(mode, regs.flags.o);
 }

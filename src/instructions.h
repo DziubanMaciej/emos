@@ -172,11 +172,21 @@ enum class OpCode : u8 {
     SBC_ix = 0xE1,
     SBC_iy = 0xF1,
 
-    // JMP - jumps and calls
+    // JMP, JSR, RTS - jumps and calls
     JMP_abs = 0x4C,
     JMP_i = 0x6C,
     JSR = 0x20,
     RTS = 0x60,
+
+    // Branches
+    BCC = 0x90,
+    BCS = 0xB0,
+    BEQ = 0xF0,
+    BMI = 0x30,
+    BNE = 0xD0,
+    BPL = 0x10,
+    BVC = 0x50,
+    BVS = 0x70,
 
     // Special values
     _INVALID = 0x00,
