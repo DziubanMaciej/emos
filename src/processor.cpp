@@ -113,6 +113,15 @@ Processor::Processor() {
     setInstructionData(OpCode::AND_ix, AddressingMode::IndexedIndirectX, &Processor::executeAnd);
     setInstructionData(OpCode::AND_iy, AddressingMode::IndirectIndexedY, &Processor::executeAnd);
 
+    setInstructionData(OpCode::EOR_imm, AddressingMode::Immediate, &Processor::executeEor);
+    setInstructionData(OpCode::EOR_z, AddressingMode::ZeroPage, &Processor::executeEor);
+    setInstructionData(OpCode::EOR_zx, AddressingMode::ZeroPageX, &Processor::executeEor);
+    setInstructionData(OpCode::EOR_abs, AddressingMode::Absolute, &Processor::executeEor);
+    setInstructionData(OpCode::EOR_absx, AddressingMode::AbsoluteX, &Processor::executeEor);
+    setInstructionData(OpCode::EOR_absy, AddressingMode::AbsoluteY, &Processor::executeEor);
+    setInstructionData(OpCode::EOR_ix, AddressingMode::IndexedIndirectX, &Processor::executeEor);
+    setInstructionData(OpCode::EOR_iy, AddressingMode::IndirectIndexedY, &Processor::executeEor);
+
     setInstructionData(OpCode::ORA_imm, AddressingMode::Immediate, &Processor::executeOra);
     setInstructionData(OpCode::ORA_z, AddressingMode::ZeroPage, &Processor::executeOra);
     setInstructionData(OpCode::ORA_zx, AddressingMode::ZeroPageX, &Processor::executeOra);
@@ -623,6 +632,12 @@ void Processor::executeAdc(AddressingMode mode) {
 void Processor::executeAnd(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a &= value;
+    updateArithmeticFlags(regs.a);
+}
+
+void Processor::executeEor(AddressingMode mode) {
+    const u8 value = readValue(mode, true);
+    regs.a ^= value;
     updateArithmeticFlags(regs.a);
 }
 

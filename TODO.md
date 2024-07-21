@@ -23,7 +23,7 @@
 - [x] DEC
 - [x] DEX
 - [x] DEY
-- [ ] EOR
+- [x] EOR
 - [x] INC
 - [x] INX
 - [x] INY

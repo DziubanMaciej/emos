@@ -139,6 +139,16 @@ enum class OpCode : u8 {
     AND_ix = 0x21,
     AND_iy = 0x31,
 
+    // EOR - exclusive or
+    EOR_imm = 0x49,
+    EOR_z = 0x45,
+    EOR_zx = 0x55,
+    EOR_abs = 0x4D,
+    EOR_absx = 0x5D,
+    EOR_absy = 0x59,
+    EOR_ix = 0x41,
+    EOR_iy = 0x51,
+
     // ORA - logical or
     ORA_imm = 0x09,
     ORA_z = 0x05,
