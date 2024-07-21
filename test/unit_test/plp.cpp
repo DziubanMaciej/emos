@@ -16,10 +16,10 @@ TEST_F(PlpTest, givenZeroSpThenValuePoppedFromStackToFlags) {
     flags.expectZeroFlag(false);
     flags.expectInterruptFlag(false);
     flags.expectDecimalFlag(false);
-    flags.expectBreakFlag(false);
+    flags.expectBreakFlag(false, false);
     flags.expectOverflowFlag(false);
     flags.expectNegativeFlag(false);
-    flags.expectReservedFlag(false);
+    flags.expectReservedFlag(false, false);
 
     initializeProcessor(OpCode::PLP, {}, {});
     processor.regs.sp = 0x00;
@@ -35,10 +35,10 @@ TEST_F(PlpTest, givenSpThenValuePoppedFromStackToFlags) {
     flags.expectZeroFlag(false);
     flags.expectInterruptFlag(false);
     flags.expectDecimalFlag(false);
-    flags.expectBreakFlag(false);
+    flags.expectBreakFlag(false, false);
     flags.expectOverflowFlag(false);
     flags.expectNegativeFlag(false);
-    flags.expectReservedFlag(false);
+    flags.expectReservedFlag(false, false);
 
     initializeProcessor(OpCode::PLP, {}, {});
     processor.regs.sp = 0xCC;
@@ -55,10 +55,10 @@ TEST_F(PlpTest, givenSpAndOneFlagsThenValuePoppedFromStackToFlags) {
     flags.expectZeroFlag(true);
     flags.expectInterruptFlag(true);
     flags.expectDecimalFlag(true);
-    flags.expectBreakFlag(true);
+    flags.expectBreakFlag(false, false);
     flags.expectOverflowFlag(true);
     flags.expectNegativeFlag(true);
-    flags.expectReservedFlag(true);
+    flags.expectReservedFlag(true, true);
 
     initializeProcessor(OpCode::PLP, {}, {});
     processor.regs.sp = 0xCC;
@@ -75,16 +75,16 @@ TEST_F(PlpTest, givenSpAndVariousFlagsThenValuePoppedFromStackToFlags) {
     flags.expectZeroFlag(false);
     flags.expectInterruptFlag(true);
     flags.expectDecimalFlag(false);
-    flags.expectBreakFlag(true);
+    flags.expectReservedFlag(true, true);
+    flags.expectBreakFlag(false, false);
     flags.expectOverflowFlag(true);
     flags.expectNegativeFlag(false);
-    flags.expectReservedFlag(false);
 
     initializeProcessor(OpCode::PLP, {}, {});
     processor.regs.sp = 0xCC;
     processor.memory[0x1CB] = 0x60;
     processor.memory[0x1CC] = 0x61;
-    processor.memory[0x1CD] = 0b10101100;
+    processor.memory[0x1CD] = 0b0111'0101;
     processor.executeInstructions(1);
 
     EXPECT_EQ(0xCD, processor.regs.sp);
@@ -95,10 +95,10 @@ TEST_F(PlpTest, givenMaximumSpThenValuePoppedFromStackToFlags) {
     flags.expectZeroFlag(false);
     flags.expectInterruptFlag(false);
     flags.expectDecimalFlag(false);
-    flags.expectBreakFlag(false);
+    flags.expectBreakFlag(false, false);
     flags.expectOverflowFlag(false);
     flags.expectNegativeFlag(false);
-    flags.expectReservedFlag(false);
+    flags.expectReservedFlag(false, false);
 
     initializeProcessor(OpCode::PLP, {}, {});
     processor.regs.sp = 0xFF;

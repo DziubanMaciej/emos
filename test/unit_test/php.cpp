@@ -23,11 +23,15 @@ TEST_F(PhpTest, givenZeroFlagsThenValueIsPushedOnStack) {
     flags.expectNegativeFlag(false, false);
     flags.expectReservedFlag(false, false);
 
+    StatusFlags pushedFlags = {};
+    pushedFlags.b = 1;
+    pushedFlags.r = 1;
+
     processor.regs.sp = 0xFF;
     processor.executeInstructions(1);
 
     EXPECT_EQ(0xFE, processor.regs.sp);
-    EXPECT_EQ(0x00, processor.memory[0x1FF]);
+    EXPECT_EQ(pushedFlags.toU8(), processor.memory[0x1FF]);
 }
 
 TEST_F(PhpTest, givenOneFlagsThenValueIsPushedOnStack) {
@@ -61,9 +65,13 @@ TEST_F(PhpTest, givenVariousFlagsThenValueIsPushedOnStack) {
     flags.expectNegativeFlag(false, false);
     flags.expectReservedFlag(true, true);
 
+    StatusFlags pushedFlags = processor.regs.flags;
+    pushedFlags.b = 1;
+    pushedFlags.r = 1;
+
     processor.regs.sp = 0xFF;
     processor.executeInstructions(1);
 
     EXPECT_EQ(0xFE, processor.regs.sp);
-    EXPECT_EQ(0b10111001, processor.memory[0x1FF]);
+    EXPECT_EQ(pushedFlags.toU8(), processor.memory[0x1FF]);
 }

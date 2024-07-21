@@ -22,6 +22,7 @@ TEST_F(BrkRtiTest, whenProcessingBrkThenPushStateOnStackAndJump) {
     const u16 pushedPc = startAddress + 2;
     StatusFlags pushedFlags = processor.regs.flags;
     pushedFlags.b = 1;
+    pushedFlags.r = 1;
 
     EXPECT_EQ(hi(pushedPc), processor.memory[0x1FF]);
     EXPECT_EQ(lo(pushedPc), processor.memory[0x1FE]);
@@ -48,7 +49,7 @@ TEST_F(BrkRtiTest, whenProcessingRtiThenTakeValuesFromStack) {
     flags.expectBreakFlag(false, false); // RTI ignores break flag
     flags.expectOverflowFlag(flagsOnStack.o);
     flags.expectNegativeFlag(flagsOnStack.n);
-    flags.expectReservedFlag(flagsOnStack.r);
+    flags.expectReservedFlag(false, false); // RTI ignore reserved flag
     const u16 pcOnStack = 0x2030;
 
     processor.memory[0x1F1] = flagsOnStack.toU8();

@@ -664,7 +664,10 @@ void Processor::executePha(AddressingMode) {
 }
 
 void Processor::executePhp(AddressingMode) {
-    pushToStack(regs.flags.toU8());
+    StatusFlags pushedFlags = regs.flags;
+    pushedFlags.b = 1;
+    pushedFlags.r = 1;
+    pushToStack(pushedFlags.toU8());
 }
 
 void Processor::executePla(AddressingMode) {
@@ -673,8 +676,10 @@ void Processor::executePla(AddressingMode) {
 }
 
 void Processor::executePlp(AddressingMode) {
-    const StatusFlags tmpReg = StatusFlags::fromU8(popFromStack());
-    registerTransfer(regs.flags, tmpReg);
+    StatusFlags poppedFlags = StatusFlags::fromU8(popFromStack());
+    poppedFlags.r = regs.flags.r; // reserved flag is ignored
+    poppedFlags.b = regs.flags.b; // break flag is ignored
+    registerTransfer(regs.flags, poppedFlags);
 }
 
 void Processor::executeAdc(AddressingMode mode) {
@@ -833,12 +838,14 @@ void Processor::executeNop(AddressingMode) {
 void Processor::executeBrk(AddressingMode) {
     readByteFromMemory(regs.pc);
 
-    regs.flags.b = 1;
     pushToStack16(regs.pc + 1);
     hiddenLatencyCycle(); // decreasing SP register can be hidden
-    pushToStack(regs.flags.toU8());
+
+    StatusFlags pushedFlags = regs.flags;
+    pushedFlags.b = 1;
+    pushedFlags.r = 1;
+    pushToStack(pushedFlags.toU8());
     hiddenLatencyCycle(); // decreasing SP register can be hidden
-    regs.flags.b = 0;
 
     regs.pc = readTwoBytesFromMemory(0xFFFE);
 }
@@ -852,6 +859,7 @@ void Processor::executeRti(AddressingMode) {
 
     StatusFlags newFlags = StatusFlags::fromU8(flags);
     newFlags.b = regs.flags.b; // B flag is ignored
+    newFlags.r = regs.flags.r; // R flag is ignored
     regs.flags = newFlags;
     regs.pc = constructU16(pcHi, pcLo);
     aluOperation();

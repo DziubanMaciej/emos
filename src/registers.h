@@ -7,10 +7,10 @@ struct StatusFlags {
     u8 z : 1; // zero flag
     u8 i : 1; // interrupt disable
     u8 d : 1; // decimal mode
+    u8 r : 1; // reserved
     u8 b : 1; // break command
     u8 o : 1; // overflow flag
     u8 n : 1; // negative flag
-    u8 r : 1; // reserved
 
     u8 toU8() const;
     static StatusFlags fromU8(u8 value);
