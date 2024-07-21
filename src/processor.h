@@ -32,6 +32,7 @@ public:
     void loadMemory(u32 start, u32 length, const u8 *data);
     void loadProgramCounter(u16 newPc);
     void activateHangDetector();
+    void activateInstructionTracing();
     bool executeInstructions(u32 maxInstructionCount);
 
 protected:
@@ -135,7 +136,11 @@ protected:
     void executeBrk(AddressingMode mode);
     void executeRti(AddressingMode mode);
 
-    HangDetector hangDetector = {};
+    struct DebugFeatures {
+        HangDetector hangDetector = {};
+        bool hangDetectionActive = false;
+        bool instructionTracingActive = false;
+    } debugFeatures;
 
     // State of the CPU.
     Counters counters = {};
@@ -145,12 +150,14 @@ protected:
     // Metadata for instruction executing.
     struct InstructionData {
         using ExecFunction = void (Processor::*)(AddressingMode);
-        AddressingMode addressingMode;
+        const char *mnemonic = {};
+        AddressingMode addressingMode = {};
         ExecFunction exec = nullptr;
     };
     InstructionData instructionData[static_cast<u8>(OpCode::_MAX_VALUE)];
-    void setInstructionData(OpCode opCode, AddressingMode addressingMode, InstructionData::ExecFunction exec) {
+    void setInstructionData(const char *mnemonic, OpCode opCode, AddressingMode addressingMode, InstructionData::ExecFunction exec) {
         u8 index = static_cast<u8>(opCode);
+        instructionData[index].mnemonic = mnemonic;
         instructionData[index].addressingMode = addressingMode;
         instructionData[index].exec = exec;
     }

@@ -6,189 +6,189 @@
 #include <limits>
 
 Processor::Processor() {
-    setInstructionData(OpCode::LDA_imm, AddressingMode::Immediate, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_z, AddressingMode::ZeroPage, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_zx, AddressingMode::ZeroPageX, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_abs, AddressingMode::Absolute, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_absx, AddressingMode::AbsoluteX, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_absy, AddressingMode::AbsoluteY, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_ix, AddressingMode::IndexedIndirectX, &Processor::executeLda);
-    setInstructionData(OpCode::LDA_iy, AddressingMode::IndirectIndexedY, &Processor::executeLda);
+    setInstructionData("LDA", OpCode::LDA_imm, AddressingMode::Immediate, &Processor::executeLda);
+    setInstructionData("LDA", OpCode::LDA_z, AddressingMode::ZeroPage, &Processor::executeLda);
+    setInstructionData("LDA", OpCode::LDA_zx, AddressingMode::ZeroPageX, &Processor::executeLda);
+    setInstructionData("LDA", OpCode::LDA_abs, AddressingMode::Absolute, &Processor::executeLda);
+    setInstructionData("LDA", OpCode::LDA_absx, AddressingMode::AbsoluteX, &Processor::executeLda);
+    setInstructionData("LDA", OpCode::LDA_absy, AddressingMode::AbsoluteY, &Processor::executeLda);
+    setInstructionData("LDA", OpCode::LDA_ix, AddressingMode::IndexedIndirectX, &Processor::executeLda);
+    setInstructionData("LDA", OpCode::LDA_iy, AddressingMode::IndirectIndexedY, &Processor::executeLda);
 
-    setInstructionData(OpCode::LDX_imm, AddressingMode::Immediate, &Processor::executeLdx);
-    setInstructionData(OpCode::LDX_z, AddressingMode::ZeroPage, &Processor::executeLdx);
-    setInstructionData(OpCode::LDX_zy, AddressingMode::ZeroPageY, &Processor::executeLdx);
-    setInstructionData(OpCode::LDX_abs, AddressingMode::Absolute, &Processor::executeLdx);
-    setInstructionData(OpCode::LDX_absy, AddressingMode::AbsoluteY, &Processor::executeLdx);
+    setInstructionData("LDX", OpCode::LDX_imm, AddressingMode::Immediate, &Processor::executeLdx);
+    setInstructionData("LDX", OpCode::LDX_z, AddressingMode::ZeroPage, &Processor::executeLdx);
+    setInstructionData("LDX", OpCode::LDX_zy, AddressingMode::ZeroPageY, &Processor::executeLdx);
+    setInstructionData("LDX", OpCode::LDX_abs, AddressingMode::Absolute, &Processor::executeLdx);
+    setInstructionData("LDX", OpCode::LDX_absy, AddressingMode::AbsoluteY, &Processor::executeLdx);
 
-    setInstructionData(OpCode::LDY_imm, AddressingMode::Immediate, &Processor::executeLdy);
-    setInstructionData(OpCode::LDY_z, AddressingMode::ZeroPage, &Processor::executeLdy);
-    setInstructionData(OpCode::LDY_zx, AddressingMode::ZeroPageX, &Processor::executeLdy);
-    setInstructionData(OpCode::LDY_abs, AddressingMode::Absolute, &Processor::executeLdy);
-    setInstructionData(OpCode::LDY_absx, AddressingMode::AbsoluteX, &Processor::executeLdy);
+    setInstructionData("LDY", OpCode::LDY_imm, AddressingMode::Immediate, &Processor::executeLdy);
+    setInstructionData("LDY", OpCode::LDY_z, AddressingMode::ZeroPage, &Processor::executeLdy);
+    setInstructionData("LDY", OpCode::LDY_zx, AddressingMode::ZeroPageX, &Processor::executeLdy);
+    setInstructionData("LDY", OpCode::LDY_abs, AddressingMode::Absolute, &Processor::executeLdy);
+    setInstructionData("LDY", OpCode::LDY_absx, AddressingMode::AbsoluteX, &Processor::executeLdy);
 
-    setInstructionData(OpCode::INC_z, AddressingMode::ZeroPage, &Processor::executeInc);
-    setInstructionData(OpCode::INC_zx, AddressingMode::ZeroPageX, &Processor::executeInc);
-    setInstructionData(OpCode::INC_abs, AddressingMode::Absolute, &Processor::executeInc);
-    setInstructionData(OpCode::INC_absx, AddressingMode::AbsoluteX, &Processor::executeInc);
+    setInstructionData("INC", OpCode::INC_z, AddressingMode::ZeroPage, &Processor::executeInc);
+    setInstructionData("INC", OpCode::INC_zx, AddressingMode::ZeroPageX, &Processor::executeInc);
+    setInstructionData("INC", OpCode::INC_abs, AddressingMode::Absolute, &Processor::executeInc);
+    setInstructionData("INC", OpCode::INC_absx, AddressingMode::AbsoluteX, &Processor::executeInc);
 
-    setInstructionData(OpCode::INX, AddressingMode::Implied, &Processor::executeInx);
-    setInstructionData(OpCode::INY, AddressingMode::Implied, &Processor::executeIny);
-    setInstructionData(OpCode::DEX, AddressingMode::Implied, &Processor::executeDex);
-    setInstructionData(OpCode::DEY, AddressingMode::Implied, &Processor::executeDey);
+    setInstructionData("INX", OpCode::INX, AddressingMode::Implied, &Processor::executeInx);
+    setInstructionData("INY", OpCode::INY, AddressingMode::Implied, &Processor::executeIny);
+    setInstructionData("DEX", OpCode::DEX, AddressingMode::Implied, &Processor::executeDex);
+    setInstructionData("DEY", OpCode::DEY, AddressingMode::Implied, &Processor::executeDey);
 
-    setInstructionData(OpCode::DEC_z, AddressingMode::ZeroPage, &Processor::executeDec);
-    setInstructionData(OpCode::DEC_zx, AddressingMode::ZeroPageX, &Processor::executeDec);
-    setInstructionData(OpCode::DEC_abs, AddressingMode::Absolute, &Processor::executeDec);
-    setInstructionData(OpCode::DEC_absx, AddressingMode::AbsoluteX, &Processor::executeDec);
+    setInstructionData("DEC", OpCode::DEC_z, AddressingMode::ZeroPage, &Processor::executeDec);
+    setInstructionData("DEC", OpCode::DEC_zx, AddressingMode::ZeroPageX, &Processor::executeDec);
+    setInstructionData("DEC", OpCode::DEC_abs, AddressingMode::Absolute, &Processor::executeDec);
+    setInstructionData("DEC", OpCode::DEC_absx, AddressingMode::AbsoluteX, &Processor::executeDec);
 
-    setInstructionData(OpCode::ASL_acc, AddressingMode::Accumulator, &Processor::executeAsl);
-    setInstructionData(OpCode::ASL_z, AddressingMode::ZeroPage, &Processor::executeAsl);
-    setInstructionData(OpCode::ASL_zx, AddressingMode::ZeroPageX, &Processor::executeAsl);
-    setInstructionData(OpCode::ASL_abs, AddressingMode::Absolute, &Processor::executeAsl);
-    setInstructionData(OpCode::ASL_absx, AddressingMode::AbsoluteX, &Processor::executeAsl);
+    setInstructionData("ASL", OpCode::ASL_acc, AddressingMode::Accumulator, &Processor::executeAsl);
+    setInstructionData("ASL", OpCode::ASL_z, AddressingMode::ZeroPage, &Processor::executeAsl);
+    setInstructionData("ASL", OpCode::ASL_zx, AddressingMode::ZeroPageX, &Processor::executeAsl);
+    setInstructionData("ASL", OpCode::ASL_abs, AddressingMode::Absolute, &Processor::executeAsl);
+    setInstructionData("ASL", OpCode::ASL_absx, AddressingMode::AbsoluteX, &Processor::executeAsl);
 
-    setInstructionData(OpCode::LSR_acc, AddressingMode::Accumulator, &Processor::executeLsr);
-    setInstructionData(OpCode::LSR_z, AddressingMode::ZeroPage, &Processor::executeLsr);
-    setInstructionData(OpCode::LSR_zx, AddressingMode::ZeroPageX, &Processor::executeLsr);
-    setInstructionData(OpCode::LSR_abs, AddressingMode::Absolute, &Processor::executeLsr);
-    setInstructionData(OpCode::LSR_absx, AddressingMode::AbsoluteX, &Processor::executeLsr);
+    setInstructionData("LSR", OpCode::LSR_acc, AddressingMode::Accumulator, &Processor::executeLsr);
+    setInstructionData("LSR", OpCode::LSR_z, AddressingMode::ZeroPage, &Processor::executeLsr);
+    setInstructionData("LSR", OpCode::LSR_zx, AddressingMode::ZeroPageX, &Processor::executeLsr);
+    setInstructionData("LSR", OpCode::LSR_abs, AddressingMode::Absolute, &Processor::executeLsr);
+    setInstructionData("LSR", OpCode::LSR_absx, AddressingMode::AbsoluteX, &Processor::executeLsr);
 
-    setInstructionData(OpCode::ROL_acc, AddressingMode::Accumulator, &Processor::executeRol);
-    setInstructionData(OpCode::ROL_z, AddressingMode::ZeroPage, &Processor::executeRol);
-    setInstructionData(OpCode::ROL_zx, AddressingMode::ZeroPageX, &Processor::executeRol);
-    setInstructionData(OpCode::ROL_abs, AddressingMode::Absolute, &Processor::executeRol);
-    setInstructionData(OpCode::ROL_absx, AddressingMode::AbsoluteX, &Processor::executeRol);
+    setInstructionData("ROL", OpCode::ROL_acc, AddressingMode::Accumulator, &Processor::executeRol);
+    setInstructionData("ROL", OpCode::ROL_z, AddressingMode::ZeroPage, &Processor::executeRol);
+    setInstructionData("ROL", OpCode::ROL_zx, AddressingMode::ZeroPageX, &Processor::executeRol);
+    setInstructionData("ROL", OpCode::ROL_abs, AddressingMode::Absolute, &Processor::executeRol);
+    setInstructionData("ROL", OpCode::ROL_absx, AddressingMode::AbsoluteX, &Processor::executeRol);
 
-    setInstructionData(OpCode::ROR_acc, AddressingMode::Accumulator, &Processor::executeRor);
-    setInstructionData(OpCode::ROR_z, AddressingMode::ZeroPage, &Processor::executeRor);
-    setInstructionData(OpCode::ROR_zx, AddressingMode::ZeroPageX, &Processor::executeRor);
-    setInstructionData(OpCode::ROR_abs, AddressingMode::Absolute, &Processor::executeRor);
-    setInstructionData(OpCode::ROR_absx, AddressingMode::AbsoluteX, &Processor::executeRor);
+    setInstructionData("ROR", OpCode::ROR_acc, AddressingMode::Accumulator, &Processor::executeRor);
+    setInstructionData("ROR", OpCode::ROR_z, AddressingMode::ZeroPage, &Processor::executeRor);
+    setInstructionData("ROR", OpCode::ROR_zx, AddressingMode::ZeroPageX, &Processor::executeRor);
+    setInstructionData("ROR", OpCode::ROR_abs, AddressingMode::Absolute, &Processor::executeRor);
+    setInstructionData("ROR", OpCode::ROR_absx, AddressingMode::AbsoluteX, &Processor::executeRor);
 
-    setInstructionData(OpCode::TAX, AddressingMode::Implied, &Processor::executeTax);
-    setInstructionData(OpCode::TAY, AddressingMode::Implied, &Processor::executeTay);
-    setInstructionData(OpCode::TXA, AddressingMode::Implied, &Processor::executeTxa);
-    setInstructionData(OpCode::TYA, AddressingMode::Implied, &Processor::executeTya);
-    setInstructionData(OpCode::TSX, AddressingMode::Implied, &Processor::executeTsx);
-    setInstructionData(OpCode::TXS, AddressingMode::Implied, &Processor::executeTxs);
+    setInstructionData("TAX", OpCode::TAX, AddressingMode::Implied, &Processor::executeTax);
+    setInstructionData("TAY", OpCode::TAY, AddressingMode::Implied, &Processor::executeTay);
+    setInstructionData("TXA", OpCode::TXA, AddressingMode::Implied, &Processor::executeTxa);
+    setInstructionData("TYA", OpCode::TYA, AddressingMode::Implied, &Processor::executeTya);
+    setInstructionData("TSX", OpCode::TSX, AddressingMode::Implied, &Processor::executeTsx);
+    setInstructionData("TXS", OpCode::TXS, AddressingMode::Implied, &Processor::executeTxs);
 
-    setInstructionData(OpCode::PHA, AddressingMode::Implied, &Processor::executePha);
-    setInstructionData(OpCode::PHP, AddressingMode::Implied, &Processor::executePhp);
-    setInstructionData(OpCode::PLA, AddressingMode::Implied, &Processor::executePla);
-    setInstructionData(OpCode::PLP, AddressingMode::Implied, &Processor::executePlp);
+    setInstructionData("PHA", OpCode::PHA, AddressingMode::Implied, &Processor::executePha);
+    setInstructionData("PHP", OpCode::PHP, AddressingMode::Implied, &Processor::executePhp);
+    setInstructionData("PLA", OpCode::PLA, AddressingMode::Implied, &Processor::executePla);
+    setInstructionData("PLP", OpCode::PLP, AddressingMode::Implied, &Processor::executePlp);
 
-    setInstructionData(OpCode::CMP_imm, AddressingMode::Immediate, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_z, AddressingMode::ZeroPage, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_zx, AddressingMode::ZeroPageX, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_abs, AddressingMode::Absolute, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_absx, AddressingMode::AbsoluteX, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_absy, AddressingMode::AbsoluteY, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_ix, AddressingMode::IndexedIndirectX, &Processor::executeCmp);
-    setInstructionData(OpCode::CMP_iy, AddressingMode::IndirectIndexedY, &Processor::executeCmp);
+    setInstructionData("CMP", OpCode::CMP_imm, AddressingMode::Immediate, &Processor::executeCmp);
+    setInstructionData("CMP", OpCode::CMP_z, AddressingMode::ZeroPage, &Processor::executeCmp);
+    setInstructionData("CMP", OpCode::CMP_zx, AddressingMode::ZeroPageX, &Processor::executeCmp);
+    setInstructionData("CMP", OpCode::CMP_abs, AddressingMode::Absolute, &Processor::executeCmp);
+    setInstructionData("CMP", OpCode::CMP_absx, AddressingMode::AbsoluteX, &Processor::executeCmp);
+    setInstructionData("CMP", OpCode::CMP_absy, AddressingMode::AbsoluteY, &Processor::executeCmp);
+    setInstructionData("CMP", OpCode::CMP_ix, AddressingMode::IndexedIndirectX, &Processor::executeCmp);
+    setInstructionData("CMP", OpCode::CMP_iy, AddressingMode::IndirectIndexedY, &Processor::executeCmp);
 
-    setInstructionData(OpCode::CPX_imm, AddressingMode::Immediate, &Processor::executeCpx);
-    setInstructionData(OpCode::CPX_z, AddressingMode::ZeroPage, &Processor::executeCpx);
-    setInstructionData(OpCode::CPX_abs, AddressingMode::Absolute, &Processor::executeCpx);
+    setInstructionData("CPX", OpCode::CPX_imm, AddressingMode::Immediate, &Processor::executeCpx);
+    setInstructionData("CPX", OpCode::CPX_z, AddressingMode::ZeroPage, &Processor::executeCpx);
+    setInstructionData("CPX", OpCode::CPX_abs, AddressingMode::Absolute, &Processor::executeCpx);
 
-    setInstructionData(OpCode::CPY_imm, AddressingMode::Immediate, &Processor::executeCpy);
-    setInstructionData(OpCode::CPY_z, AddressingMode::ZeroPage, &Processor::executeCpy);
-    setInstructionData(OpCode::CPY_abs, AddressingMode::Absolute, &Processor::executeCpy);
+    setInstructionData("CPY", OpCode::CPY_imm, AddressingMode::Immediate, &Processor::executeCpy);
+    setInstructionData("CPY", OpCode::CPY_z, AddressingMode::ZeroPage, &Processor::executeCpy);
+    setInstructionData("CPY", OpCode::CPY_abs, AddressingMode::Absolute, &Processor::executeCpy);
 
-    setInstructionData(OpCode::ADC_imm, AddressingMode::Immediate, &Processor::executeAdc);
-    setInstructionData(OpCode::ADC_z, AddressingMode::ZeroPage, &Processor::executeAdc);
-    setInstructionData(OpCode::ADC_zx, AddressingMode::ZeroPageX, &Processor::executeAdc);
-    setInstructionData(OpCode::ADC_abs, AddressingMode::Absolute, &Processor::executeAdc);
-    setInstructionData(OpCode::ADC_absx, AddressingMode::AbsoluteX, &Processor::executeAdc);
-    setInstructionData(OpCode::ADC_absy, AddressingMode::AbsoluteY, &Processor::executeAdc);
-    setInstructionData(OpCode::ADC_ix, AddressingMode::IndexedIndirectX, &Processor::executeAdc);
-    setInstructionData(OpCode::ADC_iy, AddressingMode::IndirectIndexedY, &Processor::executeAdc);
+    setInstructionData("ADC", OpCode::ADC_imm, AddressingMode::Immediate, &Processor::executeAdc);
+    setInstructionData("ADC", OpCode::ADC_z, AddressingMode::ZeroPage, &Processor::executeAdc);
+    setInstructionData("ADC", OpCode::ADC_zx, AddressingMode::ZeroPageX, &Processor::executeAdc);
+    setInstructionData("ADC", OpCode::ADC_abs, AddressingMode::Absolute, &Processor::executeAdc);
+    setInstructionData("ADC", OpCode::ADC_absx, AddressingMode::AbsoluteX, &Processor::executeAdc);
+    setInstructionData("ADC", OpCode::ADC_absy, AddressingMode::AbsoluteY, &Processor::executeAdc);
+    setInstructionData("ADC", OpCode::ADC_ix, AddressingMode::IndexedIndirectX, &Processor::executeAdc);
+    setInstructionData("ADC", OpCode::ADC_iy, AddressingMode::IndirectIndexedY, &Processor::executeAdc);
 
-    setInstructionData(OpCode::AND_imm, AddressingMode::Immediate, &Processor::executeAnd);
-    setInstructionData(OpCode::AND_z, AddressingMode::ZeroPage, &Processor::executeAnd);
-    setInstructionData(OpCode::AND_zx, AddressingMode::ZeroPageX, &Processor::executeAnd);
-    setInstructionData(OpCode::AND_abs, AddressingMode::Absolute, &Processor::executeAnd);
-    setInstructionData(OpCode::AND_absx, AddressingMode::AbsoluteX, &Processor::executeAnd);
-    setInstructionData(OpCode::AND_absy, AddressingMode::AbsoluteY, &Processor::executeAnd);
-    setInstructionData(OpCode::AND_ix, AddressingMode::IndexedIndirectX, &Processor::executeAnd);
-    setInstructionData(OpCode::AND_iy, AddressingMode::IndirectIndexedY, &Processor::executeAnd);
+    setInstructionData("AND", OpCode::AND_imm, AddressingMode::Immediate, &Processor::executeAnd);
+    setInstructionData("AND", OpCode::AND_z, AddressingMode::ZeroPage, &Processor::executeAnd);
+    setInstructionData("AND", OpCode::AND_zx, AddressingMode::ZeroPageX, &Processor::executeAnd);
+    setInstructionData("AND", OpCode::AND_abs, AddressingMode::Absolute, &Processor::executeAnd);
+    setInstructionData("AND", OpCode::AND_absx, AddressingMode::AbsoluteX, &Processor::executeAnd);
+    setInstructionData("AND", OpCode::AND_absy, AddressingMode::AbsoluteY, &Processor::executeAnd);
+    setInstructionData("AND", OpCode::AND_ix, AddressingMode::IndexedIndirectX, &Processor::executeAnd);
+    setInstructionData("AND", OpCode::AND_iy, AddressingMode::IndirectIndexedY, &Processor::executeAnd);
 
-    setInstructionData(OpCode::EOR_imm, AddressingMode::Immediate, &Processor::executeEor);
-    setInstructionData(OpCode::EOR_z, AddressingMode::ZeroPage, &Processor::executeEor);
-    setInstructionData(OpCode::EOR_zx, AddressingMode::ZeroPageX, &Processor::executeEor);
-    setInstructionData(OpCode::EOR_abs, AddressingMode::Absolute, &Processor::executeEor);
-    setInstructionData(OpCode::EOR_absx, AddressingMode::AbsoluteX, &Processor::executeEor);
-    setInstructionData(OpCode::EOR_absy, AddressingMode::AbsoluteY, &Processor::executeEor);
-    setInstructionData(OpCode::EOR_ix, AddressingMode::IndexedIndirectX, &Processor::executeEor);
-    setInstructionData(OpCode::EOR_iy, AddressingMode::IndirectIndexedY, &Processor::executeEor);
+    setInstructionData("EOR", OpCode::EOR_imm, AddressingMode::Immediate, &Processor::executeEor);
+    setInstructionData("EOR", OpCode::EOR_z, AddressingMode::ZeroPage, &Processor::executeEor);
+    setInstructionData("EOR", OpCode::EOR_zx, AddressingMode::ZeroPageX, &Processor::executeEor);
+    setInstructionData("EOR", OpCode::EOR_abs, AddressingMode::Absolute, &Processor::executeEor);
+    setInstructionData("EOR", OpCode::EOR_absx, AddressingMode::AbsoluteX, &Processor::executeEor);
+    setInstructionData("EOR", OpCode::EOR_absy, AddressingMode::AbsoluteY, &Processor::executeEor);
+    setInstructionData("EOR", OpCode::EOR_ix, AddressingMode::IndexedIndirectX, &Processor::executeEor);
+    setInstructionData("EOR", OpCode::EOR_iy, AddressingMode::IndirectIndexedY, &Processor::executeEor);
 
-    setInstructionData(OpCode::BIT_z, AddressingMode::ZeroPage, &Processor::executeBit);
-    setInstructionData(OpCode::BIT_abs, AddressingMode::Absolute, &Processor::executeBit);
+    setInstructionData("BIT", OpCode::BIT_z, AddressingMode::ZeroPage, &Processor::executeBit);
+    setInstructionData("BIT", OpCode::BIT_abs, AddressingMode::Absolute, &Processor::executeBit);
 
-    setInstructionData(OpCode::ORA_imm, AddressingMode::Immediate, &Processor::executeOra);
-    setInstructionData(OpCode::ORA_z, AddressingMode::ZeroPage, &Processor::executeOra);
-    setInstructionData(OpCode::ORA_zx, AddressingMode::ZeroPageX, &Processor::executeOra);
-    setInstructionData(OpCode::ORA_abs, AddressingMode::Absolute, &Processor::executeOra);
-    setInstructionData(OpCode::ORA_absx, AddressingMode::AbsoluteX, &Processor::executeOra);
-    setInstructionData(OpCode::ORA_absy, AddressingMode::AbsoluteY, &Processor::executeOra);
-    setInstructionData(OpCode::ORA_ix, AddressingMode::IndexedIndirectX, &Processor::executeOra);
-    setInstructionData(OpCode::ORA_iy, AddressingMode::IndirectIndexedY, &Processor::executeOra);
+    setInstructionData("ORA", OpCode::ORA_imm, AddressingMode::Immediate, &Processor::executeOra);
+    setInstructionData("ORA", OpCode::ORA_z, AddressingMode::ZeroPage, &Processor::executeOra);
+    setInstructionData("ORA", OpCode::ORA_zx, AddressingMode::ZeroPageX, &Processor::executeOra);
+    setInstructionData("ORA", OpCode::ORA_abs, AddressingMode::Absolute, &Processor::executeOra);
+    setInstructionData("ORA", OpCode::ORA_absx, AddressingMode::AbsoluteX, &Processor::executeOra);
+    setInstructionData("ORA", OpCode::ORA_absy, AddressingMode::AbsoluteY, &Processor::executeOra);
+    setInstructionData("ORA", OpCode::ORA_ix, AddressingMode::IndexedIndirectX, &Processor::executeOra);
+    setInstructionData("ORA", OpCode::ORA_iy, AddressingMode::IndirectIndexedY, &Processor::executeOra);
 
-    setInstructionData(OpCode::SEC, AddressingMode::Implied, &Processor::executeSec);
-    setInstructionData(OpCode::SED, AddressingMode::Implied, &Processor::executeSed);
-    setInstructionData(OpCode::SEI, AddressingMode::Implied, &Processor::executeSei);
+    setInstructionData("SEC", OpCode::SEC, AddressingMode::Implied, &Processor::executeSec);
+    setInstructionData("SED", OpCode::SED, AddressingMode::Implied, &Processor::executeSed);
+    setInstructionData("SEI", OpCode::SEI, AddressingMode::Implied, &Processor::executeSei);
 
-    setInstructionData(OpCode::CLC, AddressingMode::Implied, &Processor::executeClc);
-    setInstructionData(OpCode::CLD, AddressingMode::Implied, &Processor::executeCld);
-    setInstructionData(OpCode::CLI, AddressingMode::Implied, &Processor::executeCli);
-    setInstructionData(OpCode::CLV, AddressingMode::Implied, &Processor::executeClv);
+    setInstructionData("CLC", OpCode::CLC, AddressingMode::Implied, &Processor::executeClc);
+    setInstructionData("CLD", OpCode::CLD, AddressingMode::Implied, &Processor::executeCld);
+    setInstructionData("CLI", OpCode::CLI, AddressingMode::Implied, &Processor::executeCli);
+    setInstructionData("CLV", OpCode::CLV, AddressingMode::Implied, &Processor::executeClv);
 
-    setInstructionData(OpCode::STA_z, AddressingMode::ZeroPage, &Processor::executeSta);
-    setInstructionData(OpCode::STA_zx, AddressingMode::ZeroPageX, &Processor::executeSta);
-    setInstructionData(OpCode::STA_abs, AddressingMode::Absolute, &Processor::executeSta);
-    setInstructionData(OpCode::STA_absx, AddressingMode::AbsoluteX, &Processor::executeSta);
-    setInstructionData(OpCode::STA_absy, AddressingMode::AbsoluteY, &Processor::executeSta);
-    setInstructionData(OpCode::STA_ix, AddressingMode::IndexedIndirectX, &Processor::executeSta);
-    setInstructionData(OpCode::STA_iy, AddressingMode::IndirectIndexedY, &Processor::executeSta);
+    setInstructionData("STA", OpCode::STA_z, AddressingMode::ZeroPage, &Processor::executeSta);
+    setInstructionData("STA", OpCode::STA_zx, AddressingMode::ZeroPageX, &Processor::executeSta);
+    setInstructionData("STA", OpCode::STA_abs, AddressingMode::Absolute, &Processor::executeSta);
+    setInstructionData("STA", OpCode::STA_absx, AddressingMode::AbsoluteX, &Processor::executeSta);
+    setInstructionData("STA", OpCode::STA_absy, AddressingMode::AbsoluteY, &Processor::executeSta);
+    setInstructionData("STA", OpCode::STA_ix, AddressingMode::IndexedIndirectX, &Processor::executeSta);
+    setInstructionData("STA", OpCode::STA_iy, AddressingMode::IndirectIndexedY, &Processor::executeSta);
 
-    setInstructionData(OpCode::STX_z, AddressingMode::ZeroPage, &Processor::executeStx);
-    setInstructionData(OpCode::STX_zy, AddressingMode::ZeroPageY, &Processor::executeStx);
-    setInstructionData(OpCode::STX_abs, AddressingMode::Absolute, &Processor::executeStx);
+    setInstructionData("STX", OpCode::STX_z, AddressingMode::ZeroPage, &Processor::executeStx);
+    setInstructionData("STX", OpCode::STX_zy, AddressingMode::ZeroPageY, &Processor::executeStx);
+    setInstructionData("STX", OpCode::STX_abs, AddressingMode::Absolute, &Processor::executeStx);
 
-    setInstructionData(OpCode::STY_z, AddressingMode::ZeroPage, &Processor::executeSty);
-    setInstructionData(OpCode::STY_zx, AddressingMode::ZeroPageX, &Processor::executeSty);
-    setInstructionData(OpCode::STY_abs, AddressingMode::Absolute, &Processor::executeSty);
+    setInstructionData("STY", OpCode::STY_z, AddressingMode::ZeroPage, &Processor::executeSty);
+    setInstructionData("STY", OpCode::STY_zx, AddressingMode::ZeroPageX, &Processor::executeSty);
+    setInstructionData("STY", OpCode::STY_abs, AddressingMode::Absolute, &Processor::executeSty);
 
-    setInstructionData(OpCode::SBC_imm, AddressingMode::Immediate, &Processor::executeSbc);
-    setInstructionData(OpCode::SBC_z, AddressingMode::ZeroPage, &Processor::executeSbc);
-    setInstructionData(OpCode::SBC_zx, AddressingMode::ZeroPageX, &Processor::executeSbc);
-    setInstructionData(OpCode::SBC_abs, AddressingMode::Absolute, &Processor::executeSbc);
-    setInstructionData(OpCode::SBC_absx, AddressingMode::AbsoluteX, &Processor::executeSbc);
-    setInstructionData(OpCode::SBC_absy, AddressingMode::AbsoluteY, &Processor::executeSbc);
-    setInstructionData(OpCode::SBC_ix, AddressingMode::IndexedIndirectX, &Processor::executeSbc);
-    setInstructionData(OpCode::SBC_iy, AddressingMode::IndirectIndexedY, &Processor::executeSbc);
+    setInstructionData("SBC", OpCode::SBC_imm, AddressingMode::Immediate, &Processor::executeSbc);
+    setInstructionData("SBC", OpCode::SBC_z, AddressingMode::ZeroPage, &Processor::executeSbc);
+    setInstructionData("SBC", OpCode::SBC_zx, AddressingMode::ZeroPageX, &Processor::executeSbc);
+    setInstructionData("SBC", OpCode::SBC_abs, AddressingMode::Absolute, &Processor::executeSbc);
+    setInstructionData("SBC", OpCode::SBC_absx, AddressingMode::AbsoluteX, &Processor::executeSbc);
+    setInstructionData("SBC", OpCode::SBC_absy, AddressingMode::AbsoluteY, &Processor::executeSbc);
+    setInstructionData("SBC", OpCode::SBC_ix, AddressingMode::IndexedIndirectX, &Processor::executeSbc);
+    setInstructionData("SBC", OpCode::SBC_iy, AddressingMode::IndirectIndexedY, &Processor::executeSbc);
 
-    setInstructionData(OpCode::JMP_abs, AddressingMode::Absolute, &Processor::executeJmp);
-    setInstructionData(OpCode::JMP_i, AddressingMode::Indirect, &Processor::executeJmp);
+    setInstructionData("JMP", OpCode::JMP_abs, AddressingMode::Absolute, &Processor::executeJmp);
+    setInstructionData("JMP", OpCode::JMP_i, AddressingMode::Indirect, &Processor::executeJmp);
 
-    setInstructionData(OpCode::JSR, AddressingMode::Absolute, &Processor::executeJsr);
+    setInstructionData("JSR", OpCode::JSR, AddressingMode::Absolute, &Processor::executeJsr);
 
-    setInstructionData(OpCode::RTS, AddressingMode::Implied, &Processor::executeRts);
+    setInstructionData("RTS", OpCode::RTS, AddressingMode::Implied, &Processor::executeRts);
 
-    setInstructionData(OpCode::BCC, AddressingMode::Relative, &Processor::executeBcc);
-    setInstructionData(OpCode::BCS, AddressingMode::Relative, &Processor::executeBcs);
-    setInstructionData(OpCode::BEQ, AddressingMode::Relative, &Processor::executeBeq);
-    setInstructionData(OpCode::BMI, AddressingMode::Relative, &Processor::executeBmi);
-    setInstructionData(OpCode::BNE, AddressingMode::Relative, &Processor::executeBne);
-    setInstructionData(OpCode::BPL, AddressingMode::Relative, &Processor::executeBpl);
-    setInstructionData(OpCode::BVC, AddressingMode::Relative, &Processor::executeBvc);
-    setInstructionData(OpCode::BVS, AddressingMode::Relative, &Processor::executeBvs);
+    setInstructionData("BCC", OpCode::BCC, AddressingMode::Relative, &Processor::executeBcc);
+    setInstructionData("BCS", OpCode::BCS, AddressingMode::Relative, &Processor::executeBcs);
+    setInstructionData("BEQ", OpCode::BEQ, AddressingMode::Relative, &Processor::executeBeq);
+    setInstructionData("BMI", OpCode::BMI, AddressingMode::Relative, &Processor::executeBmi);
+    setInstructionData("BNE", OpCode::BNE, AddressingMode::Relative, &Processor::executeBne);
+    setInstructionData("BPL", OpCode::BPL, AddressingMode::Relative, &Processor::executeBpl);
+    setInstructionData("BVC", OpCode::BVC, AddressingMode::Relative, &Processor::executeBvc);
+    setInstructionData("BVS", OpCode::BVS, AddressingMode::Relative, &Processor::executeBvs);
 
-    setInstructionData(OpCode::NOP, AddressingMode::Implied, &Processor::executeNop);
+    setInstructionData("NOP", OpCode::NOP, AddressingMode::Implied, &Processor::executeNop);
 
-    setInstructionData(OpCode::BRK, AddressingMode::Implied, &Processor::executeBrk);
+    setInstructionData("BRK", OpCode::BRK, AddressingMode::Implied, &Processor::executeBrk);
 
-    setInstructionData(OpCode::RTI, AddressingMode::Implied, &Processor::executeRti);
+    setInstructionData("RTI", OpCode::RTI, AddressingMode::Implied, &Processor::executeRti);
 }
 
 bool Processor::executeInstructions(u32 maxInstructionCount) {
@@ -199,10 +199,18 @@ bool Processor::executeInstructions(u32 maxInstructionCount) {
             FATAL_ERROR("Unsupported instruction: ", static_cast<u32>(opCode));
         }
 
-        hangDetector.instruction(static_cast<OpCode>(opCode), regs.pc - 1);
-        if (hangDetector.isHangDetected()) {
-            INFO("Hang detected at 0x", std::hex, hangDetector.getHangAddress());
-            return false;
+        if (debugFeatures.hangDetectionActive) {
+            debugFeatures.hangDetector.instruction(static_cast<OpCode>(opCode), regs.pc - 1);
+            if (debugFeatures.hangDetector.isHangDetected()) {
+                INFO("Hang detected at 0x", std::hex, debugFeatures.hangDetector.getHangAddress());
+                return false;
+            }
+        }
+
+        if (debugFeatures.instructionTracingActive) {
+            INFO("OpCode=0x", std::hex, (int)opCode,
+                 " (", instruction.mnemonic, ")    ",
+                 "PC=0x", std::hex, regs.pc - 1)
         }
 
         (this->*instruction.exec)(instruction.addressingMode);
@@ -221,7 +229,11 @@ void Processor::loadProgramCounter(u16 newPc) {
 }
 
 void Processor::activateHangDetector() {
-    hangDetector.setActive(true);
+    debugFeatures.hangDetectionActive = true;
+}
+
+void Processor::activateInstructionTracing() {
+    debugFeatures.instructionTracingActive = true;
 }
 
 u8 Processor::fetchInstructionByte() {

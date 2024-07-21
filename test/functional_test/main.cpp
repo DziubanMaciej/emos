@@ -21,5 +21,6 @@ int main() {
     processor.loadMemory(binaryStartOffset, binarySize, binary);
     processor.loadProgramCounter(programStart);
     processor.activateHangDetector();
+    processor.activateInstructionTracing();
     processor.executeInstructions(0);
 }
