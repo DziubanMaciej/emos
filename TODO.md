@@ -10,7 +10,7 @@
 - [x] BMI
 - [x] BNE
 - [x] BPL
-- [ ] BRK
+- [x] BRK
 - [x] BVC
 - [x] BVS
 - [ ] CLC
@@ -41,7 +41,7 @@
 - [x] PLP
 - [x] ROL
 - [x] ROR
-- [ ] RTI
+- [x] RTI
 - [x] RTS
 - [x] SBC
 - [x] SEC

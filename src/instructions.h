@@ -205,7 +205,11 @@ enum class OpCode : u8 {
     // NOP
     NOP = 0xEA,
 
+    // Interrupts
+    BRK = 0x00,
+    RTI = 0x40,
+
     // Special values
-    _INVALID = 0x00,
+    _INVALID = 0xFC,
     _MAX_VALUE = 0xFF,
 };

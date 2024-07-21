@@ -55,6 +55,7 @@ protected:
     // Helper functions for expressing additional cycles used by some instructions
     void aluOperation();
     void idleCycle();
+    void hiddenLatencyCycle();
 
     // Helper functions for status flags.
     void updateArithmeticFlags(u8 value);
@@ -122,6 +123,8 @@ protected:
     void executeBvc(AddressingMode mode);
     void executeBvs(AddressingMode mode);
     void executeNop(AddressingMode mode);
+    void executeBrk(AddressingMode mode);
+    void executeRti(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};

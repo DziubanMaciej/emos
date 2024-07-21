@@ -180,6 +180,10 @@ Processor::Processor() {
     setInstructionData(OpCode::BVS, AddressingMode::Relative, &Processor::executeBvs);
 
     setInstructionData(OpCode::NOP, AddressingMode::Implied, &Processor::executeNop);
+
+    setInstructionData(OpCode::BRK, AddressingMode::Implied, &Processor::executeBrk);
+
+    setInstructionData(OpCode::RTI, AddressingMode::Implied, &Processor::executeRti);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -334,7 +338,9 @@ u16 Processor::sumAddresses(u16 base, u16 offset, bool isReadOnly) {
     const u16 oldPage = base & 0xFF00;
     const u16 newPage = result & 0xFF00;
     const u16 changedPage = oldPage != newPage;
-    if (changedPage || !isReadOnly) {
+
+    counters.cyclesProcessed++;
+    if (!changedPage && isReadOnly) {
         // For some instructions (e.g. with abs X addressing mode) the latency of addition is hidden
         // by the processor as follows:
         //  - cycle 1: first byte of the address is read
@@ -353,7 +359,7 @@ u16 Processor::sumAddresses(u16 base, u16 offset, bool isReadOnly) {
         // Sources:
         //   https://forums.nesdev.org/viewtopic.php?t=13936
         //   https://retrocomputing.stackexchange.com/q/15621
-        counters.cyclesProcessed++;
+        hiddenLatencyCycle();
     }
     return result;
 }
@@ -378,6 +384,10 @@ void Processor::aluOperation() {
 
 void Processor::idleCycle() {
     counters.cyclesProcessed++;
+}
+
+void Processor::hiddenLatencyCycle() {
+    counters.cyclesProcessed--;
 }
 
 void Processor::updateArithmeticFlags(u8 value) {
@@ -760,4 +770,31 @@ void Processor::executeBvs(AddressingMode mode) {
 }
 void Processor::executeNop(AddressingMode) {
     idleCycle();
+}
+
+void Processor::executeBrk(AddressingMode) {
+    readByteFromMemory(regs.pc);
+
+    regs.flags.b = 1;
+    pushToStack16(regs.pc + 1);
+    hiddenLatencyCycle(); // decreasing SP register can be hidden
+    pushToStack(regs.flags.toU8());
+    hiddenLatencyCycle(); // decreasing SP register can be hidden
+    regs.flags.b = 0;
+
+    regs.pc = readTwoBytesFromMemory(0xFFFE);
+}
+
+void Processor::executeRti(AddressingMode) {
+    u8 flags = popFromStack();
+    hiddenLatencyCycle(); // decreasing SP register can be hidden
+    u8 pcLo = popFromStack();
+    hiddenLatencyCycle(); // decreasing SP register can be hidden
+    u8 pcHi = popFromStack();
+
+    StatusFlags newFlags = StatusFlags::fromU8(flags);
+    newFlags.b = regs.flags.b; // B flag is ignored
+    regs.flags = newFlags;
+    regs.pc = constructU16(pcHi, pcLo);
+    aluOperation();
 }
