@@ -202,6 +202,9 @@ enum class OpCode : u8 {
     BVC = 0x50,
     BVS = 0x70,
 
+    // NOP
+    NOP = 0xEA,
+
     // Special values
     _INVALID = 0x00,
     _MAX_VALUE = 0xFF,

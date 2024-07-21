@@ -178,6 +178,8 @@ Processor::Processor() {
     setInstructionData(OpCode::BPL, AddressingMode::Relative, &Processor::executeBpl);
     setInstructionData(OpCode::BVC, AddressingMode::Relative, &Processor::executeBvc);
     setInstructionData(OpCode::BVS, AddressingMode::Relative, &Processor::executeBvs);
+
+    setInstructionData(OpCode::NOP, AddressingMode::Implied, &Processor::executeNop);
 }
 
 void Processor::executeInstructions(u32 maxInstructionCount) {
@@ -755,4 +757,7 @@ void Processor::executeBvc(AddressingMode mode) {
 
 void Processor::executeBvs(AddressingMode mode) {
     executeBranch(mode, regs.flags.o);
+}
+void Processor::executeNop(AddressingMode) {
+    idleCycle();
 }

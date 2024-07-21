@@ -6,7 +6,7 @@
 - [x] BCC
 - [x] BCS
 - [x] BEQ
-- [ ] BIT
+- [x] BIT
 - [x] BMI
 - [x] BNE
 - [x] BPL
@@ -33,7 +33,7 @@
 - [x] LDX
 - [x] LDY
 - [x] LSR
-- [ ] NOP
+- [x] NOP
 - [x] ORA
 - [x] PHA
 - [x] PHP

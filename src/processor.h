@@ -121,6 +121,7 @@ protected:
     void executeBpl(AddressingMode mode);
     void executeBvc(AddressingMode mode);
     void executeBvs(AddressingMode mode);
+    void executeNop(AddressingMode mode);
 
     // State of the CPU.
     Counters counters = {};
