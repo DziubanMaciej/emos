@@ -4,33 +4,28 @@
 #include <tuple>
 
 struct LsrTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
+    ReferencedValue initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
         switch (opcode) {
         case OpCode::LSR_acc:
-            initializeForAccumulator(opcode, value.value());
             expectedBytesProcessed = 1u;
             expectedCyclesProcessed = 2u;
-            return;
+            return initializeForAccumulator(opcode, value.value());
         case OpCode::LSR_z:
-            initializeForZeroPage(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
-            return;
+            return initializeForZeroPage(opcode, value.value());
         case OpCode::LSR_zx:
-            initializeForZeroPageX(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
-            return;
+            return initializeForZeroPageX(opcode, value.value());
         case OpCode::LSR_abs:
-            initializeForAbsolute(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 6u;
-            return;
+            return initializeForAbsolute(opcode, value.value());
         case OpCode::LSR_absx:
-            initializeForAbsoluteX(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 7u;
-            return;
+            return initializeForAbsoluteX(opcode, value.value());
         default:
             FATAL_ERROR("Wrong OpCode");
         }
@@ -57,7 +52,7 @@ struct LsrTest : testing::WithParamInterface<OpCode>, EmosTest {
 TEST_P(LsrTest, givenNumberThenShiftProperly) {
     const u8 inpValue = 0b00110010;
     const u8 outValue = 0b00011001;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false);
     flags.expectZeroFlag(false);
@@ -70,7 +65,7 @@ TEST_P(LsrTest, givenNumberThenShiftProperly) {
 TEST_P(LsrTest, givenLeastSignificantBitSetThenSetCarryBit) {
     const u8 inpValue = 0b00010001;
     const u8 outValue = 0b00001000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(true);
     flags.expectZeroFlag(false);
@@ -83,7 +78,7 @@ TEST_P(LsrTest, givenLeastSignificantBitSetThenSetCarryBit) {
 TEST_P(LsrTest, givenZeroValueThenZeroFlagSet) {
     const u8 inpValue = 0b00000000;
     const u8 outValue = 0b00000000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false);
     flags.expectZeroFlag(true);
@@ -96,7 +91,7 @@ TEST_P(LsrTest, givenZeroValueThenZeroFlagSet) {
 TEST_P(LsrTest, givenZeroValueAfterShiftThenZeroFlagSet) {
     const u8 inpValue = 0b00000001;
     const u8 outValue = 0b00000000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(true);
     flags.expectZeroFlag(true);

@@ -24,55 +24,47 @@ struct StxStyTest : testing::WithParamInterface<OpCode>, EmosTest {
             FATAL_ERROR("Wrong OpCode");
         }
     }
-    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8>, std::optional<u8> loadToReg) {
+    ReferencedValue initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8>, std::optional<u8> loadToReg) {
         getReg(opcode) = loadToReg.value();
         auto dummyValue = 0x07;
         switch (opcode) {
         case OpCode::STA_z:
         case OpCode::STX_z:
         case OpCode::STY_z:
-            initializeForZeroPage(opcode, dummyValue);
             expectedBytesProcessed = 2;
             expectedCyclesProcessed = 3;
-            return;
+            return initializeForZeroPage(opcode, dummyValue);
         case OpCode::STX_zy:
-            initializeForZeroPageY(opcode, dummyValue);
             expectedBytesProcessed = 2;
             expectedCyclesProcessed = 4;
-            return;
+            return initializeForZeroPageY(opcode, dummyValue);
         case OpCode::STA_zx:
         case OpCode::STY_zx:
-            initializeForZeroPageX(opcode, dummyValue);
             expectedBytesProcessed = 2;
             expectedCyclesProcessed = 4;
-            return;
+            return initializeForZeroPageX(opcode, dummyValue);
         case OpCode::STA_abs:
         case OpCode::STX_abs:
         case OpCode::STY_abs:
-            initializeForAbsolute(opcode, dummyValue);
             expectedBytesProcessed = 3;
             expectedCyclesProcessed = 4;
-            return;
+            return initializeForAbsolute(opcode, dummyValue);
         case OpCode::STA_absx:
-            initializeForAbsoluteX(opcode, dummyValue);
             expectedBytesProcessed = 3;
             expectedCyclesProcessed = 5;
-            return;
+            return initializeForAbsoluteX(opcode, dummyValue);
         case OpCode::STA_absy:
-            initializeForAbsoluteY(opcode, dummyValue);
             expectedBytesProcessed = 3;
             expectedCyclesProcessed = 5;
-            return;
+            return initializeForAbsoluteY(opcode, dummyValue);
         case OpCode::STA_ix:
-            initializeForIndirectX(opcode, dummyValue);
             expectedBytesProcessed = 2;
             expectedCyclesProcessed = 6;
-            return;
+            return initializeForIndirectX(opcode, dummyValue);
         case OpCode::STA_iy:
-            initializeForIndirectY(opcode, dummyValue);
             expectedBytesProcessed = 2;
             expectedCyclesProcessed = 6;
-            return;
+            return initializeForIndirectY(opcode, dummyValue);
         default:
             FATAL_ERROR("Wrong OpCode");
         }
@@ -116,7 +108,7 @@ using StxTest = StxStyTest;
 TEST_P(StxTest, givenDifferentStxOpcodesWhenInitializeProcessorThenValueFromRegXIsStoredToMemory) {
     u8 loadToRegX = 0x16;
 
-    initializeProcessor(GetParam(), std::nullopt, loadToRegX);
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), std::nullopt, loadToRegX);
     processor.executeInstructions(1);
 
     EXPECT_EQ(loadToRegX, referencedValue.read());
@@ -131,7 +123,7 @@ using StyTest = StxStyTest;
 TEST_P(StyTest, givenDifferentStyOpcodesWhenInitializeProcessorThenValueFromRegYIsStoredToMemory) {
     u8 loadToRegY = 0x81;
 
-    initializeProcessor(GetParam(), std::nullopt, loadToRegY);
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), std::nullopt, loadToRegY);
     processor.executeInstructions(1);
 
     EXPECT_EQ(loadToRegY, referencedValue.read());

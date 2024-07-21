@@ -84,61 +84,61 @@ struct LdTest : testing::WithParamInterface<Reg>,
             FATAL_ERROR("Wrong reg");
         }
     }
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
 
+    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
         switch (opcode) {
         case OpCode::LDA_imm:
         case OpCode::LDX_imm:
         case OpCode::LDY_imm:
-            initializeForImmediate(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 2u;
+            initializeForImmediate(opcode, value.value());
             return;
         case OpCode::LDA_z:
         case OpCode::LDX_z:
         case OpCode::LDY_z:
-            initializeForZeroPage(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 3u;
+            initializeForZeroPage(opcode, value.value());
             return;
         case OpCode::LDA_zx:
         case OpCode::LDY_zx:
-            initializeForZeroPageX(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 4u;
+            initializeForZeroPageX(opcode, value.value());
             return;
         case OpCode::LDX_zy:
-            initializeForZeroPageY(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 4u;
+            initializeForZeroPageY(opcode, value.value());
             return;
         case OpCode::LDA_ix:
-            initializeForIndirectX(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
+            initializeForIndirectX(opcode, value.value());
             return;
         case OpCode::LDA_iy:
-            initializeForIndirectY(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
+            initializeForIndirectY(opcode, value.value());
             return;
         case OpCode::LDA_abs:
         case OpCode::LDX_abs:
         case OpCode::LDY_abs:
-            initializeForAbsolute(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsolute(opcode, value.value());
             return;
         case OpCode::LDA_absx:
         case OpCode::LDY_absx:
-            initializeForAbsoluteX(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteX(opcode, value.value());
             return;
         case OpCode::LDX_absy:
-            initializeForAbsoluteY(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteY(opcode, value.value());
             return;
         default:
             FATAL_ERROR("Wrong OpCode");

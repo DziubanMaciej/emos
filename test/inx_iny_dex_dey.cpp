@@ -2,7 +2,6 @@
 #include "test/fixtures/emos_test.h"
 
 struct InxInyDexDeyTest : testing::WithParamInterface<OpCode>, EmosTest {
-
     u8 &getReg(OpCode opCode) {
         switch (opCode) {
         case OpCode::INX:
@@ -15,12 +14,14 @@ struct InxInyDexDeyTest : testing::WithParamInterface<OpCode>, EmosTest {
             FATAL_ERROR("Wrong OpCode");
         }
     }
+
     void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) {
         processor.memory[startAddress + 0] = static_cast<u8>(opcode);
         getReg(opcode) = loadToReg.value();
         expectedBytesProcessed = 1;
         expectedCyclesProcessed = 2;
     }
+
     static std::string constructParamName(const testing::TestParamInfo<OpCode> &info) {
         OpCode opCode = info.param;
         switch (opCode) {

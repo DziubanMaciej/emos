@@ -4,33 +4,28 @@
 #include <tuple>
 
 struct AslTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
+    ReferencedValue initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
         switch (opcode) {
         case OpCode::ASL_acc:
-            initializeForAccumulator(opcode, value.value());
             expectedBytesProcessed = 1u;
             expectedCyclesProcessed = 2u;
-            return;
+            return initializeForAccumulator(opcode, value.value());
         case OpCode::ASL_z:
-            initializeForZeroPage(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
-            return;
+            return initializeForZeroPage(opcode, value.value());
         case OpCode::ASL_zx:
-            initializeForZeroPageX(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
-            return;
+            return initializeForZeroPageX(opcode, value.value());
         case OpCode::ASL_abs:
-            initializeForAbsolute(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 6u;
-            return;
+            return initializeForAbsolute(opcode, value.value());
         case OpCode::ASL_absx:
-            initializeForAbsoluteX(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 7u;
-            return;
+            return initializeForAbsoluteX(opcode, value.value());
         default:
             FATAL_ERROR("Wrong OpCode");
         }
@@ -57,7 +52,7 @@ struct AslTest : testing::WithParamInterface<OpCode>, EmosTest {
 TEST_P(AslTest, givenNumberThenShiftProperly) {
     const u8 inpValue = 0b00110011;
     const u8 outValue = 0b01100110;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false);
     flags.expectZeroFlag(false);
@@ -70,7 +65,7 @@ TEST_P(AslTest, givenNumberThenShiftProperly) {
 TEST_P(AslTest, givenMostSignificantBitSetThenSetCarryBit) {
     const u8 inpValue = 0b10110011;
     const u8 outValue = 0b01100110;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(true);
     flags.expectZeroFlag(false);
@@ -83,7 +78,7 @@ TEST_P(AslTest, givenMostSignificantBitSetThenSetCarryBit) {
 TEST_P(AslTest, givenNegativeResultThenSetNegativeBit) {
     const u8 inpValue = 0b01110011;
     const u8 outValue = 0b11100110;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false);
     flags.expectZeroFlag(false);
@@ -96,7 +91,7 @@ TEST_P(AslTest, givenNegativeResultThenSetNegativeBit) {
 TEST_P(AslTest, givenZeroValueThenZeroFlagSet) {
     const u8 inpValue = 0b00000000;
     const u8 outValue = 0b00000000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false);
     flags.expectZeroFlag(true);
@@ -109,7 +104,7 @@ TEST_P(AslTest, givenZeroValueThenZeroFlagSet) {
 TEST_P(AslTest, givenZeroValueAfterShiftThenZeroFlagSet) {
     const u8 inpValue = 0b10000000;
     const u8 outValue = 0b00000000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(true);
     flags.expectZeroFlag(true);

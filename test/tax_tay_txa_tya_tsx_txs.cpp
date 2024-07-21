@@ -11,7 +11,7 @@ enum class Register : char {
 using Param = std::tuple<Register, Register>;
 
 struct RegisterTransferTest : EmosTest, ::testing::WithParamInterface<Param> {
-    OpCode getOpcode() {
+    static OpCode getOpcode() {
         const Register src = std::get<0>(GetParam());
         const Register dst = std::get<1>(GetParam());
 
@@ -46,7 +46,7 @@ struct RegisterTransferTest : EmosTest, ::testing::WithParamInterface<Param> {
             UNREACHABLE_CODE
         }
     }
-    void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) {
+    ReferencedValue initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) {
         const Register src = std::get<0>(GetParam());
         const Register dst = std::get<1>(GetParam());
 
@@ -55,7 +55,9 @@ struct RegisterTransferTest : EmosTest, ::testing::WithParamInterface<Param> {
         expectedBytesProcessed = 1;
         expectedCyclesProcessed = 2;
 
+        ReferencedValue referencedValue;
         referencedValue.set(&getReg(dst));
+        return referencedValue;
     }
 
     static std::string constructParamName(const testing::TestParamInfo<Param> &info) {
@@ -71,7 +73,7 @@ struct RegisterTransferTest : EmosTest, ::testing::WithParamInterface<Param> {
 
 TEST_P(RegisterTransferTest, givenNegativeValueThenProcessInstruction) {
     u8 loadToReg = 0x80;
-    initializeProcessor(getOpcode(), std::nullopt, loadToReg);
+    ReferencedValue referencedValue = initializeProcessor(getOpcode(), std::nullopt, loadToReg);
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(true);
@@ -81,7 +83,7 @@ TEST_P(RegisterTransferTest, givenNegativeValueThenProcessInstruction) {
 
 TEST_P(RegisterTransferTest, givenPositiveValueThenProcessInstruction) {
     u8 loadToReg = 0x70;
-    initializeProcessor(getOpcode(), std::nullopt, loadToReg);
+    ReferencedValue referencedValue = initializeProcessor(getOpcode(), std::nullopt, loadToReg);
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
@@ -91,7 +93,7 @@ TEST_P(RegisterTransferTest, givenPositiveValueThenProcessInstruction) {
 
 TEST_P(RegisterTransferTest, givenZeroValueThenProcessInstruction) {
     u8 loadToReg = 0x00;
-    initializeProcessor(getOpcode(), std::nullopt, loadToReg);
+    ReferencedValue referencedValue = initializeProcessor(getOpcode(), std::nullopt, loadToReg);
 
     flags.expectZeroFlag(true);
     flags.expectNegativeFlag(false);

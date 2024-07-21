@@ -3,19 +3,17 @@
 
 struct BitTest : testing::WithParamInterface<OpCode>, EmosTest {
     void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8> regA) {
-        referencedValue.clear(); // TODO remove this, and just return referencedValue from this function
-
         processor.regs.a = regA.value();
         switch (opcode) {
         case OpCode::BIT_z:
-            initializeForZeroPage(opcode, value.value());
             expectedBytesProcessed += 2u;
             expectedCyclesProcessed += 3u;
+            initializeForZeroPage(opcode, value.value());
             return;
         case OpCode::BIT_abs:
-            initializeForAbsolute(opcode, value.value());
             expectedBytesProcessed += 3u;
             expectedCyclesProcessed += 4u;
+            initializeForAbsolute(opcode, value.value());
             return;
         default:
             FATAL_ERROR("Wrong OpCode");

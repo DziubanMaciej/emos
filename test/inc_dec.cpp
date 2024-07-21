@@ -1,32 +1,28 @@
 #include "src/error.h"
 #include "test/fixtures/emos_test.h"
 struct IncDecTest : EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8>) {
+    ReferencedValue initializeProcessor(OpCode opcode, std::optional<u8> value, std::optional<u8>) {
         switch (opcode) {
         case OpCode::INC_z:
         case OpCode::DEC_z:
-            initializeForZeroPage(opcode, value.value());
             expectedBytesProcessed = 2;
             expectedCyclesProcessed = 5;
-            return;
+            return initializeForZeroPage(opcode, value.value());
         case OpCode::INC_zx:
         case OpCode::DEC_zx:
-            initializeForZeroPageX(opcode, value.value());
             expectedBytesProcessed = 2;
             expectedCyclesProcessed = 6;
-            return;
+            return initializeForZeroPageX(opcode, value.value());
         case OpCode::INC_abs:
         case OpCode::DEC_abs:
-            initializeForAbsolute(opcode, value.value());
             expectedBytesProcessed = 3;
             expectedCyclesProcessed = 6;
-            return;
+            return initializeForAbsolute(opcode, value.value());
         case OpCode::INC_absx:
         case OpCode::DEC_absx:
-            initializeForAbsoluteX(opcode, value.value());
             expectedBytesProcessed = 3;
             expectedCyclesProcessed = 7;
-            return;
+            return initializeForAbsoluteX(opcode, value.value());
         default:
             FATAL_ERROR("Wrong OpCode");
         }
@@ -41,7 +37,7 @@ TEST_F(IncTest, givenZeroPageModeThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x71, referencedValue.read());
@@ -53,7 +49,7 @@ TEST_F(IncTest, givenZeroPageModeAndNegativeValueThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(true);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, referencedValue.read());
@@ -65,7 +61,7 @@ TEST_F(IncTest, givenZeroPageModeAndWrapAroundThenProcessInstruction) {
 
     flags.expectZeroFlag(true);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, referencedValue.read());
@@ -77,7 +73,7 @@ TEST_F(IncTest, givenZeroPageXModeThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x71, referencedValue.read());
@@ -89,7 +85,7 @@ TEST_F(IncTest, givenAbsoluteModeThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x71, referencedValue.read());
@@ -101,7 +97,7 @@ TEST_F(IncTest, givenAbsoluteXModeThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x71, referencedValue.read());
@@ -115,7 +111,7 @@ TEST_F(DecTest, givenZeroPageModeThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x7F, referencedValue.read());
@@ -127,7 +123,7 @@ TEST_F(DecTest, givenZeroPageModeAndNegativeValueThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(true);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, referencedValue.read());
@@ -139,7 +135,7 @@ TEST_F(DecTest, givenZeroPageModeAndResultIsZeroThenProcessInstruction) {
 
     flags.expectZeroFlag(true);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, referencedValue.read());
@@ -151,7 +147,7 @@ TEST_F(DecTest, givenZeroPageModeAndWrapAroundThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(true);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0xFF, referencedValue.read());
@@ -163,7 +159,7 @@ TEST_F(DecTest, givenZeroPageXModeThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x6F, referencedValue.read());
@@ -175,7 +171,7 @@ TEST_F(DecTest, givenAbsoluteModeThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x6F, referencedValue.read());
@@ -187,7 +183,7 @@ TEST_F(DecTest, givenAbsoluteXModeThenProcessInstruction) {
 
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
-    initializeProcessor(opCode, loadToMem, std::nullopt);
+    ReferencedValue referencedValue = initializeProcessor(opCode, loadToMem, std::nullopt);
 
     processor.executeInstructions(1);
     EXPECT_EQ(0x6F, referencedValue.read());

@@ -30,56 +30,76 @@ struct EmosTest : ::testing::Test {
         processor.regs.pc = arg;
     }
 
-    void initializeForAccumulator(OpCode opCode, u8 value) {
+    ReferencedValue initializeForAccumulator(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
-        referencedValue.setRegisterA(processor);
         processor.regs.a = value;
+
+        ReferencedValue ref{};
+        ref.setRegisterA(processor);
+        return ref;
     }
-    void initializeForZeroPageX(OpCode opCode, u8 value) {
+
+    ReferencedValue initializeForZeroPageX(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x05;
         processor.regs.x = 0x3;
         const u8 address = processor.memory[startAddress + 1] + processor.regs.x;
         processor.memory[address] = value;
 
-        referencedValue.setMemory(processor, address);
+        ReferencedValue ref{};
+        ref.setMemory(processor, address);
+        return ref;
     }
-    void initializeForZeroPageY(OpCode opCode, u8 value) {
+
+    ReferencedValue initializeForZeroPageY(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x84;
         processor.regs.y = 0x5;
         const u8 address = processor.memory[startAddress + 1] + processor.regs.y;
         processor.memory[address] = value;
 
-        referencedValue.setMemory(processor, address);
+        ReferencedValue ref{};
+        ref.setMemory(processor, address);
+        return ref;
     }
 
-    void initializeForZeroPage(OpCode opCode, u8 value) {
+    ReferencedValue initializeForZeroPage(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x05;
         const u8 address = processor.memory[startAddress + 1];
         processor.memory[address] = value;
 
-        referencedValue.setMemory(processor, address);
+        ReferencedValue ref{};
+        ref.setMemory(processor, address);
+        return ref;
     }
-    void initializeForImplied(OpCode opCode) {
+
+    ReferencedValue initializeForImplied(OpCode opCode) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
+
+        return ReferencedValue{};
     }
-    void initializeForImmediate(OpCode opCode, u8 value) {
+
+    ReferencedValue initializeForImmediate(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = value;
+
+        return ReferencedValue{};
     }
-    void initializeForAbsolute(OpCode opCode, u8 value) {
+
+    ReferencedValue initializeForAbsolute(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x34;
         processor.memory[startAddress + 2] = 0x12;
         const u16 address = (processor.memory[startAddress + 2] << 8) | (processor.memory[startAddress + 1]); // 0x1234
         processor.memory[address] = value;
 
-        referencedValue.setMemory(processor, address);
+        ReferencedValue ref{};
+        ref.setMemory(processor, address);
+        return ref;
     }
 
-    void initializeForAbsoluteX(OpCode opCode, u8 value) {
+    ReferencedValue initializeForAbsoluteX(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x34;
         processor.memory[startAddress + 2] = 0x12;
@@ -87,10 +107,12 @@ struct EmosTest : ::testing::Test {
         const u16 address = (processor.memory[startAddress + 2] << 8) | (processor.memory[startAddress + 1] + processor.regs.x); // 0x1234
         processor.memory[address] = value;
 
-        referencedValue.setMemory(processor, address);
+        ReferencedValue ref{};
+        ref.setMemory(processor, address);
+        return ref;
     }
 
-    void initializeForAbsoluteY(OpCode opCode, u8 value) {
+    ReferencedValue initializeForAbsoluteY(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x34;
         processor.memory[startAddress + 2] = 0x12;
@@ -98,10 +120,12 @@ struct EmosTest : ::testing::Test {
         const u16 address = (processor.memory[startAddress + 2] << 8) | (processor.memory[startAddress + 1] + processor.regs.y); // 0x1234
         processor.memory[address] = value;
 
-        referencedValue.setMemory(processor, address);
+        ReferencedValue ref{};
+        ref.setMemory(processor, address);
+        return ref;
     }
 
-    void initializeForIndirectX(OpCode opCode, u8 value) {
+    ReferencedValue initializeForIndirectX(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x54;
         processor.regs.x = 0x5;
@@ -111,9 +135,12 @@ struct EmosTest : ::testing::Test {
         const u16 address = (processor.memory[tempAddress + 1] << 8) | (processor.memory[tempAddress]); // 0x1234
         processor.memory[address] = value;
 
-        referencedValue.setMemory(processor, address);
+        ReferencedValue ref{};
+        ref.setMemory(processor, address);
+        return ref;
     }
-    void initializeForIndirectY(OpCode opCode, u8 value) {
+
+    ReferencedValue initializeForIndirectY(OpCode opCode, u8 value) {
         processor.memory[startAddress + 0] = static_cast<u8>(opCode);
         processor.memory[startAddress + 1] = 0x54;
         u16 tempAddress = processor.memory[startAddress + 1];
@@ -123,13 +150,14 @@ struct EmosTest : ::testing::Test {
         const u16 address = (processor.memory[tempAddress + 1] << 8) + (processor.memory[tempAddress] + processor.regs.y); // 0x1234
         processor.memory[address] = value;
 
-        referencedValue.setMemory(processor, address);
+        ReferencedValue ref{};
+        ref.setMemory(processor, address);
+        return ref;
     }
 
     u16 startAddress = {};
     WhiteboxProcessor processor = {};
     FlagsTracker flags{};
-    ReferencedValue referencedValue = {};
     u32 expectedBytesProcessed = 0u;
     u32 expectedCyclesProcessed = 0u;
 };

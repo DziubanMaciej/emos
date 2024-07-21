@@ -6,44 +6,44 @@ struct OraTest : testing::WithParamInterface<OpCode>, EmosTest {
         processor.regs.a = loadToReg.value();
         switch (opcode) {
         case OpCode::ORA_imm:
-            initializeForImmediate(OpCode::ORA_imm, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 2u;
+            initializeForImmediate(OpCode::ORA_imm, value.value());
             return;
         case OpCode::ORA_z:
-            initializeForZeroPage(OpCode::ORA_z, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 3u;
+            initializeForZeroPage(OpCode::ORA_z, value.value());
             return;
         case OpCode::ORA_zx:
-            initializeForZeroPageX(OpCode::ORA_zx, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 4u;
+            initializeForZeroPageX(OpCode::ORA_zx, value.value());
             return;
         case OpCode::ORA_abs:
-            initializeForAbsolute(OpCode::ORA_abs, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsolute(OpCode::ORA_abs, value.value());
             return;
         case OpCode::ORA_absx:
-            initializeForAbsoluteX(OpCode::ORA_absx, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteX(OpCode::ORA_absx, value.value());
             return;
         case OpCode::ORA_absy:
-            initializeForAbsoluteY(OpCode::ORA_absy, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteY(OpCode::ORA_absy, value.value());
             return;
         case OpCode::ORA_ix:
-            initializeForIndirectX(OpCode::ORA_ix, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
+            initializeForIndirectX(OpCode::ORA_ix, value.value());
             return;
         case OpCode::ORA_iy:
-            initializeForIndirectY(OpCode::ORA_iy, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
+            initializeForIndirectY(OpCode::ORA_iy, value.value());
             return;
         default:
             FATAL_ERROR("Wrong OpCode");

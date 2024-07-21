@@ -7,51 +7,51 @@ struct AdcSbcTest : testing::WithParamInterface<OpCode>, EmosTest {
         switch (opcode) {
         case OpCode::SBC_imm:
         case OpCode::ADC_imm:
-            initializeForImmediate(opcode, memValue.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 2u;
+            initializeForImmediate(opcode, memValue.value());
             return;
         case OpCode::SBC_z:
         case OpCode::ADC_z:
-            initializeForZeroPage(opcode, memValue.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 3u;
+            initializeForZeroPage(opcode, memValue.value());
             return;
         case OpCode::SBC_zx:
         case OpCode::ADC_zx:
-            initializeForZeroPageX(opcode, memValue.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 4u;
+            initializeForZeroPageX(opcode, memValue.value());
             return;
         case OpCode::SBC_abs:
         case OpCode::ADC_abs:
-            initializeForAbsolute(opcode, memValue.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsolute(opcode, memValue.value());
             return;
         case OpCode::SBC_absx:
         case OpCode::ADC_absx:
-            initializeForAbsoluteX(opcode, memValue.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteX(opcode, memValue.value());
             return;
         case OpCode::SBC_absy:
         case OpCode::ADC_absy:
-            initializeForAbsoluteY(opcode, memValue.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteY(opcode, memValue.value());
             return;
         case OpCode::SBC_ix:
         case OpCode::ADC_ix:
-            initializeForIndirectX(opcode, memValue.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
+            initializeForIndirectX(opcode, memValue.value());
             return;
         case OpCode::SBC_iy:
         case OpCode::ADC_iy:
-            initializeForIndirectY(opcode, memValue.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
+            initializeForIndirectY(opcode, memValue.value());
             return;
         default:
             FATAL_ERROR("Wrong OpCode");

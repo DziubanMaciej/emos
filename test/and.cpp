@@ -6,44 +6,44 @@ struct AndTest : testing::WithParamInterface<OpCode>, EmosTest {
         processor.regs.a = regA.value();
         switch (opcode) {
         case OpCode::AND_imm:
-            initializeForImmediate(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 2u;
+            initializeForImmediate(opcode, value.value());
             return;
         case OpCode::AND_z:
-            initializeForZeroPage(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 3u;
+            initializeForZeroPage(opcode, value.value());
             return;
         case OpCode::AND_zx:
-            initializeForZeroPageX(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 4u;
+            initializeForZeroPageX(opcode, value.value());
             return;
         case OpCode::AND_abs:
-            initializeForAbsolute(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsolute(opcode, value.value());
             return;
         case OpCode::AND_absx:
-            initializeForAbsoluteX(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteX(opcode, value.value());
             return;
         case OpCode::AND_absy:
-            initializeForAbsoluteY(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteY(opcode, value.value());
             return;
         case OpCode::AND_ix:
-            initializeForIndirectX(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
+            initializeForIndirectX(opcode, value.value());
             return;
         case OpCode::AND_iy:
-            initializeForIndirectY(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
+            initializeForIndirectY(opcode, value.value());
             return;
         default:
             FATAL_ERROR("Wrong OpCode");

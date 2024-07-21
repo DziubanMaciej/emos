@@ -5,9 +5,18 @@
 #include <gtest/gtest.h>
 
 struct ReferencedValue {
-    void clear() {
-        immediate = {};
-        value = nullptr;
+    ReferencedValue() = default;
+
+    ReferencedValue &operator=(ReferencedValue &&other) noexcept {
+        this->value = other.value;
+        this->immediate = other.immediate;
+        other.value = {};
+        other.immediate = {};
+        return *this;
+    }
+
+    ReferencedValue(ReferencedValue &&other) noexcept {
+        *this = std::move(other);
     }
 
     u8 read() {
@@ -38,5 +47,5 @@ struct ReferencedValue {
 
 private:
     u8 immediate = {};
-    u8 *value = nullptr;
+    u8 *value = {};
 };

@@ -4,33 +4,28 @@
 #include <tuple>
 
 struct RorTest : testing::WithParamInterface<OpCode>, EmosTest {
-    void initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
+    ReferencedValue initializeProcessor(OpCode opcode, std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
         switch (opcode) {
         case OpCode::ROR_acc:
-            initializeForAccumulator(opcode, value.value());
             expectedBytesProcessed = 1u;
             expectedCyclesProcessed = 2u;
-            return;
+            return initializeForAccumulator(opcode, value.value());
         case OpCode::ROR_z:
-            initializeForZeroPage(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
-            return;
+            return initializeForZeroPage(opcode, value.value());
         case OpCode::ROR_zx:
-            initializeForZeroPageX(opcode, value.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
-            return;
+            return initializeForZeroPageX(opcode, value.value());
         case OpCode::ROR_abs:
-            initializeForAbsolute(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 6u;
-            return;
+            return initializeForAbsolute(opcode, value.value());
         case OpCode::ROR_absx:
-            initializeForAbsoluteX(opcode, value.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 7u;
-            return;
+            return initializeForAbsoluteX(opcode, value.value());
         default:
             FATAL_ERROR("Wrong OpCode");
         }
@@ -57,7 +52,7 @@ struct RorTest : testing::WithParamInterface<OpCode>, EmosTest {
 TEST_P(RorTest, givenNumberThenShiftProperly) {
     const u8 inpValue = 0b00110010;
     const u8 outValue = 0b00011001;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false, false);
     flags.expectZeroFlag(false);
@@ -70,7 +65,7 @@ TEST_P(RorTest, givenNumberThenShiftProperly) {
 TEST_P(RorTest, givenLeastSignificantBitSetThenSetCarryBit) {
     const u8 inpValue = 0b00010001;
     const u8 outValue = 0b00001000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false, true);
     flags.expectZeroFlag(false);
@@ -83,7 +78,7 @@ TEST_P(RorTest, givenLeastSignificantBitSetThenSetCarryBit) {
 TEST_P(RorTest, givenZeroValueThenZeroFlagSet) {
     const u8 inpValue = 0b00000000;
     const u8 outValue = 0b00000000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false, false);
     flags.expectZeroFlag(true);
@@ -96,7 +91,7 @@ TEST_P(RorTest, givenZeroValueThenZeroFlagSet) {
 TEST_P(RorTest, givenZeroValueAfterShiftThenZeroFlagSet) {
     const u8 inpValue = 0b00000001;
     const u8 outValue = 0b00000000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(false, true);
     flags.expectZeroFlag(true);
@@ -109,7 +104,7 @@ TEST_P(RorTest, givenZeroValueAfterShiftThenZeroFlagSet) {
 TEST_P(RorTest, givenCarryFlagSetThenRotateIntoMostSignificantBit) {
     const u8 inpValue = 0b00001110;
     const u8 outValue = 0b10000111;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(true, false);
     flags.expectZeroFlag(false);
@@ -122,7 +117,7 @@ TEST_P(RorTest, givenCarryFlagSetThenRotateIntoMostSignificantBit) {
 TEST_P(RorTest, givenCarryFlagAndMostSignificantBitSetThenRotateIntoMostSignificantBit) {
     const u8 inpValue = 0b10001110;
     const u8 outValue = 0b11000111;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(true, false);
     flags.expectZeroFlag(false);
@@ -135,7 +130,7 @@ TEST_P(RorTest, givenCarryFlagAndMostSignificantBitSetThenRotateIntoMostSignific
 TEST_P(RorTest, givenCarryFlagAndLeastSignificantBitSetThenRotateThroughCarry) {
     const u8 inpValue = 0b00000001;
     const u8 outValue = 0b10000000;
-    initializeProcessor(GetParam(), inpValue, {});
+    ReferencedValue referencedValue = initializeProcessor(GetParam(), inpValue, {});
 
     flags.expectCarryFlag(true, true);
     flags.expectZeroFlag(false);

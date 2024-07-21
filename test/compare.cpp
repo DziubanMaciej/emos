@@ -8,48 +8,48 @@ struct CompareTest : testing::WithParamInterface<OpCode>, EmosTest {
         case OpCode::CMP_imm:
         case OpCode::CPX_imm:
         case OpCode::CPY_imm:
-            initializeForImmediate(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 2u;
+            initializeForImmediate(opcode, addend.value());
             return;
         case OpCode::CMP_z:
         case OpCode::CPX_z:
         case OpCode::CPY_z:
-            initializeForZeroPage(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 3u;
+            initializeForZeroPage(opcode, addend.value());
             return;
         case OpCode::CMP_abs:
         case OpCode::CPX_abs:
         case OpCode::CPY_abs:
-            initializeForAbsolute(opcode, addend.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsolute(opcode, addend.value());
             return;
         case OpCode::CMP_zx:
-            initializeForZeroPageX(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 4u;
+            initializeForZeroPageX(opcode, addend.value());
             return;
         case OpCode::CMP_absx:
-            initializeForAbsoluteX(opcode, addend.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteX(opcode, addend.value());
             return;
         case OpCode::CMP_absy:
-            initializeForAbsoluteY(opcode, addend.value());
             expectedBytesProcessed = 3u;
             expectedCyclesProcessed = 4u;
+            initializeForAbsoluteY(opcode, addend.value());
             return;
         case OpCode::CMP_ix:
-            initializeForIndirectX(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 6u;
+            initializeForIndirectX(opcode, addend.value());
             return;
         case OpCode::CMP_iy:
-            initializeForIndirectY(opcode, addend.value());
             expectedBytesProcessed = 2u;
             expectedCyclesProcessed = 5u;
+            initializeForIndirectY(opcode, addend.value());
             return;
         default:
             FATAL_ERROR("Wrong OpCode");

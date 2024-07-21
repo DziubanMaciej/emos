@@ -1,13 +1,11 @@
 #include "src/error.h"
 #include "test/fixtures/emos_test.h"
 
-#include <tuple>
-
 struct PlaTest : EmosTest {
     void initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, [[maybe_unused]] std::optional<u8> loadToReg) {
-        initializeForImplied(opcode);
         expectedBytesProcessed = 1u;
         expectedCyclesProcessed = 4u;
+        initializeForImplied(opcode);
     }
 };
 
