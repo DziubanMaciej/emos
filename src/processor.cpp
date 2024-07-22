@@ -208,7 +208,7 @@ bool Processor::executeInstructions(u32 maxInstructionCount) {
         }
 
         if (debugFeatures.instructionTracingActive) {
-            debugFeatures.instructionTracer.beginInstruction(static_cast<OpCode>(opCode), instruction.mnemonic, regs.pc - 1);
+            debugFeatures.instructionTracer.beginInstruction(instructionIndex, static_cast<OpCode>(opCode), instruction.mnemonic, regs.pc - 1);
         }
 
         (this->*instruction.exec)(instruction.addressingMode);
