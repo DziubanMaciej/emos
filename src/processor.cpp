@@ -3,6 +3,7 @@
 #include "processor.h"
 
 #include <cstring>
+#include <iomanip>
 #include <limits>
 
 Processor::Processor() {
@@ -208,9 +209,10 @@ bool Processor::executeInstructions(u32 maxInstructionCount) {
         }
 
         if (debugFeatures.instructionTracingActive) {
-            INFO("OpCode=0x", std::hex, (int)opCode,
-                 " (", instruction.mnemonic, ")    ",
-                 "PC=0x", std::hex, regs.pc - 1)
+            INFO("OpCode=0x", std::setfill('0'), std::setw(2), std::hex, (int)opCode,
+                 " (", instruction.mnemonic, ")",
+                 "    PC=0x", std::setw(4), std::hex, regs.pc - 1,
+                 "    Flags=", regs.flags.toString())
         }
 
         (this->*instruction.exec)(instruction.addressingMode);

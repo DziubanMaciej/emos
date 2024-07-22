@@ -10,16 +10,21 @@ constexpr void setBit(u8 &value, bool bit) {
     value &= ~((!bit) << bitIndex);
 }
 
+template <typename ValueT>
+constexpr bool isBitSet(ValueT value, u8 bitIndex) {
+    return static_cast<bool>(value & (1 << bitIndex));
+}
+
 template <u8 bitIndex>
 constexpr bool isBitSet(u8 value) {
     static_assert(bitIndex < 8);
-    return static_cast<bool>(value & (1 << bitIndex));
+    return isBitSet(value, bitIndex);
 }
 
 template <u8 bitIndex>
 constexpr bool isBitSet(u16 value) {
     static_assert(bitIndex < 15);
-    return static_cast<bool>(value & (1 << bitIndex));
+    return isBitSet(value, bitIndex);
 }
 
 constexpr bool isSignBitSet(u8 value) {
