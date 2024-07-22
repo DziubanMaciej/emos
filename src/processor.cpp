@@ -200,7 +200,7 @@ Processor::Processor() {
 
 bool Processor::executeInstructions(u32 maxInstructionCount) {
     for (u32 instructionIndex = 0; maxInstructionCount == 0 || instructionIndex < maxInstructionCount; instructionIndex++) {
-        const u8 opCode = fetchInstructionByte();
+        const u8 opCode = fetchInstruction8();
         const InstructionData &instruction = instructionData[opCode];
         if (instruction.exec == nullptr) {
             FATAL_ERROR("Unsupported instruction: ", static_cast<u32>(opCode));
@@ -248,44 +248,36 @@ u16 Processor::getHangAddress() const {
     return debugFeatures.hangDetector.getHangAddress();
 }
 
-u8 Processor::fetchInstructionByte() {
-    const u8 result = readByteFromMemory(regs.pc);
+u8 Processor::fetchInstruction8() {
+    const u8 result = readMemory8(regs.pc);
     counters.bytesProcessed += 1;
     regs.pc += 1;
     return result;
 }
 
-u16 Processor::fetchInstructionTwoBytes() {
-    const u16 result = readTwoBytesFromMemory(regs.pc);
+u16 Processor::fetchInstruction16() {
+    const u16 result = readMemory16(regs.pc);
     counters.bytesProcessed += 2;
     regs.pc += 2;
     return result;
 }
 
-u8 Processor::readByteFromMemory(u16 address) {
+u8 Processor::readMemory8(u16 address) {
     const u8 byte = memory[address];
     counters.cyclesProcessed += 1;
     return byte;
 }
 
-u16 Processor::readTwoBytesFromMemory(u16 address) {
+u16 Processor::readMemory16(u16 address) {
     const u8 lo = memory[address];
     const u8 hi = memory[address + 1];
     counters.cyclesProcessed += 2;
     return (hi << 8) | lo;
 }
 
-void Processor::writeByteToMemory(u16 address, u8 byte) {
+void Processor::writeMemory8(u16 address, u8 byte) {
     memory[address] = byte;
     counters.cyclesProcessed += 1;
-}
-
-void Processor::writeTwoBytesToMemory(u16 address, u16 bytes) {
-    const u8 lo = bytes & 0xFF;
-    const u8 hi = (bytes >> 8) & 0xFF;
-    memory[address] = lo;
-    memory[address + 1] = hi;
-    counters.cyclesProcessed += 2;
 }
 
 u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
@@ -300,42 +292,42 @@ u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
         FATAL_ERROR("Cannot get address in immediate addressing mode")
     }
     case AddressingMode::ZeroPage: {
-        return fetchInstructionByte();
+        return fetchInstruction8();
     }
     case AddressingMode::ZeroPageX: {
-        return sumAddressesZeroPage(fetchInstructionByte(), regs.x);
+        return sumAddressesZeroPage(fetchInstruction8(), regs.x);
     }
     case AddressingMode::ZeroPageY: {
-        return sumAddressesZeroPage(fetchInstructionByte(), regs.y);
+        return sumAddressesZeroPage(fetchInstruction8(), regs.y);
     }
     case AddressingMode::Absolute: {
-        return fetchInstructionTwoBytes();
+        return fetchInstruction16();
     }
     case AddressingMode::AbsoluteX: {
-        return sumAddresses(fetchInstructionTwoBytes(), regs.x, isReadOnly);
+        return sumAddresses(fetchInstruction16(), regs.x, isReadOnly);
     }
     case AddressingMode::AbsoluteY: {
-        return sumAddresses(fetchInstructionTwoBytes(), regs.y, isReadOnly);
+        return sumAddresses(fetchInstruction16(), regs.y, isReadOnly);
     }
     case AddressingMode::IndexedIndirectX: {
-        u8 tableAddress = fetchInstructionByte();
+        u8 tableAddress = fetchInstruction8();
         u16 address = sumAddressesZeroPage(tableAddress, regs.x);
-        address = readTwoBytesFromMemory(address);
+        address = readMemory16(address);
         return address;
     }
     case AddressingMode::IndirectIndexedY: {
-        u16 address = fetchInstructionByte();
-        address = readTwoBytesFromMemory(address);
+        u16 address = fetchInstruction8();
+        address = readMemory16(address);
         address = sumAddresses(address, regs.y, isReadOnly);
         return address;
     }
     case AddressingMode::Indirect: {
-        u16 address = fetchInstructionTwoBytes();
-        address = readTwoBytesFromMemory(address);
+        u16 address = fetchInstruction16();
+        address = readMemory16(address);
         return address;
     }
     case AddressingMode::Relative: {
-        const i8 offset = static_cast<i8>(fetchInstructionByte());
+        const i8 offset = static_cast<i8>(fetchInstruction8());
         return sumAddresses(regs.pc, offset, isReadOnly);
     }
     default: {
@@ -355,11 +347,11 @@ u8 Processor::readValue(AddressingMode mode, bool isReadOnly, u16 *outAddress) {
         break;
     case AddressingMode::Immediate:
         address = 0xFFFF;
-        value = fetchInstructionByte();
+        value = fetchInstruction8();
         break;
     default:
         address = getAddress(mode, isReadOnly);
-        value = readByteFromMemory(address);
+        value = readMemory8(address);
         break;
     }
 
@@ -377,7 +369,7 @@ void Processor::writeValue(AddressingMode mode, u8 value, u16 *address) {
         break;
     default: {
         const u16 memoryAddress = address ? *address : getAddress(mode, false);
-        writeByteToMemory(memoryAddress, value);
+        writeMemory8(memoryAddress, value);
         break;
     }
     }
@@ -468,7 +460,7 @@ void Processor::sumWithCarry(u8 addend) {
     regs.a = static_cast<u8>(sum);
 }
 
-void Processor::pushToStack(u8 value) {
+void Processor::pushToStack8(u8 value) {
     // 1 cycle for writing value
     // 1 cycle for decrementing stack pointer
     counters.cyclesProcessed += 2;
@@ -498,7 +490,7 @@ void Processor::pushToStack16(u16 value) {
                       regs.sp);
 }
 
-u8 Processor::popFromStack() {
+u8 Processor::popFromStack8() {
     // 1 cycle for reading value
     // 1 cycle for incrementing pointer
     counters.cyclesProcessed += 2;
@@ -556,10 +548,10 @@ void Processor::executeLdy(AddressingMode mode) {
 
 void Processor::executeInc(AddressingMode mode) {
     const u16 address = getAddress(mode, false);
-    u8 value = readByteFromMemory(address);
+    u8 value = readMemory8(address);
     value++;
     aluOperation();
-    writeByteToMemory(address, value);
+    writeMemory8(address, value);
     updateArithmeticFlags(value);
 
     INSTRUCTION_TRACE("a=0x%02x", regs.a);
@@ -567,10 +559,10 @@ void Processor::executeInc(AddressingMode mode) {
 
 void Processor::executeDec(AddressingMode mode) {
     const u16 address = getAddress(mode, false);
-    u8 value = readByteFromMemory(address);
+    u8 value = readMemory8(address);
     value--;
     aluOperation();
-    writeByteToMemory(address, value);
+    writeMemory8(address, value);
     updateArithmeticFlags(value);
 
     INSTRUCTION_TRACE("a=0x%02x", regs.a);
@@ -697,24 +689,24 @@ void Processor::executeTxs(AddressingMode) {
 }
 
 void Processor::executePha(AddressingMode) {
-    pushToStack(regs.a);
+    pushToStack8(regs.a);
 }
 
 void Processor::executePhp(AddressingMode) {
     StatusFlags pushedFlags = regs.flags;
     pushedFlags.b = 1;
     pushedFlags.r = 1;
-    pushToStack(pushedFlags.toU8());
+    pushToStack8(pushedFlags.toU8());
 }
 
 void Processor::executePla(AddressingMode) {
-    const u8 tmpReg = popFromStack();
+    const u8 tmpReg = popFromStack8();
     registerTransfer(regs.a, tmpReg);
     updateArithmeticFlags(tmpReg);
 }
 
 void Processor::executePlp(AddressingMode) {
-    StatusFlags poppedFlags = StatusFlags::fromU8(popFromStack());
+    StatusFlags poppedFlags = StatusFlags::fromU8(popFromStack8());
     poppedFlags.r = regs.flags.r; // reserved flag is ignored
     poppedFlags.b = regs.flags.b; // break flag is ignored
     registerTransfer(regs.flags, poppedFlags);
@@ -796,17 +788,17 @@ void Processor::executeClv(AddressingMode) {
 
 void Processor::executeSta(AddressingMode mode) {
     const u16 address = getAddress(mode, false);
-    writeByteToMemory(address, regs.a);
+    writeMemory8(address, regs.a);
 }
 
 void Processor::executeStx(AddressingMode mode) {
     const u16 address = getAddress(mode, false);
-    writeByteToMemory(address, regs.x);
+    writeMemory8(address, regs.x);
 }
 
 void Processor::executeSty(AddressingMode mode) {
     const u16 address = getAddress(mode, false);
-    writeByteToMemory(address, regs.y);
+    writeMemory8(address, regs.y);
 }
 
 void Processor::executeSbc(AddressingMode mode) {
@@ -848,7 +840,7 @@ void Processor::executeBranch(AddressingMode mode, bool take) {
 
         INSTRUCTION_TRACE("Branched");
     } else {
-        fetchInstructionByte();
+        fetchInstruction8();
 
         INSTRUCTION_TRACE("NotBranched");
     }
@@ -890,7 +882,7 @@ void Processor::executeNop(AddressingMode) {
 }
 
 void Processor::executeBrk(AddressingMode) {
-    readByteFromMemory(regs.pc);
+    readMemory8(regs.pc);
 
     pushToStack16(regs.pc + 1);
     hiddenLatencyCycle(); // decreasing SP register can be hidden
@@ -898,19 +890,19 @@ void Processor::executeBrk(AddressingMode) {
     StatusFlags pushedFlags = regs.flags;
     pushedFlags.b = 1;
     pushedFlags.r = 1;
-    pushToStack(pushedFlags.toU8());
+    pushToStack8(pushedFlags.toU8());
     hiddenLatencyCycle(); // decreasing SP register can be hidden
 
-    regs.pc = readTwoBytesFromMemory(0xFFFE);
+    regs.pc = readMemory16(0xFFFE);
     regs.flags.i = 1;
 }
 
 void Processor::executeRti(AddressingMode) {
-    u8 flags = popFromStack();
+    u8 flags = popFromStack8();
     hiddenLatencyCycle(); // decreasing SP register can be hidden
-    u8 pcLo = popFromStack();
+    u8 pcLo = popFromStack8();
     hiddenLatencyCycle(); // decreasing SP register can be hidden
-    u8 pcHi = popFromStack();
+    u8 pcHi = popFromStack8();
 
     StatusFlags newFlags = StatusFlags::fromU8(flags);
     newFlags.b = regs.flags.b; // B flag is ignored
