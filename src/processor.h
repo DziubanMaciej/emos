@@ -68,10 +68,9 @@ protected:
     // Helper functions for status flags.
     void updateArithmeticFlags(u8 value);
     void updateFlagsAfterComparison(u8 registerValue, u8 inputValue);
-    u16 updateOverflowForSumWithCarry(u8 addend);
-    void updateCarryFlagIfOverflow(u16 value, bool OverflowValue);
 
-    void sumWithCarry(u8 addend, bool OverflowValue);
+    // Helper functions for arithmetic operations
+    void sumWithCarry(u8 addend);
 
     // Helper functions for stack operations
     void pushToStack(u8 value);

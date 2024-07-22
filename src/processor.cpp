@@ -454,28 +454,18 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
     INSTRUCTION_TRACE("reg=0x%02x val=0x%02x", registerValue, inputValue);
 }
 
-u16 Processor::updateOverflowForSumWithCarry(u8 addend) {
-    u16 accumulatorWithCarry = regs.a + regs.flags.c;
-    u16 sum = accumulatorWithCarry + addend;
+void Processor::sumWithCarry(u8 addend) {
+    const u16 sum = u16(regs.a) + u16(addend) + u16(regs.flags.c);
 
-    if (isSignBitSet(addend) == isSignBitSet(regs.a)) {
-        regs.flags.o = isSignBitSet(sum) ^ isSignBitSet(addend);
-    }
-    return sum;
-}
+    // Set flags
+    regs.flags.o =
+        isSignBitSet(regs.a) == isSignBitSet(addend) && // We're adding values with the same sign
+        isSignBitSet(regs.a) != isSignBitSet(sum);      // The sign changed
+    regs.flags.c = (sum > std::numeric_limits<u8>::max());
+    updateArithmeticFlags(sum);
 
-void Processor::updateCarryFlagIfOverflow(u16 value, bool OverflowValue) {
-    // if true then ADC :1 SBC: 0, if false then ADC :0 SBC: 1
-    regs.flags.c = (value > std::numeric_limits<u8>::max()) ? OverflowValue : !OverflowValue;
-}
-
-void Processor::sumWithCarry(u8 addend, bool OverflowValue) {
-    // sum =  a + addend + c
-    regs.flags.o = 0;
-    u16 sum = updateOverflowForSumWithCarry(addend);
-    updateCarryFlagIfOverflow(sum, OverflowValue);
+    // Store result
     regs.a = static_cast<u8>(sum);
-    updateArithmeticFlags(regs.a);
 }
 
 void Processor::pushToStack(u8 value) {
@@ -735,7 +725,7 @@ void Processor::executeAdc(AddressingMode mode) {
     const u8 srcCarry = regs.flags.c;
 
     const u8 addend = readValue(mode, true);
-    sumWithCarry(addend, true);
+    sumWithCarry(addend);
 
     INSTRUCTION_TRACE("0x%02x+0x%02x+0x%x=0x%02x", srcRegA, addend, srcCarry, regs.a);
 }
@@ -824,7 +814,7 @@ void Processor::executeSbc(AddressingMode mode) {
     const u8 srcCarry = regs.flags.c;
 
     const u8 value = readValue(mode, true);
-    sumWithCarry(~value, true);
+    sumWithCarry(~value);
 
     INSTRUCTION_TRACE("0x%02x-0x%02x-(0x1-0%x)=0x%02x+0x%02x+0%x=0x%02x",
                       srcRegA, value, srcCarry,
