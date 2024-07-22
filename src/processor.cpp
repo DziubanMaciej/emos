@@ -3,7 +3,6 @@
 #include "processor.h"
 
 #include <cstring>
-#include <iomanip>
 #include <limits>
 
 Processor::Processor() {
@@ -209,13 +208,14 @@ bool Processor::executeInstructions(u32 maxInstructionCount) {
         }
 
         if (debugFeatures.instructionTracingActive) {
-            INFO("OpCode=0x", std::setfill('0'), std::setw(2), std::hex, (int)opCode,
-                 " (", instruction.mnemonic, ")",
-                 "    PC=0x", std::setw(4), std::hex, regs.pc - 1,
-                 "    Flags=", regs.flags.toString())
+            debugFeatures.instructionTracer.beginInstruction(static_cast<OpCode>(opCode), instruction.mnemonic, regs.pc - 1);
         }
 
         (this->*instruction.exec)(instruction.addressingMode);
+
+        if (debugFeatures.instructionTracingActive) {
+            debugFeatures.instructionTracer.endInstruction(regs.flags);
+        }
     }
 
     return true;
@@ -474,6 +474,10 @@ void Processor::pushToStack(u8 value) {
     const u16 address = stackBase + regs.sp;
     memory[address] = value;
     regs.sp--;
+
+    if (debugFeatures.instructionTracingActive) {
+        debugFeatures.instructionTracer.extra("StackPush(memory[0x%04x]<-0x%02x, sp=0x%02x)", address, memory[address], regs.sp);
+    }
 }
 
 void Processor::pushToStack16(u16 value) {
@@ -483,9 +487,16 @@ void Processor::pushToStack16(u16 value) {
 
     constexpr u16 stackBase = 0x0100;
     const u16 address = stackBase + regs.sp;
-    memory[address] = (value & 0xFF00) >> 8;
-    memory[address - 1] = value & 0xFF;
+    memory[address] = hi(value);
+    memory[address - 1] = lo(value);
     regs.sp -= 2;
+
+    if (debugFeatures.instructionTracingActive) {
+        debugFeatures.instructionTracer.extra("StackPush(memory[0x%04x]=0x%02x, memory[0x%04x]=0x%02x, sp=0x%02x)",
+                                              address, memory[address],
+                                              address - 1, memory[address - 1],
+                                              regs.sp);
+    }
 }
 
 u8 Processor::popFromStack() {
@@ -496,6 +507,10 @@ u8 Processor::popFromStack() {
     constexpr u16 stackBase = 0x0100;
     regs.sp++;
     const u16 address = stackBase + regs.sp;
+
+    if (debugFeatures.instructionTracingActive) {
+        debugFeatures.instructionTracer.extra("StackPop(0x%02x<-memory[0x%04x], sp=0x%02x)", memory[address], address, regs.sp);
+    }
     return memory[address];
 }
 
@@ -507,9 +522,17 @@ u16 Processor::popFromStack16() {
     constexpr u16 stackBase = 0x0100;
     regs.sp += 2;
     const u16 address = stackBase + regs.sp;
+
+    if (debugFeatures.instructionTracingActive) {
+        debugFeatures.instructionTracer.extra("StackPop(0x%02x<-memory[0x%04x], 0x%02x<-memory[0x%04x], sp=0x%02x)",
+                                              memory[address - 1], address - 1,
+                                              memory[address], address,
+                                              regs.sp);
+    }
+
     const u16 lo = memory[address - 1];
     const u16 hi = memory[address];
-    return (hi << 8) | lo;
+    return constructU16(hi, lo);
 }
 
 void Processor::executeLda(AddressingMode mode) {
