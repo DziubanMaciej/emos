@@ -39,14 +39,13 @@ public:
 
 protected:
     // Helper functions to fetch from instruction stream. They increase cycle counter and program counter.
-    u8 fetchInstructionByte();
-    u16 fetchInstructionTwoBytes();
+    u8 fetchInstruction8();
+    u16 fetchInstruction16();
 
     // Helper functions to access the memory. They increase cycle counter.
-    u8 readByteFromMemory(u16 address);
-    u16 readTwoBytesFromMemory(u16 address);
-    void writeByteToMemory(u16 address, u8 byte);
-    void writeTwoBytesToMemory(u16 address, u16 bytes);
+    u8 readMemory8(u16 address);
+    u16 readMemory16(u16 address);
+    void writeMemory8(u16 address, u8 byte);
 
     // Helper functions to resolve addresses for different addressing modes.
     u16 getAddress(AddressingMode mode, bool isReadOnly);
@@ -73,9 +72,9 @@ protected:
     void sumWithCarry(u8 addend);
 
     // Helper functions for stack operations
-    void pushToStack(u8 value);
+    void pushToStack8(u8 value);
     void pushToStack16(u16 value);
-    u8 popFromStack();
+    u8 popFromStack8();
     u16 popFromStack16();
 
     // Functions for executing instructions.
