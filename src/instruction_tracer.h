@@ -1,12 +1,11 @@
 #pragma once
 
-
+#include "src/error.h"
 #include "src/instructions.h"
 #include "src/registers.h"
-#include "src/error.h"
-#include <stdarg.h>
 
 #include <iomanip>
+#include <stdarg.h>
 
 class InstructionTracer {
 public:
