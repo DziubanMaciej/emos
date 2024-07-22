@@ -154,6 +154,34 @@ TEST_P(AdcTest, givenTwoZeroWhenCarrySetThenOne) {
     runAdcSbcTest(params);
 }
 
+TEST_P(AdcTest, givenMaxValuePlusZeroAndCarryClearWhenExecutingAdcThenResultIsMaxValue) {
+    flags.expectCarryFlag(false, false);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
+
+    ParamsAdcSbcTests params{};
+    params.opcode = GetParam();
+    params.regA = 0b0111'1111;     // 127
+    params.memValue = 0b0000'0000; // 0
+    params.result = 0b0111'1111;   // 127
+    runAdcSbcTest(params);
+}
+
+TEST_P(AdcTest, givenMaxValuePlusZeroAndCarrySetWhenExecutingAdcThenResultOverflowsToMinValue) {
+    flags.expectCarryFlag(true, false);
+    flags.expectOverflowFlag(true);
+    flags.expectZeroFlag(false);
+    flags.expectNegativeFlag(false);
+
+    ParamsAdcSbcTests params{};
+    params.opcode = GetParam();
+    params.regA = 0b0111'1111;     // 127
+    params.memValue = 0b0000'0000; // 0
+    params.result = 0b1000'0000;   // -128
+    runAdcSbcTest(params);
+}
+
 TEST_P(AdcTest, givenTwoNegativeValueWhenCarryNotSetThenCarryAndNegativeFlagSet) {
     flags.expectCarryFlag(false, true);
     flags.expectOverflowFlag(false);
