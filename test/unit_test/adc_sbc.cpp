@@ -286,8 +286,8 @@ INSTANTIATE_TEST_SUITE_P(, AdcTest,
                          ::testing::ValuesIn(opcodesAdc), AdcSbcTest::constructParamName);
 
 using SbcTest = AdcSbcTest;
-TEST_P(SbcTest, givenTwoValuesThatSubstactSetBit7WhenCarryNotSetThenOverflowAndNegativeFlagsSet) {
-    flags.expectCarryFlag(false, true);
+TEST_P(SbcTest, givenPositiveToNegativeSubtractionAndCarryClearedWhenExecutingSbcThenOverflowAndNegativeFlagsSet) {
+    flags.expectCarryFlag(false, false);
     flags.expectOverflowFlag(true);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(true);
@@ -300,8 +300,8 @@ TEST_P(SbcTest, givenTwoValuesThatSubstactSetBit7WhenCarryNotSetThenOverflowAndN
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoZeroWhenCarryNotSetThenNotZero) {
-    flags.expectCarryFlag(false, true);
+TEST_P(SbcTest, givenTwoZerosAndCarryClearedWhenExecutingSbcThenResultIsMinusOne) {
+    flags.expectCarryFlag(false, false);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
@@ -313,8 +313,8 @@ TEST_P(SbcTest, givenTwoZeroWhenCarryNotSetThenNotZero) {
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoZeroWhenCarrySetThenZeroFlagSet) {
-    flags.expectCarryFlag(true, false);
+TEST_P(SbcTest, givenTwoZerosAndCarrySetWhenExecutingSbcThenResultIsZero) {
+    flags.expectCarryFlag(true, true);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(true);
     flags.expectNegativeFlag(false);
@@ -327,8 +327,8 @@ TEST_P(SbcTest, givenTwoZeroWhenCarrySetThenZeroFlagSet) {
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenPositiveValueWhenSubstractNegativeFlagIfCarryNotSetThenCarryAndNegativeFlagSet) {
-    flags.expectCarryFlag(false, false);
+TEST_P(SbcTest, givenNegativeMinusPositiveValueAndNoUnderflowWhenExecutingSbcThenCarryAndNegativeFlagSet) {
+    flags.expectCarryFlag(false, true);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(true);
@@ -341,23 +341,22 @@ TEST_P(SbcTest, givenPositiveValueWhenSubstractNegativeFlagIfCarryNotSetThenCarr
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoPositiveValuesWhenCarryNotSetThenOverflowAndCarryFlagsSet) {
-
-    flags.expectCarryFlag(false, false);
+TEST_P(SbcTest, givenNegativeMinusPositiveValueAndUnderflowWhenExecutingSbcThenOverflowAndCarryFlagsSet) {
+    flags.expectCarryFlag(false, true);
     flags.expectOverflowFlag(true);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
     ParamsAdcSbcTests params{};
 
     params.opcode = GetParam();
-    params.regA = 0b1000'0000;     // 128 or -128
+    params.regA = 0b1000'0000;     // -128
     params.memValue = 0b0000'0001; // 1
     params.result = 0b0111'1110;   //  128 - 1 - (1-0) =  126
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoPositiveValuesWhenCarrySetThenClearCarryFlag) {
-    flags.expectCarryFlag(true, false);
+TEST_P(SbcTest, givenPositiveValuesAndNoUnderflowAndCarryClearWhenExecutingSbcThenSetCarry) {
+    flags.expectCarryFlag(false, true);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
@@ -366,13 +365,12 @@ TEST_P(SbcTest, givenTwoPositiveValuesWhenCarrySetThenClearCarryFlag) {
     params.opcode = GetParam();
     params.regA = 0b0000'0011;     // 3
     params.memValue = 0b0000'0001; // 1
-    params.result = 0b0000'0010;   // 3 - 1 - (1-1) = 2
+    params.result = 0b0000'0001;   // 3 - 1 - (1-0) = 1
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoValuesWithDifferenSignWhenCarrySetThenBit7OverflowAndCarryFlagClear) {
-
-    flags.expectCarryFlag(true, false);
+TEST_P(SbcTest, givenPositiveValuesAndNoUnderflowAndCarrySetWhenExecutingSbcThenSetCarry) {
+    flags.expectCarryFlag(true, true);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
@@ -385,8 +383,8 @@ TEST_P(SbcTest, givenTwoValuesWithDifferenSignWhenCarrySetThenBit7OverflowAndCar
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoSameValuesWithDifferenSignWhenCarryNotSetThenBit7OverflowAndCarryFlagClear) {
-    flags.expectCarryFlag(false, false);
+TEST_P(SbcTest, givenTwoSameValuesWithDifferenSignAndCarryClearWhenExecutingSbcThenSetCarry) {
+    flags.expectCarryFlag(false, true);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
@@ -400,8 +398,8 @@ TEST_P(SbcTest, givenTwoSameValuesWithDifferenSignWhenCarryNotSetThenBit7Overflo
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoSameValuesWhenCarryNotSetThenMinusOne) {
-    flags.expectCarryFlag(false, true);
+TEST_P(SbcTest, givenTwoSameValuesAndCarryClearWhenExecutingSbcThenResultIsMinusOne) {
+    flags.expectCarryFlag(false, false);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
@@ -415,8 +413,23 @@ TEST_P(SbcTest, givenTwoSameValuesWhenCarryNotSetThenMinusOne) {
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenZeroAndNegativeValueWhenCarryNotSetThenNegativeFlagSet) {
-    flags.expectCarryFlag(false, true);
+TEST_P(SbcTest, givenTwoSameValuesAndCarrySetWhenExecutingSbcThenResultIsZero) {
+    flags.expectCarryFlag(true, true);
+    flags.expectOverflowFlag(false);
+    flags.expectZeroFlag(true);
+    flags.expectNegativeFlag(false);
+
+    ParamsAdcSbcTests params{};
+    params.opcode = GetParam();
+    params.regA = 0b0000'0011;     // 3
+    params.memValue = 0b0000'0011; // 3
+    params.result = 0b0000'0000;   // 3 - 3 - (1-1) = 0
+
+    runAdcSbcTest(params);
+}
+
+TEST_P(SbcTest, givenZeroMinusNegativeValueAndCarryClearWhenExecutingSbcThenNegativeSet) {
+    flags.expectCarryFlag(false, false);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(true);
@@ -429,8 +442,8 @@ TEST_P(SbcTest, givenZeroAndNegativeValueWhenCarryNotSetThenNegativeFlagSet) {
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoNegativeValuesWhenCarryNotSetThenProperResult) {
-    flags.expectCarryFlag(false, true);
+TEST_P(SbcTest, givenTwoNegativeValuesAndCarryClearWhenExecutingSbcThenProperResult) {
+    flags.expectCarryFlag(false, false);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(false);
@@ -443,8 +456,8 @@ TEST_P(SbcTest, givenTwoNegativeValuesWhenCarryNotSetThenProperResult) {
     runAdcSbcTest(params);
 }
 
-TEST_P(SbcTest, givenTwoNegativeValuesWhenCarrySetThenProperResult) {
-    flags.expectCarryFlag(true, true);
+TEST_P(SbcTest, givenTwoNegativeValuesAndCarrySetWhenExecutingSbcThenProperResult) {
+    flags.expectCarryFlag(true, false);
     flags.expectOverflowFlag(false);
     flags.expectZeroFlag(false);
     flags.expectNegativeFlag(true);

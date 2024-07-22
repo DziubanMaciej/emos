@@ -817,15 +817,16 @@ void Processor::executeSty(AddressingMode mode) {
 }
 
 void Processor::executeSbc(AddressingMode mode) {
+    const u8 srcRegA = regs.a;
+    const u8 srcCarry = regs.flags.c;
+
     const u8 value = readValue(mode, true);
-    // convert substraction to addition :
-    // a - m - (1 -c) =
-    // = a - m - 1 + c =
-    // = a - (m + 1) + c =
-    // = a + (-1)*( m + 1 ) + c
-    // => addend = (-1)*( m + 1 )
-    u8 addend = (-1) * (value + 1);
-    sumWithCarry(addend, false);
+    sumWithCarry(~value, true);
+
+    INSTRUCTION_TRACE("0x%02x-0x%02x-(0x1-0%x)=0x%02x+0x%02x+0%x=0x%02x",
+                      srcRegA, value, srcCarry,
+                      srcRegA, (~value & 0xFF), srcCarry,
+                      regs.a);
 }
 
 void Processor::executeJmp(AddressingMode mode) {
