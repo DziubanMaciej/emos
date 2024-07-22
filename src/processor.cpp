@@ -681,7 +681,6 @@ void Processor::executeTsx(AddressingMode) {
 }
 void Processor::executeTxs(AddressingMode) {
     registerTransfer(regs.sp, regs.x);
-    updateArithmeticFlags(regs.sp);
 }
 
 void Processor::executePha(AddressingMode) {
