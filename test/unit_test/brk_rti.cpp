@@ -11,6 +11,9 @@ TEST_F(BrkRtiTest, whenProcessingBrkThenPushStateOnStackAndJump) {
     flags.expectCarryFlag(true, true);
     flags.expectOverflowFlag(true, true);
 
+    // Interrupt disable flag should be set
+    flags.expectInterruptFlag(true);
+
     // BRK instruction. It's actually two bytes, but the second one is unused
     processor.memory[startAddress + 0] = static_cast<u8>(OpCode::BRK);
 
@@ -18,11 +21,12 @@ TEST_F(BrkRtiTest, whenProcessingBrkThenPushStateOnStackAndJump) {
     processor.memory[0xFFFE] = 0x20;
     processor.memory[0xFFFF] = 0x12;
 
-    processor.executeInstructions(1);
     const u16 pushedPc = startAddress + 2;
     StatusFlags pushedFlags = processor.regs.flags;
     pushedFlags.b = 1;
     pushedFlags.r = 1;
+
+    processor.executeInstructions(1);
 
     EXPECT_EQ(hi(pushedPc), processor.memory[0x1FF]);
     EXPECT_EQ(lo(pushedPc), processor.memory[0x1FE]);
@@ -49,6 +53,30 @@ TEST_F(BrkRtiTest, whenProcessingRtiThenTakeValuesFromStack) {
     flags.expectBreakFlag(false, false); // RTI ignores break flag
     flags.expectOverflowFlag(flagsOnStack.o);
     flags.expectNegativeFlag(flagsOnStack.n);
+    flags.expectReservedFlag(false, false); // RTI ignore reserved flag
+    const u16 pcOnStack = 0x2030;
+
+    processor.memory[0x1F1] = flagsOnStack.toU8();
+    processor.memory[0x1F2] = lo(pcOnStack);
+    processor.memory[0x1F3] = hi(pcOnStack);
+
+    processor.memory[startAddress + 0] = static_cast<u8>(OpCode::RTI);
+
+    processor.executeInstructions(1);
+    EXPECT_EQ(0xF3, processor.regs.sp);
+    EXPECT_EQ(pcOnStack, processor.regs.pc);
+
+    expectedCyclesProcessed = 6;
+    expectedBytesProcessed = 1;
+}
+
+TEST_F(BrkRtiTest, givenInterruptDisableFlagOnStackIsSetWhenProcessingRtiThenLeaveItAsSet) {
+    processor.regs.sp = 0xF0;
+
+    StatusFlags flagsOnStack = {};
+    flagsOnStack.i = 1;
+    flags.expectInterruptFlag(true, true);
+    flags.expectBreakFlag(false, false);    // RTI ignores break flag
     flags.expectReservedFlag(false, false); // RTI ignore reserved flag
     const u16 pcOnStack = 0x2030;
 

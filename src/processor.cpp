@@ -851,6 +851,7 @@ void Processor::executeBrk(AddressingMode) {
     hiddenLatencyCycle(); // decreasing SP register can be hidden
 
     regs.pc = readTwoBytesFromMemory(0xFFFE);
+    regs.flags.i = 1;
 }
 
 void Processor::executeRti(AddressingMode) {
