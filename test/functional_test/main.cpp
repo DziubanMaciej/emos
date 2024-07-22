@@ -8,7 +8,8 @@ int main() {
     // or assembler, but it's not very likely, so let's just hardcode them.
     const u32 binaryStartOffset = 0x000A;
     const u32 binarySize = 65526;
-    const u16 programStart = 0x400;
+    const u16 programStartAddress = 0x400;
+    const u16 programSuccessAddress = 0x336d;
 
     // Read program from file
     std::ifstream file{TEST_BINARY_FILE, std::ios::in | std::ios::binary};
@@ -19,9 +20,18 @@ int main() {
     // Execute the program. If it ends, it's a success.
     Processor processor{};
     processor.loadMemory(binaryStartOffset, binarySize, binary);
-    processor.loadProgramCounter(programStart);
+    processor.loadProgramCounter(programStartAddress);
     processor.activateHangDetector();
-    processor.activateInstructionTracing();
-    const bool success = processor.executeInstructions(0);
-    return 1 - success;
+    // processor.activateInstructionTracing();
+    processor.executeInstructions(0);
+
+    // Verify success. The test program will always hang, but one designated location means
+    // it actually succeeded.
+    const u16 hangAddress = processor.getHangAddress();
+    if (hangAddress == programSuccessAddress) {
+        return 0;
+    } else {
+        INFO("Hang detected at 0x", std::hex, hangAddress);
+        return 1;
+    }
 }

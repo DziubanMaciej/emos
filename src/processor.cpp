@@ -209,7 +209,6 @@ bool Processor::executeInstructions(u32 maxInstructionCount) {
         if (debugFeatures.hangDetectionActive) {
             debugFeatures.hangDetector.instruction(static_cast<OpCode>(opCode), regs.pc - 1);
             if (debugFeatures.hangDetector.isHangDetected()) {
-                INFO("Hang detected at 0x", std::hex, debugFeatures.hangDetector.getHangAddress());
                 return false;
             }
         }
@@ -243,6 +242,10 @@ void Processor::activateHangDetector() {
 
 void Processor::activateInstructionTracing() {
     debugFeatures.instructionTracingActive = true;
+}
+
+u16 Processor::getHangAddress() const {
+    return debugFeatures.hangDetector.getHangAddress();
 }
 
 u8 Processor::fetchInstructionByte() {

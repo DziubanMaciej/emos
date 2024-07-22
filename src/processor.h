@@ -35,6 +35,8 @@ public:
     void activateInstructionTracing();
     bool executeInstructions(u32 maxInstructionCount);
 
+    u16 getHangAddress() const;
+
 protected:
     // Helper functions to fetch from instruction stream. They increase cycle counter and program counter.
     u8 fetchInstructionByte();
