@@ -22,5 +22,6 @@ int main() {
     processor.loadProgramCounter(programStart);
     processor.activateHangDetector();
     processor.activateInstructionTracing();
-    processor.executeInstructions(0);
+    const bool success = processor.executeInstructions(0);
+    return 1 - success;
 }
