@@ -34,7 +34,7 @@ public:
         INFO(
             "OpCode=0x", std::setfill('0'), std::setw(2), std::hex, static_cast<int>(opCode),
             " (", mnemonic, ")",
-            "    PC=0x", std::setw(4), std::hex, pc - 1,
+            "    PC=0x", std::setw(4), std::hex, pc,
             "    Flags=", flags.toString(),
             extraData.str());
 
