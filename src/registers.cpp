@@ -16,6 +16,21 @@ u8 StatusFlags::toU8() const {
     return result;
 }
 
+std::string StatusFlags::toString() const {
+    const u8 value = toU8();
+    char buffer[9];
+    buffer[0] = isBitSet<0>(value) ? '1' : '0';
+    buffer[1] = isBitSet<1>(value) ? '1' : '0';
+    buffer[2] = isBitSet<2>(value) ? '1' : '0';
+    buffer[3] = isBitSet<3>(value) ? '1' : '0';
+    buffer[4] = isBitSet<4>(value) ? '1' : '0';
+    buffer[5] = isBitSet<5>(value) ? '1' : '0';
+    buffer[6] = isBitSet<6>(value) ? '1' : '0';
+    buffer[7] = isBitSet<7>(value) ? '1' : '0';
+    buffer[8] = '\0';
+    return std::string{buffer};
+}
+
 StatusFlags StatusFlags::fromU8(u8 value) {
     StatusFlags result = {};
     result.n = isBitSet<7>(value);

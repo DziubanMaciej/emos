@@ -13,6 +13,7 @@ struct StatusFlags {
     u8 n : 1; // negative flag
 
     u8 toU8() const;
+    std::string toString() const;
     static StatusFlags fromU8(u8 value);
 };
 
