@@ -455,7 +455,7 @@ u16 Processor::updateOverflowForSumWithCarry(u8 addend) {
     u16 accumulatorWithCarry = regs.a + regs.flags.c;
     u16 sum = accumulatorWithCarry + addend;
 
-    if (isSignBitSet(addend) == isSignBitSet(accumulatorWithCarry)) {
+    if (isSignBitSet(addend) == isSignBitSet(regs.a)) {
         regs.flags.o = isSignBitSet(sum) ^ isSignBitSet(addend);
     }
     return sum;
