@@ -5,6 +5,13 @@
 #include <cstring>
 #include <limits>
 
+#define INSTRUCTION_TRACE(...)                                  \
+    do {                                                        \
+        if (debugFeatures.instructionTracingActive) {           \
+            debugFeatures.instructionTracer.extra(__VA_ARGS__); \
+        }                                                       \
+    } while (0)
+
 Processor::Processor() {
     setInstructionData("LDA", OpCode::LDA_imm, AddressingMode::Immediate, &Processor::executeLda);
     setInstructionData("LDA", OpCode::LDA_z, AddressingMode::ZeroPage, &Processor::executeLda);
@@ -363,6 +370,7 @@ void Processor::writeValue(AddressingMode mode, u8 value, u16 *address) {
     switch (mode) {
     case AddressingMode::Accumulator:
         regs.a = value;
+        INSTRUCTION_TRACE("a=0x%02x", regs.a);
         break;
     default: {
         const u16 memoryAddress = address ? *address : getAddress(mode, false);
@@ -439,6 +447,8 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
     regs.flags.c = registerValue >= inputValue;
     regs.flags.z = registerValue == inputValue;
     regs.flags.n = registerValue < inputValue;
+
+    INSTRUCTION_TRACE("reg=0x%02x val=0x%02x", registerValue, inputValue);
 }
 
 u16 Processor::updateOverflowForSumWithCarry(u8 addend) {
@@ -475,9 +485,7 @@ void Processor::pushToStack(u8 value) {
     memory[address] = value;
     regs.sp--;
 
-    if (debugFeatures.instructionTracingActive) {
-        debugFeatures.instructionTracer.extra("StackPush(memory[0x%04x]<-0x%02x, sp=0x%02x)", address, memory[address], regs.sp);
-    }
+    INSTRUCTION_TRACE("StackPush(memory[0x%04x]<-0x%02x, sp=0x%02x)", address, memory[address], regs.sp);
 }
 
 void Processor::pushToStack16(u16 value) {
@@ -491,12 +499,10 @@ void Processor::pushToStack16(u16 value) {
     memory[address - 1] = lo(value);
     regs.sp -= 2;
 
-    if (debugFeatures.instructionTracingActive) {
-        debugFeatures.instructionTracer.extra("StackPush(memory[0x%04x]=0x%02x, memory[0x%04x]=0x%02x, sp=0x%02x)",
-                                              address, memory[address],
-                                              address - 1, memory[address - 1],
-                                              regs.sp);
-    }
+    INSTRUCTION_TRACE("StackPush(memory[0x%04x]=0x%02x, memory[0x%04x]=0x%02x, sp=0x%02x)",
+                      address, memory[address],
+                      address - 1, memory[address - 1],
+                      regs.sp);
 }
 
 u8 Processor::popFromStack() {
@@ -508,9 +514,7 @@ u8 Processor::popFromStack() {
     regs.sp++;
     const u16 address = stackBase + regs.sp;
 
-    if (debugFeatures.instructionTracingActive) {
-        debugFeatures.instructionTracer.extra("StackPop(0x%02x<-memory[0x%04x], sp=0x%02x)", memory[address], address, regs.sp);
-    }
+    INSTRUCTION_TRACE("StackPop(0x%02x<-memory[0x%04x], sp=0x%02x)", memory[address], address, regs.sp);
     return memory[address];
 }
 
@@ -523,12 +527,10 @@ u16 Processor::popFromStack16() {
     regs.sp += 2;
     const u16 address = stackBase + regs.sp;
 
-    if (debugFeatures.instructionTracingActive) {
-        debugFeatures.instructionTracer.extra("StackPop(0x%02x<-memory[0x%04x], 0x%02x<-memory[0x%04x], sp=0x%02x)",
-                                              memory[address - 1], address - 1,
-                                              memory[address], address,
-                                              regs.sp);
-    }
+    INSTRUCTION_TRACE("StackPop(0x%02x<-memory[0x%04x], 0x%02x<-memory[0x%04x], sp=0x%02x)",
+                      memory[address - 1], address - 1,
+                      memory[address], address,
+                      regs.sp);
 
     const u16 lo = memory[address - 1];
     const u16 hi = memory[address];
@@ -539,18 +541,24 @@ void Processor::executeLda(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a = value;
     updateArithmeticFlags(value);
+
+    INSTRUCTION_TRACE("a=0x%02x", regs.a);
 }
 
 void Processor::executeLdx(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.x = value;
     updateArithmeticFlags(value);
+
+    INSTRUCTION_TRACE("x=0x%02x", regs.x);
 }
 
 void Processor::executeLdy(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.y = value;
     updateArithmeticFlags(value);
+
+    INSTRUCTION_TRACE("y=0x%02x", regs.y);
 }
 
 void Processor::executeInc(AddressingMode mode) {
@@ -560,6 +568,8 @@ void Processor::executeInc(AddressingMode mode) {
     aluOperation();
     writeByteToMemory(address, value);
     updateArithmeticFlags(value);
+
+    INSTRUCTION_TRACE("a=0x%02x", regs.a);
 }
 
 void Processor::executeDec(AddressingMode mode) {
@@ -569,30 +579,40 @@ void Processor::executeDec(AddressingMode mode) {
     aluOperation();
     writeByteToMemory(address, value);
     updateArithmeticFlags(value);
+
+    INSTRUCTION_TRACE("a=0x%02x", regs.a);
 }
 
 void Processor::executeInx(AddressingMode) {
     regs.x++;
     aluOperation();
     updateArithmeticFlags(regs.x);
+
+    INSTRUCTION_TRACE("x=0x%02x", regs.x);
 }
 
 void Processor::executeIny(AddressingMode) {
     regs.y++;
     aluOperation();
     updateArithmeticFlags(regs.y);
+
+    INSTRUCTION_TRACE("y=0x%02x", regs.y);
 }
 
 void Processor::executeDex(AddressingMode) {
     regs.x--;
     aluOperation();
     updateArithmeticFlags(regs.x);
+
+    INSTRUCTION_TRACE("x=0x%02x", regs.x);
 }
 
 void Processor::executeDey(AddressingMode) {
     regs.y--;
     aluOperation();
     updateArithmeticFlags(regs.y);
+
+    INSTRUCTION_TRACE("y=0x%02x", regs.y);
 }
 
 void Processor::executeAsl(AddressingMode mode) {
@@ -708,26 +728,37 @@ void Processor::executePlp(AddressingMode) {
 }
 
 void Processor::executeAdc(AddressingMode mode) {
+    const u8 srcRegA = regs.a;
+    const u8 srcCarry = regs.flags.c;
+
     const u8 addend = readValue(mode, true);
     sumWithCarry(addend, true);
+
+    INSTRUCTION_TRACE("0x%02x+0x%02x+0x%x=0x%02x", srcRegA, addend, srcCarry, regs.a);
 }
 
 void Processor::executeAnd(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a &= value;
     updateArithmeticFlags(regs.a);
+
+    INSTRUCTION_TRACE("a=0x%02x", regs.a);
 }
 
 void Processor::executeEor(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a ^= value;
     updateArithmeticFlags(regs.a);
+
+    INSTRUCTION_TRACE("a=0x%02x", regs.a);
 }
 
 void Processor::executeOra(AddressingMode mode) {
     const u8 value = readValue(mode, true);
     regs.a |= value;
     updateArithmeticFlags(regs.a);
+
+    INSTRUCTION_TRACE("a=0x%02x", regs.a);
 }
 
 void Processor::executeBit(AddressingMode mode) {
@@ -820,8 +851,12 @@ void Processor::executeBranch(AddressingMode mode, bool take) {
         const u16 branchAddress = getAddress(mode, true);
         regs.pc = branchAddress;
         idleCycle(); // when pc is calculated, it's already too late to schedule memory fetch, so there's an extra cycle
+
+        INSTRUCTION_TRACE("Branched");
     } else {
         fetchInstructionByte();
+
+        INSTRUCTION_TRACE("NotBranched");
     }
 }
 
