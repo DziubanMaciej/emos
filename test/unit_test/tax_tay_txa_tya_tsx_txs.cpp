@@ -46,6 +46,11 @@ struct RegisterTransferTest : EmosTest, ::testing::WithParamInterface<Param> {
             UNREACHABLE_CODE
         }
     }
+
+    static bool shouldSetNZRegisters() {
+        return getOpcode() != OpCode::TXS;
+    }
+
     ReferencedValue initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8> value, std::optional<u8> loadToReg) {
         const Register src = std::get<0>(GetParam());
         const Register dst = std::get<1>(GetParam());
@@ -75,8 +80,10 @@ TEST_P(RegisterTransferTest, givenNegativeValueThenProcessInstruction) {
     u8 loadToReg = 0x80;
     ReferencedValue referencedValue = initializeProcessor(getOpcode(), std::nullopt, loadToReg);
 
-    flags.expectZeroFlag(false);
-    flags.expectNegativeFlag(true);
+    if (shouldSetNZRegisters()) {
+        flags.expectZeroFlag(false);
+        flags.expectNegativeFlag(true);
+    }
     processor.executeInstructions(1);
     EXPECT_EQ(0x80, referencedValue.read());
 }
@@ -85,8 +92,10 @@ TEST_P(RegisterTransferTest, givenPositiveValueThenProcessInstruction) {
     u8 loadToReg = 0x70;
     ReferencedValue referencedValue = initializeProcessor(getOpcode(), std::nullopt, loadToReg);
 
-    flags.expectZeroFlag(false);
-    flags.expectNegativeFlag(false);
+    if (shouldSetNZRegisters()) {
+        flags.expectZeroFlag(false);
+        flags.expectNegativeFlag(false);
+    }
     processor.executeInstructions(1);
     EXPECT_EQ(0x70, referencedValue.read());
 }
@@ -95,8 +104,10 @@ TEST_P(RegisterTransferTest, givenZeroValueThenProcessInstruction) {
     u8 loadToReg = 0x00;
     ReferencedValue referencedValue = initializeProcessor(getOpcode(), std::nullopt, loadToReg);
 
-    flags.expectZeroFlag(true);
-    flags.expectNegativeFlag(false);
+    if (shouldSetNZRegisters()) {
+        flags.expectZeroFlag(true);
+        flags.expectNegativeFlag(false);
+    }
     processor.executeInstructions(1);
     EXPECT_EQ(0x00, referencedValue.read());
 }
