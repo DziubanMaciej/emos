@@ -1,10 +1,10 @@
 #pragma once
 
-#include "counters.h"
-#include "instructions.h"
-#include "registers.h"
-
+#include "src/counters.h"
 #include "src/hang_detector.h"
+#include "src/instruction_tracer.h"
+#include "src/instructions.h"
+#include "src/registers.h"
 
 constexpr u32 memorySize = 64 * 1024;
 
@@ -137,9 +137,11 @@ protected:
     void executeRti(AddressingMode mode);
 
     struct DebugFeatures {
-        HangDetector hangDetector = {};
         bool hangDetectionActive = false;
+        HangDetector hangDetector = {};
+
         bool instructionTracingActive = false;
+        InstructionTracer instructionTracer = {};
     } debugFeatures;
 
     // State of the CPU.
