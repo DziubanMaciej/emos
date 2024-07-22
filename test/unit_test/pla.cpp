@@ -43,3 +43,31 @@ TEST_F(PlaTest, givenMaximumSpThenValuePoppedFromStack) {
     EXPECT_EQ(0x00, processor.regs.sp);
     EXPECT_EQ(0x52, processor.regs.a);
 }
+
+TEST_F(PlaTest, givenZeroValueOnStackThenSetZeroFlag) {
+    flags.expectZeroFlag(true);
+
+    initializeProcessor(OpCode::PLA, {}, {});
+    processor.regs.sp = 0xCC;
+    processor.memory[0x1CB] = 0x60;
+    processor.memory[0x1CC] = 0x61;
+    processor.memory[0x1CD] = 0x00;
+    processor.executeInstructions(1);
+
+    EXPECT_EQ(0xCD, processor.regs.sp);
+    EXPECT_EQ(0x00, processor.regs.a);
+}
+
+TEST_F(PlaTest, givenNegativeValueOnStackThenSetNegativeFlag) {
+    flags.expectNegativeFlag(true);
+
+    initializeProcessor(OpCode::PLA, {}, {});
+    processor.regs.sp = 0xCC;
+    processor.memory[0x1CB] = 0x60;
+    processor.memory[0x1CC] = 0x61;
+    processor.memory[0x1CD] = 0x84;
+    processor.executeInstructions(1);
+
+    EXPECT_EQ(0xCD, processor.regs.sp);
+    EXPECT_EQ(0x84, processor.regs.a);
+}

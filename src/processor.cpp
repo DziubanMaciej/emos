@@ -673,6 +673,7 @@ void Processor::executePhp(AddressingMode) {
 void Processor::executePla(AddressingMode) {
     const u8 tmpReg = popFromStack();
     registerTransfer(regs.a, tmpReg);
+    updateArithmeticFlags(tmpReg);
 }
 
 void Processor::executePlp(AddressingMode) {
