@@ -30,20 +30,19 @@ add_custom_command_copy_and_build_file(6502_functional_test.a65)
 add_custom_command_copy_and_build_file(6502_decimal_test.a65)
 add_custom_command_copy_and_build_file(6502_interrupt_test.a65)
 
-add_executable(emos_functional_tests
-        ${THIRD_PARTY_DST_DIR}/6502_functional_test.bin
-        ${THIRD_PARTY_DST_DIR}/6502_decimal_test.bin
-        ${THIRD_PARTY_DST_DIR}/6502_interrupt_test.bin
-)
-target_common_setup(emos_functional_tests)
-target_find_sources_and_add(emos_functional_tests)
-target_setup_vs_folders(emos_functional_tests)
-target_link_libraries(emos_functional_tests PRIVATE emos_lib)
-target_include_directories(emos_functional_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
-target_compile_definitions(emos_functional_tests PRIVATE
-    -DTEST_BINARY_FILE="${THIRD_PARTY_DST_DIR}/6502_functional_test.bin"
-)
+function (define_functional_test TEST_NAME TARGET_NAME BIN_FILE TEST_INDEX)
+    add_executable(${TARGET_NAME} ${BIN_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+    target_common_setup(${TARGET_NAME})
+    target_setup_vs_folders(${TARGET_NAME})
+    target_link_libraries(${TARGET_NAME} PRIVATE emos_lib)
+    target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
+    target_compile_definitions(${TARGET_NAME} PRIVATE
+            -DTEST_BINARY_FILE="${THIRD_PARTY_DST_DIR}/6502_functional_test.bin"
+            -DTEST_INDEX=${TEST_INDEX}
+    )
+    add_test(NAME ${TEST_NAME} COMMAND ${TARGET_NAME})
+endfunction()
 
-add_test(NAME FunctionalTests COMMAND emos_functional_tests)
-
-add_subdirectories()
+define_functional_test(FunctionalTest emos_functional_test ${THIRD_PARTY_DST_DIR}/6502_functional_test.bin 0)
+define_functional_test(DecimalTest emos_decimal_test ${THIRD_PARTY_DST_DIR}/6502_decimal_test.bin 1)
+# define_functional_test(InterruptTest emos_interrupt_test ${THIRD_PARTY_DST_DIR}/6502_interrupt_test.bin 2)

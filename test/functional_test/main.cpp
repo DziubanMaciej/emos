@@ -4,12 +4,29 @@
 #include <fstream>
 
 int main() {
-    // These numbers are taken from .lst file. They could change if we change the program
+    // These numbers are taken from .lst files. They could change if we change the programs
     // or assembler, but it's not very likely, so let's just hardcode them.
+#if TEST_INDEX == 0
+    // Functional test
     const u32 binaryStartOffset = 0x000A;
     const u32 binarySize = 65526;
-    const u16 programStartAddress = 0x400;
+    const u16 programStartAddress = 0x0400;
     const u16 programSuccessAddress = 0x336d;
+#elif TEST_INDEX == 1
+    // Decimal test
+    const u32 binaryStartOffset = 0x0200;
+    const u32 binarySize = 234;
+    const u16 programStartAddress = 0x0200;
+    const u16 programSuccessAddress = 0x024b; // not sure about that one
+#elif TEST_INDEX == 2
+    // Interrupt test
+    const u32 binaryStartOffset = 0x000A;
+    const u32 binarySize = 65526;
+    const u16 programStartAddress = 0x0400;
+    const u16 programSuccessAddress = 0x06f5;
+#else
+#error "Invalid test index"
+#endif
 
     // Read program from file
     std::ifstream file{TEST_BINARY_FILE, std::ios::in | std::ios::binary};
