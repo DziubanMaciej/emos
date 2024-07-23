@@ -1,39 +1,44 @@
 #pragma once
 
-#include <iostream>
+#include <cstdarg>
+#include <cstdio>
+#include <exception>
 
-[[noreturn]] inline void performAbort() {
-    throw std::exception{};
-}
-
-inline void dumpLog(std::ostream &out) {
-    out << std::endl;
-}
-
-template <typename Arg, typename... Args>
-inline void dumpLog(std::ostream &out, Arg &&arg, Args &&...args) {
-    out << arg;
-    dumpLog(out, std::forward<Args>(args)...);
-}
-
-#define INFO(...) \
-    dumpLog(std::cout, __VA_ARGS__);
-
-#define FATAL_ERROR(...)             \
-    dumpLog(std::cerr, __VA_ARGS__); \
-    performAbort();
-
-#define FATAL_ERROR_IF(condition, ...) \
-    if (condition) {                   \
-        FATAL_ERROR(__VA_ARGS__);      \
+namespace Error {
+inline void log(FILE *file, const char *label, const char *format, ...) {
+    if (label != nullptr) {
+        fprintf(file, "%s: ", label);
     }
 
-#ifdef _DEBUG
-#define DEBUG_ERROR(...) FATAL_ERROR(__VA_ARGS__)
-#define DEBUG_ERROR_IF(condition, ...) FATAL_ERROR_IF(condition, __VA_ARGS__)
-#else
-#define DEBUG_ERROR(...)
-#define DEBUG_ERROR_IF(condition, ...)
-#endif
+    va_list args;
+    va_start(args, format);
+    vfprintf(file, format, args);
+    va_end(args);
+
+    fprintf(file, "\n");
+}
+
+[[noreturn]] inline void abort() {
+    throw std::exception{};
+}
+} // namespace Error
+
+#define INFO(...)                                 \
+    do {                                          \
+        Error::log(stdout, nullptr, __VA_ARGS__); \
+    } while (0)
+
+#define FATAL_ERROR(...)                          \
+    do {                                          \
+        Error::log(stderr, "ERROR", __VA_ARGS__); \
+        Error::abort();                           \
+    } while (0)
+
+#define FATAL_ERROR_IF(condition, ...) \
+    do {                               \
+        if (condition) {               \
+            FATAL_ERROR(__VA_ARGS__);  \
+        }                              \
+    } while (0)
 
 #define UNREACHABLE_CODE FATAL_ERROR("Unreachable code")

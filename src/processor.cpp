@@ -203,7 +203,7 @@ bool Processor::executeInstructions(u32 maxInstructionCount) {
         const u8 opCode = fetchInstruction8();
         const InstructionData &instruction = instructionData[opCode];
         if (instruction.exec == nullptr) {
-            FATAL_ERROR("Unsupported instruction: ", static_cast<u32>(opCode));
+            FATAL_ERROR("Unsupported instruction: 0x%02x", static_cast<u32>(opCode));
         }
 
         if (debugFeatures.hangDetectionActive) {
@@ -283,13 +283,13 @@ void Processor::writeMemory8(u16 address, u8 byte) {
 u16 Processor::getAddress(AddressingMode mode, bool isReadOnly) {
     switch (mode) {
     case AddressingMode::Accumulator: {
-        FATAL_ERROR("Cannot get address in accumulator addressing mode")
+        FATAL_ERROR("Cannot get address in accumulator addressing mode");
     }
     case AddressingMode::Implied: {
-        FATAL_ERROR("Cannot get address in implied addressing mode")
+        FATAL_ERROR("Cannot get address in implied addressing mode");
     }
     case AddressingMode::Immediate: {
-        FATAL_ERROR("Cannot get address in immediate addressing mode")
+        FATAL_ERROR("Cannot get address in immediate addressing mode");
     }
     case AddressingMode::ZeroPage: {
         return fetchInstruction8();
