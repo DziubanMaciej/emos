@@ -2,6 +2,8 @@
 
 #include "types.h"
 
+#include <string>
+
 struct StatusFlags {
     u8 c : 1; // carry flag
     u8 z : 1; // zero flag

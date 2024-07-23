@@ -31,7 +31,7 @@ int main() {
     if (hangAddress == programSuccessAddress) {
         return 0;
     } else {
-        INFO("Hang detected at 0x", std::hex, hangAddress);
+        INFO("Hang detected at 0x%04x", hangAddress);
         return 1;
     }
 }

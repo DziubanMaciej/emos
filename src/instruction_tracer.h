@@ -4,14 +4,14 @@
 #include "src/instructions.h"
 #include "src/registers.h"
 
-#include <iomanip>
-#include <stdarg.h>
+#include <cstdarg>
+#include <sstream>
 
 class InstructionTracer {
 public:
     void beginInstruction(u32 newInstructionIndex, OpCode newOpCode, const char *newMnemonic, u16 newPc) {
         FATAL_ERROR_IF(newOpCode == OpCode::_INVALID, "Invalid opcode");
-        FATAL_ERROR_IF(newMnemonic == nullptr, "Invalid menmonic");
+        FATAL_ERROR_IF(newMnemonic == nullptr, "Invalid mnemonic");
 
         instructionIndex = newInstructionIndex;
         opCode = newOpCode;
@@ -31,13 +31,9 @@ public:
     }
 
     void endInstruction(StatusFlags flags) {
-        INFO(
-            std::setfill('0'), std::setw(8), std::dec, instructionIndex, ".",
-            "   OpCode=0x", std::setfill('0'), std::setw(2), std::hex, static_cast<int>(opCode),
-            " (", mnemonic, ")",
-            "    PC=0x", std::setw(4), std::hex, pc,
-            "    Flags=", flags.toString(),
-            extraData.str());
+        INFO("%08d   OpCode=0x%02x (%s)   PC=0x%04x    Flags=%s",
+             instructionIndex, static_cast<int>(opCode), mnemonic,
+             pc, flags.toString().c_str());
 
         instructionIndex = {};
         opCode = OpCode::_INVALID;
