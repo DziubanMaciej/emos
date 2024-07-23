@@ -28,7 +28,7 @@ struct RegisterTransferTest : EmosTest, ::testing::WithParamInterface<Param> {
         } else if (src == Register::X && dst == Register::S) {
             return OpCode::TXS;
         } else {
-            UNREACHABLE_CODE
+            UNREACHABLE_CODE();
         }
     }
 
@@ -43,7 +43,7 @@ struct RegisterTransferTest : EmosTest, ::testing::WithParamInterface<Param> {
         case Register::S:
             return processor.regs.sp;
         default:
-            UNREACHABLE_CODE
+            UNREACHABLE_CODE();
         }
     }
 

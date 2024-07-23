@@ -37,7 +37,7 @@ function (define_functional_test TEST_NAME TARGET_NAME BIN_FILE TEST_INDEX)
     target_link_libraries(${TARGET_NAME} PRIVATE emos_lib)
     target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
     target_compile_definitions(${TARGET_NAME} PRIVATE
-            -DTEST_BINARY_FILE="${THIRD_PARTY_DST_DIR}/6502_functional_test.bin"
+            -DTEST_BINARY_FILE="${BIN_FILE}"
             -DTEST_INDEX=${TEST_INDEX}
     )
     add_test(NAME ${TEST_NAME} COMMAND ${TARGET_NAME})
