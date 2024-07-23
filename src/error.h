@@ -41,4 +41,4 @@ inline void log(FILE *file, const char *label, const char *format, ...) {
         }                              \
     } while (0)
 
-#define UNREACHABLE_CODE FATAL_ERROR("Unreachable code")
+#define UNREACHABLE_CODE() FATAL_ERROR("Unreachable code")

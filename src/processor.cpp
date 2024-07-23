@@ -228,7 +228,7 @@ bool Processor::executeInstructions(u32 maxInstructionCount) {
 }
 
 void Processor::loadMemory(u32 start, u32 length, const u8 *data) {
-    FATAL_ERROR_IF(start + length < memorySize, "Out of memory bounds.");
+    FATAL_ERROR_IF(start + length > memorySize, "Out of memory bounds.");
     memcpy(memory + start, data, length);
 }
 

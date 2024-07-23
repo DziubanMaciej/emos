@@ -31,7 +31,7 @@ struct BranchTest : testing::WithParamInterface<OpCode>, EmosTest {
             flags.expectOverflowFlag(branchIsTaken, branchIsTaken);
             break;
         default:
-            FATAL_ERROR("Invalid opcode")
+            FATAL_ERROR("Invalid opcode");
         }
     }
 };
