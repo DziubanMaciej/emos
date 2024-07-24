@@ -31,9 +31,9 @@ public:
     }
 
     void endInstruction(StatusFlags flags) {
-        INFO("%08d   OpCode=0x%02x (%s)   PC=0x%04x    Flags=%s",
+        INFO("%08d   OpCode=0x%02x (%s)   PC=0x%04x    Flags=%s%s",
              instructionIndex, static_cast<int>(opCode), mnemonic,
-             pc, flags.toString().c_str());
+             pc, flags.toString().c_str(), extraData.str().c_str());
 
         instructionIndex = {};
         opCode = OpCode::_INVALID;
