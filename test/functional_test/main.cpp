@@ -1,9 +1,18 @@
 #include "src/error.h"
 #include "src/processor.h"
 
+#include <cstring>
 #include <fstream>
 
-int main() {
+int main(int argc, char **argv) {
+    bool enableInstructionTracing = false;
+    for (int argIndex = 1; argIndex < argc; argIndex++) {
+        const char *arg = argv[argIndex];
+        if (strcmp(arg, "-t") == 0) {
+            enableInstructionTracing = true;
+        }
+    }
+
     // These numbers are taken from .lst files. They could change if we change the programs
     // or assembler, but it's not very likely, so let's just hardcode them.
 #if TEST_INDEX == 0
@@ -39,7 +48,9 @@ int main() {
     processor.loadMemory(binaryStartOffset, binarySize, binary);
     processor.loadProgramCounter(programStartAddress);
     processor.activateHangDetector();
-    // processor.activateInstructionTracing();
+    if (enableInstructionTracing) {
+        processor.activateInstructionTracing();
+    }
     processor.executeInstructions(0);
 
     // Verify success. The test program will always hang, but one designated location means
