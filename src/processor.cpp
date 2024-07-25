@@ -460,6 +460,40 @@ void Processor::sumWithCarry(u8 addend) {
     regs.a = static_cast<u8>(sum);
 }
 
+void Processor::sumDecimal(u8 addend) {
+    // Extract nibbles from both addends
+    const u8 loReg = loNibble(regs.a);
+    const u8 hiReg = hiNibble(regs.a);
+    const u8 loAddend = loNibble(addend);
+    const u8 hiAddend = hiNibble(addend);
+
+    // We'll have to handle it somehow, but don't care for now
+    FATAL_ERROR_IF(loReg >= 10, "Invalid BCD");
+    FATAL_ERROR_IF(hiReg >= 10, "Invalid BCD");
+    FATAL_ERROR_IF(loAddend >= 10, "Invalid BCD");
+    FATAL_ERROR_IF(hiAddend >= 10, "Invalid BCD");
+
+    // Calculate sum
+    u8 lo = loReg + loAddend + regs.flags.c;
+    u8 hi = hiReg + hiAddend;
+
+    // Overflow low nibble to high nibble
+    if (lo >= 10) {
+        lo -= 10;
+        hi += 1;
+    }
+
+    // Overflow high nibble to carry flag
+    regs.flags.c = 0;
+    if (hi >= 10) {
+        hi -= 10;
+        regs.flags.c = 1;
+    }
+
+    // Store result
+    regs.a = constructU8(hi, lo);
+}
+
 void Processor::pushToStack8(u8 value) {
     // 1 cycle for writing value
     // 1 cycle for decrementing stack pointer
@@ -715,11 +749,17 @@ void Processor::executePlp(AddressingMode) {
 void Processor::executeAdc(AddressingMode mode) {
     const u8 srcRegA = regs.a;
     const u8 srcCarry = regs.flags.c;
-
     const u8 addend = readValue(mode, true);
-    sumWithCarry(addend);
+    const char *traceSuffix = "";
 
-    INSTRUCTION_TRACE("0x%02x+0x%02x+0x%x=0x%02x", srcRegA, addend, srcCarry, regs.a);
+    if (regs.flags.d) {
+        sumDecimal(addend);
+        traceSuffix = " (BCD)";
+    } else {
+        sumWithCarry(addend);
+    }
+
+    INSTRUCTION_TRACE("0x%02x+0x%02x+0x%x=0x%02x%s", srcRegA, addend, srcCarry, regs.a, traceSuffix);
 }
 
 void Processor::executeAnd(AddressingMode mode) {
@@ -804,14 +844,17 @@ void Processor::executeSty(AddressingMode mode) {
 void Processor::executeSbc(AddressingMode mode) {
     const u8 srcRegA = regs.a;
     const u8 srcCarry = regs.flags.c;
-
     const u8 value = readValue(mode, true);
-    sumWithCarry(~value);
 
-    INSTRUCTION_TRACE("0x%02x-0x%02x-(0x1-0%x)=0x%02x+0x%02x+0%x=0x%02x",
-                      srcRegA, value, srcCarry,
-                      srcRegA, (~value & 0xFF), srcCarry,
-                      regs.a);
+    if (regs.flags.d) {
+        FATAL_ERROR("Not implemented");
+    } else {
+        sumWithCarry(~value);
+        INSTRUCTION_TRACE("0x%02x-0x%02x-(0x1-0%x)=0x%02x+0x%02x+0%x=0x%02x",
+                          srcRegA, value, srcCarry,
+                          srcRegA, (~value & 0xFF), srcCarry,
+                          regs.a);
+    }
 }
 
 void Processor::executeJmp(AddressingMode mode) {
