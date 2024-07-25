@@ -15,7 +15,7 @@ int main() {
 #elif TEST_INDEX == 1
     // Decimal test
     const u32 binaryStartOffset = 0x0200;
-    const u32 binarySize = 234;
+    const u32 binarySize = 274;
     const u16 programStartAddress = 0x0200;
     const u16 programSuccessAddress = 0x024b; // not sure about that one
 #elif TEST_INDEX == 2

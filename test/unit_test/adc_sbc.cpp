@@ -308,6 +308,63 @@ TEST_P(AdcTest, givenAllSetBitInAccumulatorAndZeroInMemoryWhenCarryFlagSetThenCa
     runAdcSbcTest(params);
 }
 
+TEST_P(AdcTest, givenZeroPlusValueWhenExecutingDecimalAdcThenReturnValue) {
+    flags.expectDecimalFlag(true, true);
+
+    ParamsAdcSbcTests params{};
+    params.opcode = GetParam();
+    params.regA = 0b0011'0000;     // 30
+    params.memValue = 0b0000'0000; // 0
+    params.result = 0b0011'0000;   // 30
+    runAdcSbcTest(params);
+}
+
+TEST_P(AdcTest, givenNoOverflowingNibblesWhenExecutingDecimalAdcThenReturnValue) {
+    flags.expectDecimalFlag(true, true);
+
+    ParamsAdcSbcTests params{};
+    params.opcode = GetParam();
+    params.regA = 0b0011'0011;     // 33
+    params.memValue = 0b0100'0001; // 41
+    params.result = 0b0111'0100;   // 74
+    runAdcSbcTest(params);
+}
+
+TEST_P(AdcTest, givenNoOverflowingNibblesAndCarrySetWhenExecutingDecimalAdcThenReturnValue) {
+    flags.expectDecimalFlag(true, true);
+    flags.expectCarryFlag(true, false);
+
+    ParamsAdcSbcTests params{};
+    params.opcode = GetParam();
+    params.regA = 0b0011'0011;     // 33
+    params.memValue = 0b0100'0001; // 41
+    params.result = 0b0111'0101;   // 75
+    runAdcSbcTest(params);
+}
+
+TEST_P(AdcTest, givenLowNibbleOverflowingWhenExecutingDecimalAdcThenReturnValue) {
+    flags.expectDecimalFlag(true, true);
+
+    ParamsAdcSbcTests params{};
+    params.opcode = GetParam();
+    params.regA = 0b0011'0011;     // 33
+    params.memValue = 0b0100'1000; // 48
+    params.result = 0b1000'0001;   // 81
+    runAdcSbcTest(params);
+}
+
+TEST_P(AdcTest, givenHighNibbleOverflowingWhenExecutingDecimalAdcThenReturnValueAndSetCarryFlag) {
+    flags.expectDecimalFlag(true, true);
+    flags.expectCarryFlag(false, true);
+
+    ParamsAdcSbcTests params{};
+    params.opcode = GetParam();
+    params.regA = 0b0011'0011;     // 33
+    params.memValue = 0b0111'0011; // 73
+    params.result = 0b0000'0110;   // 6
+    runAdcSbcTest(params);
+}
+
 OpCode opcodesAdc[] = {OpCode::ADC_imm, OpCode::ADC_z, OpCode::ADC_zx, OpCode::ADC_abs, OpCode::ADC_absx, OpCode::ADC_absy, OpCode::ADC_ix, OpCode::ADC_iy};
 
 INSTANTIATE_TEST_SUITE_P(, AdcTest,

@@ -70,6 +70,7 @@ protected:
 
     // Helper functions for arithmetic operations
     void sumWithCarry(u8 addend);
+    void sumDecimal(u8 addend);
 
     // Helper functions for stack operations
     void pushToStack8(u8 value);

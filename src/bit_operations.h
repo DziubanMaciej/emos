@@ -46,3 +46,15 @@ constexpr u8 hi(u16 value) {
 constexpr u16 constructU16(u8 hi, u8 lo) {
     return (u16(hi) << 8) | lo;
 }
+
+constexpr u8 loNibble(u8 value) {
+    return value & 0x0F;
+}
+
+constexpr u8 hiNibble(u8 value) {
+    return (value & 0xF0) >> 4;
+}
+
+constexpr u8 constructU8(u8 hiNibble, u8 loNibble) {
+    return (u8(hiNibble) << 4) | loNibble;
+}
