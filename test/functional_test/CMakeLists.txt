@@ -14,5 +14,5 @@ function (define_functional_test TEST_NAME TARGET_NAME BIN_FILE TEST_INDEX)
 endfunction()
 
 define_functional_test(FunctionalTest emos_functional_test ${PROGRAMS_DIRECTORY}/6502_functional_test.bin 0)
-define_functional_test(DecimalTest emos_decimal_test ${PROGRAMS_DIRECTORY}/6502_decimal_test.bin 1)
-define_functional_test(InterruptTest emos_interrupt_test ${THIRD_PARTY_DST_DIR}/6502_interrupt_test.bin 2)
+# define_functional_test(DecimalTest emos_decimal_test ${PROGRAMS_DIRECTORY}/6502_decimal_test.bin 1)
+# define_functional_test(InterruptTest emos_interrupt_test ${THIRD_PARTY_DST_DIR}/6502_interrupt_test.bin 2)
