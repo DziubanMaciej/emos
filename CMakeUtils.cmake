@@ -32,6 +32,19 @@ function(target_find_sources_and_add TARGET_NAME)
     target_add_sources(${TARGET_NAME} ${SOURCE_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt)
 endfunction()
 
+function(define_test_runner_target TARGET_NAME)
+    set(RUNNER_TARGET_NAME "run_${TARGET_NAME}")
+    add_custom_target(${RUNNER_TARGET_NAME} DEPENDS ${TARGET_NAME})
+    add_custom_command(
+        TARGET ${RUNNER_TARGET_NAME}
+        POST_BUILD
+        WORKING_DIRECTORY $<TARGET_FILE_DIR:${TARGET_NAME}>
+        COMMAND echo Running ${TARGET_NAME} in $<TARGET_FILE_DIR:${TARGET_NAME}>
+        COMMAND ${TARGET_NAME} --gtest_filter=*
+    )
+    set_target_properties(${RUNNER_TARGET_NAME} PROPERTIES FOLDER tests/runners)
+endfunction()
+
 macro(add_subdirectories)
     if(UNIX)
         set(FORBIDDEN_DIR_NAMES "windows")
