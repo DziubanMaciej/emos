@@ -26,7 +26,7 @@ struct StxStyTest : testing::WithParamInterface<OpCode>, EmosTest {
     }
     ReferencedValue initializeProcessor(OpCode opcode, [[maybe_unused]] std::optional<u8>, std::optional<u8> loadToReg) {
         getReg(opcode) = loadToReg.value();
-        auto dummyValue = 0x07;
+        const u8 dummyValue = 0x07;
         switch (opcode) {
         case OpCode::STA_z:
         case OpCode::STX_z:

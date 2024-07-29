@@ -56,7 +56,7 @@ TEST_P(BranchTest, givenBackwardsBranchIsTakenThenUpdatePc) {
 
     setStartAddress(0xAA60);
     processor.memory[startAddress + 0] = static_cast<u8>(GetParam());
-    processor.memory[startAddress + 1] = -30;
+    processor.memory[startAddress + 1] = static_cast<u8>(-30);
 
     processor.executeInstructions(1);
 
