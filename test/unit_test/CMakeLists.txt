@@ -8,15 +8,6 @@ set_target_properties(emos_unit_tests PROPERTIES VS_DEBUGGER_COMMAND_ARGUMENTS "
 set_target_properties(emos_unit_tests PROPERTIES FOLDER tests)
 
 add_test(NAME UnitTests COMMAND emos_unit_tests)
-
-set(RUN_UNIT_TESTS_TARGET run_emos_unit_tests)
-add_custom_target(${RUN_UNIT_TESTS_TARGET} DEPENDS emos_unit_tests)
-add_custom_command(
-                    TARGET ${RUN_UNIT_TESTS_TARGET}
-                    POST_BUILD
-                    COMMAND echo Running emos_unit_tests in $<TARGET_FILE_DIR:emos_unit_tests>
-                    COMMAND WORKING_DIRECTORY $<TARGET_FILE_DIR:emos_unit_tests>
-                    COMMAND emos_unit_tests --gtest_filter=*
-                    )
+define_test_runner_target(emos_unit_tests)
 
 add_subdirectories()

@@ -12,6 +12,7 @@ function (define_functional_test TEST_NAME TARGET_NAME BIN_FILE TEST_INDEX)
     )
     add_test(NAME ${TEST_NAME} COMMAND ${TARGET_NAME})
     add_dependencies(${TARGET_NAME} compile_functional_tests)
+    define_test_runner_target(${TARGET_NAME})
 endfunction()
 
 define_functional_test(FunctionalTest emos_functional_test ${PROGRAMS_DIRECTORY}/6502_functional_test.bin 0)
