@@ -447,17 +447,18 @@ void Processor::updateFlagsAfterComparison(u8 registerValue, u8 inputValue) {
 }
 
 void Processor::sumWithCarry(u8 addend) {
-    const u16 sum = u16(regs.a) + u16(addend) + u16(regs.flags.c);
+    const u16 sum16 = u16(regs.a) + u16(addend) + u16(regs.flags.c);
+    const u8 sum8 = static_cast<u8>(sum16);
 
     // Set flags
     regs.flags.o =
         isSignBitSet(regs.a) == isSignBitSet(addend) && // We're adding values with the same sign
-        isSignBitSet(regs.a) != isSignBitSet(sum);      // The sign changed
-    regs.flags.c = (sum > std::numeric_limits<u8>::max());
-    updateArithmeticFlags(sum);
+        isSignBitSet(regs.a) != isSignBitSet(sum8);     // The sign changed
+    regs.flags.c = (sum16 > std::numeric_limits<u8>::max());
+    updateArithmeticFlags(sum8);
 
     // Store result
-    regs.a = static_cast<u8>(sum);
+    regs.a = sum8;
 }
 
 void Processor::sumDecimal(u8 addend) {
@@ -551,8 +552,8 @@ u16 Processor::popFromStack16() {
                       memory[address], address,
                       regs.sp);
 
-    const u16 lo = memory[address - 1];
-    const u16 hi = memory[address];
+    const u8 lo = memory[address - 1];
+    const u8 hi = memory[address];
     return constructU16(hi, lo);
 }
 
