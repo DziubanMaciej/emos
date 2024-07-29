@@ -47,16 +47,16 @@ endif()
 message(STATUS "as65 assembler is located in ${ASSEMBLER_BINARY}")
 
 
-
 # Setup program compilation
-add_custom_target(CompileFunctionalTests)
+add_custom_target(compile_functional_tests)
+set_target_properties(compile_functional_tests PROPERTIES FOLDER tests)
 set(COMPILATION_DIR "${CMAKE_CURRENT_BINARY_DIR}/programs")
 function (add_custom_command_copy_and_build_file FILE_NAME)
     get_filename_component(FILE_NAME_BUILT ${FILE_NAME} NAME_WE)
     set(FILE_NAME_BUILT ${FILE_NAME_BUILT}.bin)
 
     add_custom_command(
-        TARGET CompileFunctionalTests
+        TARGET compile_functional_tests
         POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/${FILE_NAME}" "${COMPILATION_DIR}/${FILE_NAME}"
         COMMAND ${ASSEMBLER_BINARY} -l -m -w -h0 ${COMPILATION_DIR}/${FILE_NAME}
